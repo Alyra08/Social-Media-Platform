@@ -24,8 +24,11 @@ ENCRYPTION_KEY=${crypto.randomBytes(32).toString("base64")}
 ANTHROPIC_API_KEY=
 # SBF_AI_MODEL=claude-opus-5-5
 
-# Database. Leave empty for the built-in local PostgreSQL (stored in .data/pg).
+# Database. Leave empty for the built-in local PostgreSQL.
 DATABASE_URL=
+# Local data folders (kept outside OneDrive/Dropbox so syncing can't lock the database)
+PGLITE_DIR=${(process.env.LOCALAPPDATA ?? process.env.HOME + "/.local/share").replace(/\\/g, "/")}/sbf-platform/pg
+UPLOAD_DIR=${(process.env.LOCALAPPDATA ?? process.env.HOME + "/.local/share").replace(/\\/g, "/")}/sbf-platform/uploads
 
 # URLs
 APP_URL=http://localhost:3000

@@ -1,26 +1,138 @@
 @import "tailwindcss";
 
+/* SBF design system — from the brand brief. Lights carry the page; brights arrive as fields,
+   stripes and big type; deeps do the working text. No green, no gradients, no grey text. */
+@theme {
+  --color-signal: #fd0019;
+  --color-hot: #ff006c;
+  --color-rose: #fea0ae;
+  --color-tangerine: #fb6526;
+  --color-blush: #ffecef;
+  --color-shell: #fff9fa;
+  --color-rosemist: #ffe0e3;
+  --color-candy: #ffe0ed;
+  --color-peach: #fee0d4;
+  --color-peachcream: #fff6f2;
+  --color-deepred: #c80014;
+  --color-charcoal: #4a4544;
+  --color-ink: #2a1a1d;
+
+  --font-serif: var(--font-cormorant), "Silk Serif", Georgia, serif;
+  --font-sans: var(--font-nunito), system-ui, sans-serif;
+  --font-poster: var(--font-anton), Impact, sans-serif;
+  --font-script: var(--font-delafield), cursive;
+  --font-label: var(--font-brolia), var(--font-nunito), sans-serif;
+
+  --radius-card: 22px;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html,
+  body {
+    background: var(--color-blush);
+    color: var(--color-charcoal);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    color: var(--color-signal);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  h1 { font-size: clamp(2rem, 3.2vw, 2.9rem); }
+  h2 { font-size: 1.7rem; }
+  h3 { font-size: 1.3rem; color: var(--color-ink); }
+  h1 em, h2 em, h3 em { color: var(--color-hot); font-style: italic; }
+  a { color: var(--color-deepred); }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .label {
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+  }
+  .card {
+    background: var(--color-shell);
+    border-radius: var(--radius-card);
+    padding: 1.4rem;
+  }
+  .card-tint { background: var(--color-peachcream); border-radius: var(--radius-card); padding: 1.4rem; }
+  /* Buttons: one solid Deep Red per view; everything else is an outline pill that fills on hover. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0 1.15rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--color-deepred);
+    color: var(--color-deepred);
+    background: transparent;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--color-deepred); color: #fff; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--color-deepred); color: #fff; }
+  .btn-sm { min-height: 36px; padding: 0 0.85rem; font-size: 13px; }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--color-rosemist);
+    color: var(--color-ink);
+  }
+  .pill-red { background: var(--color-deepred); color: #fff; }
+  .pill-ok { background: var(--color-peach); color: var(--color-ink); }
+  .pill-ink { background: var(--color-ink); color: #fff; }
+  .input,
+  .textarea,
+  .select {
+    width: 100%;
+    background: #fff;
+    border: 1.5px solid var(--color-rosemist);
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    min-height: 44px;
+    color: var(--color-ink);
+    font-size: 16px;
+  }
+  .textarea { border-radius: 18px; min-height: 110px; line-height: 1.5; }
+  .input:focus, .textarea:focus, .select:focus { outline: 2px solid var(--color-ink); border-color: transparent; }
+  .stripe { display: flex; height: 10px; }
+  .stripe > span { flex: 1; }
+  .poster {
+    font-family: var(--font-poster);
+    text-transform: uppercase;
+    color: var(--color-signal);
+    line-height: 0.95;
+  }
+  .poster-outline { color: transparent; -webkit-text-stroke: 1.5px var(--color-signal); }
+  .script { font-family: var(--font-script); color: var(--color-hot); }
+  .muted { color: var(--color-charcoal); opacity: 0.85; }
+  .kpi { font-family: var(--font-serif); font-weight: 300; font-size: 2.6rem; color: var(--color-signal); line-height: 1; }
 }

@@ -95,7 +95,7 @@ function wordmark(x: number, y: number, scale: number, logoHref?: string) {
   return `<g transform="translate(${x} ${y}) scale(${scale})">
     <text x="0" y="0" font-family="'Cormorant Garamond', serif" font-weight="300" font-size="34" fill="${colours.signal}">simply being</text>
     <text x="0" y="40" font-family="Anton, sans-serif" font-size="40" letter-spacing="6" fill="${colours.signal}">FEMALE</text>
-    <circle cx="41.5" cy="-27" r="5" fill="${colours.hot}"/>
+    <circle cx="16" cy="-25" r="4.5" fill="${colours.hot}"/>
   </g>`;
 }
 
@@ -116,9 +116,20 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   parts.push(`<rect width="${w}" height="${h}" fill="${canvas}"/>`);
 
   // Layout-specific bold block (generous space → bold block → space).
-  const headSize = Math.round((landscape ? h * 0.1 : w * 0.085) * p.headlineScale);
-  const maxChars = Math.max(10, Math.floor(((landscape ? w * 0.55 : w) - pad * 2) / (headSize * 0.48)));
-  const headLines = wrap(p.headline, maxChars).slice(0, 5);
+  let headSize = Math.round((landscape ? h * 0.1 : w * 0.085) * p.headlineScale);
+  const archH = h / w > 1.5 ? h * 0.38 : h * 0.3;
+  const headWidth = p.layout === "quote" ? w - pad * 3 : (landscape ? w * 0.55 : w) - pad * 2;
+  const linesFor = (size: number) => wrap(p.headline, Math.max(10, Math.floor(headWidth / (size * 0.47)))).slice(0, 5);
+  let headLines = linesFor(headSize);
+
+  // Reserve the logo zone (with clear space) so no block ever overlaps it.
+  const logoScale = Math.max(0.6, Math.min(2, p.logoScale)) * (Math.min(w, h) / 1080) * 1.6;
+  const stripeH = motifs.includes("stripe") || p.layout === "stripe" ? Math.round(h * 0.03) : 0;
+  const logoY = h - pad - 40 * logoScale - (motifs.includes("stripe") ? stripeH : 0);
+  const fieldBottom = p.layout === "poster" ? (landscape ? h : h * 0.78) : 0;
+  const quoteBottom = p.layout === "quote" ? h * 0.78 : 0;
+  const limit = fieldBottom ? fieldBottom - pad * 0.5 : quoteBottom ? quoteBottom - pad * 0.4 : logoY - 40 * logoScale - pad * 0.6;
+  const fits = (endY: number) => endY <= limit;
   let headlineFill: string = lead;
   let headlineOnBright = false;
 
@@ -130,10 +141,11 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
     headlineFill = "#FFFFFF";
     headlineOnBright = true;
   } else if (p.layout === "arch") {
-    const aw = landscape ? h * 0.75 : w * 0.62;
+    const tall = h / w > 1.5;
+    const aw = landscape ? h * 0.75 : w * (tall ? 0.62 : 0.42);
     const ax = landscape ? w - aw - pad : (w - aw) / 2;
     const ay = landscape ? pad : pad * 1.6;
-    const ah = landscape ? h - pad * 2 : h * 0.42;
+    const ah = landscape ? h - pad * 2 : archH;
     parts.push(
       `<path d="M${ax} ${ay + ah} V${ay + aw / 2} A${aw / 2} ${aw / 2} 0 0 1 ${ax + aw} ${ay + aw / 2} V${ay + ah} Z" fill="${p.imageUrl ? colours.roseMist : colours.rose}"/>`,
     );
@@ -153,17 +165,24 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
 
   // Headline block.
   let hx = pad;
-  let hy: number;
   let anchor = "start";
-  if (p.layout === "poster") hy = landscape ? pad + headSize : h * 0.2 + pad + headSize;
-  else if (p.layout === "arch") {
-    hy = landscape ? pad + headSize * 1.2 : h * 0.42 + pad * 2.6 + headSize * 0.4;
-    if (!landscape) {
-      hx = w / 2;
-      anchor = "middle";
-    }
-  } else if (p.layout === "quote") hy = h * 0.22 + pad + headSize;
-  else hy = landscape ? h * 0.3 : h * 0.3 + headSize;
+  if (p.layout === "arch" && !landscape) {
+    hx = w / 2;
+    anchor = "middle";
+  }
+  const hyFor = (size: number) => {
+    if (p.layout === "poster") return landscape ? pad + size : h * 0.2 + pad + size;
+    if (p.layout === "arch") return landscape ? pad + size * 1.2 : pad * 1.6 + archH + pad + size;
+    if (p.layout === "quote") return h * 0.22 + pad + size;
+    return landscape ? pad * 2.2 + size * 0.6 : h * 0.3 + size;
+  };
+  let hy = hyFor(headSize);
+  // Shrink the headline until it fits above the logo zone (readability over size).
+  for (let i = 0; i < 8 && !fits(hy + headSize * 1.12 * (headLines.length - 1) + headSize * 0.3); i++) {
+    headSize = Math.round(headSize * 0.9);
+    headLines = linesFor(headSize);
+    hy = hyFor(headSize);
+  }
 
   const headTspans = headLines
     .map((line, i) => `<tspan x="${hx}" dy="${i === 0 ? 0 : headSize * 1.12}">${headlineOnBright ? esc(line) : headlineTspans(line, p.emphasis, headlineFill, accent)}</tspan>`)
@@ -172,37 +191,47 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   parts.push(
     `<text x="${hx}" y="${hy}" text-anchor="${anchor}" font-family="'Silk Serif', 'Cormorant Garamond', serif" font-weight="300" font-size="${headSize}" fill="${headlineFill}"${italicOnBright}>${headTspans}</text>`,
   );
-  let cursor = hy + headSize * 1.12 * (headLines.length - 1) + headSize * 0.9;
+  let cursor = hy + headSize * 1.12 * (headLines.length - 1) + headSize * 0.35;
 
   // Script accent: one handwritten word at most.
   if (p.script && density >= 0.7) {
     const sSize = Math.round(headSize * 1.1);
-    parts.push(
-      `<text x="${hx}" y="${cursor + sSize * 0.6}" text-anchor="${anchor}" font-family="'Mrs Saint Delafield', cursive" font-size="${sSize}" fill="${headlineOnBright ? "#FFFFFF" : colours.hot}">${esc(p.script.split(/\s+/)[0])}</text>`,
-    );
-    cursor += sSize * 0.9;
+    if (fits(cursor + sSize * 0.9)) {
+      parts.push(
+        `<text x="${hx}" y="${cursor + sSize * 0.75}" text-anchor="${anchor}" font-family="'Mrs Saint Delafield', cursive" font-size="${sSize}" fill="${headlineOnBright ? "#FFFFFF" : colours.hot}">${esc(p.script.split(/\s+/)[0])}</text>`,
+      );
+      cursor += sSize * 0.95;
+    }
   }
 
   // Poster statement in Anton: solid line + outlined line beneath (on the light canvas).
   if (p.poster && p.layout !== "poster" && density >= 0.8) {
-    const ps = Math.round((landscape ? h : w) * 0.075);
+    const ps = Math.round((landscape ? h : w) * 0.07);
     const words = p.poster.toUpperCase().split(/\s+/);
     const half = Math.ceil(words.length / 2);
     const [l1, l2] = [words.slice(0, half).join(" "), words.slice(half).join(" ")];
-    const py = Math.min(cursor + ps * 1.2, h - pad * 2.6 - ps);
-    parts.push(`<text x="${hx}" y="${py}" text-anchor="${anchor}" font-family="Anton, sans-serif" font-size="${ps}" fill="${colours.signal}" letter-spacing="1">${esc(l1)}</text>`);
-    if (l2) parts.push(`<text x="${hx}" y="${py + ps * 1.05}" text-anchor="${anchor}" font-family="Anton, sans-serif" font-size="${ps}" fill="none" stroke="${colours.signal}" stroke-width="2" letter-spacing="1">${esc(l2)}</text>`);
-    cursor = py + ps * 2;
+    const py = cursor + ps * 1.25;
+    const end = py + (l2 ? ps * 1.05 : 0) + ps * 0.25;
+    if (fits(end)) {
+      parts.push(`<text x="${hx}" y="${py}" text-anchor="${anchor}" font-family="Anton, sans-serif" font-size="${ps}" fill="${colours.signal}" letter-spacing="1">${esc(l1)}</text>`);
+      if (l2) parts.push(`<text x="${hx}" y="${py + ps * 1.05}" text-anchor="${anchor}" font-family="Anton, sans-serif" font-size="${ps}" fill="none" stroke="${colours.signal}" stroke-width="2" letter-spacing="1">${esc(l2)}</text>`);
+      cursor = end;
+    }
   }
 
   // Body copy in Charcoal on lights only.
   if (p.body && density >= 0.9 && p.layout !== "poster") {
     const bs = Math.round(Math.min(w, h) * 0.032);
-    const lines = wrap(p.body, Math.floor((w - pad * 2) / (bs * 0.5))).slice(0, Math.round(3 * density));
-    const by = Math.min(cursor + bs * 1.5, h - pad * 2.4 - lines.length * bs * 1.4);
-    parts.push(
-      `<text x="${hx}" y="${by}" text-anchor="${anchor}" font-family="'Nunito Sans', sans-serif" font-size="${bs}" fill="${colours.charcoal}">${lines.map((l, i) => `<tspan x="${hx}" dy="${i === 0 ? 0 : bs * 1.4}">${esc(l)}</tspan>`).join("")}</text>`,
-    );
+    const all = wrap(p.body, Math.floor(headWidth / (bs * 0.56)));
+    let lines = all.slice(0, Math.round(3 * density));
+    const by = cursor + bs * 1.8;
+    while (lines.length && !fits(by + (lines.length - 1) * bs * 1.4 + bs * 0.4)) lines = lines.slice(0, -1);
+    if (lines.length && lines.length < all.length) lines[lines.length - 1] = lines[lines.length - 1].replace(/[\s,.;:]*$/, "…");
+    if (lines.length) {
+      parts.push(
+        `<text x="${hx}" y="${by}" text-anchor="${anchor}" font-family="'Nunito Sans', sans-serif" font-size="${bs}" fill="${colours.charcoal}">${lines.map((l, i) => `<tspan x="${hx}" dy="${i === 0 ? 0 : bs * 1.4}">${esc(l)}</tspan>`).join("")}</text>`,
+      );
+    }
   }
 
   // Small label: always white on a Deep Red pill, never directly on a bright.
@@ -223,11 +252,8 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   }
 
   // Logo on the light canvas, with clear space (never on the bright field or busy photos).
-  const logoScale = Math.max(0.6, Math.min(2, p.logoScale)) * (Math.min(w, h) / 1080) * 1.6;
-  const logoOnField = p.layout === "poster" && landscape;
-  const lx = logoOnField ? w * 0.66 : pad;
-  const ly = h - pad - 40 * logoScale - (motifs.includes("stripe") ? h * 0.03 : 0);
-  parts.push(wordmark(lx, ly, logoScale, logoHref));
+  const lx = p.layout === "poster" && landscape ? w * 0.66 : pad;
+  parts.push(wordmark(lx, logoY, logoScale, logoHref));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img"><style>@import url('https://fonts.googleapis.com/css2?family=Anton&amp;family=Cormorant+Garamond:ital,wght@0,300;1,300&amp;family=Mrs+Saint+Delafield&amp;family=Nunito+Sans:wght@400;800&amp;display=swap');</style>${parts.join("")}</svg>`;
 }

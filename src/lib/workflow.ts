@@ -32,6 +32,7 @@ export async function decideStory(
   storyId: string,
   decision: "approve" | "deny" | "save" | "more_research",
   feedback?: string,
+  opts: { background?: boolean } = {},
 ) {
   const story = await db.query.stories.findFirst({ where: eq(stories.id, storyId) });
   if (!story) throw new WorkflowError("Story not found.");
@@ -59,7 +60,13 @@ export async function decideStory(
   if (decision === "approve") {
     await markTopicCovered(db, story.topicKey);
     // Brief + content generation are triggered by approval (event trigger).
-    await onStoryApproved(db, storyId);
+    if (opts.background) {
+      onStoryApproved(db, storyId).catch((e) =>
+        notify(db, "system", "Brief generation failed", e instanceof Error ? e.message : String(e), "/automation"),
+      );
+    } else {
+      await onStoryApproved(db, storyId);
+    }
   }
   if (decision === "more_research") {
     runResearch(db, "more_research", `${story.headline}\n${story.overview}\nSource: ${story.sourceUrl}`).catch(() => {});
@@ -122,6 +129,11 @@ export async function generateContentForStory(db: Db, storyId: string, briefId: 
       })
       .returning();
     await snapshot(db, row, null, "Generated");
+    // Provisional slot so every draft is visible in the planner. Only "scheduled" posts ever publish.
+    if (!["newsletter", "community"].includes(row.platform)) {
+      const rec = await recommendTime(db, { platform: row.platform, category: row.category, storyId, postId: row.id });
+      await db.update(posts).set({ scheduledAt: rec.at, scheduleReason: rec.reason }).where(eq(posts.id, row.id));
+    }
   }
   await logActivity(db, "content:generate", "ok", `${generated.length} drafts`);
   await notify(db, "content_awaiting", `${generated.length} social drafts awaiting approval`, story.headline, "/content");
@@ -164,7 +176,7 @@ export async function editPost(db: Db, actor: Actor, postId: string, edit: PostE
       brandIssues: issues,
       version: substantive ? p.version + 1 : p.version,
       updatedAt: new Date(),
-      ...(reset ? { status: "awaiting_content", approvedContentHash: null, contentApprovedAt: null, contentApprovedBy: null, scheduledAt: null } : {}),
+      ...(reset ? { status: "awaiting_content", approvedContentHash: null, contentApprovedAt: null, contentApprovedBy: null, idempotencyKey: null } : {}),
     })
     .where(eq(posts.id, postId))
     .returning();
@@ -313,7 +325,9 @@ export async function decideDesign(db: Db, actor: Actor, designId: string, decis
     if (p.approvedContentHash !== contentHash(p)) throw new WorkflowError("Content changed after approval. Re-approve the content first.");
     await db.update(designs).set({ status: "approved", feedback: feedback ?? null }).where(eq(designs.id, designId));
     await db.update(designs).set({ status: "superseded" }).where(and(eq(designs.postId, p.id), ne(designs.id, designId), inArray(designs.status, ["proposed", "changes_requested"])));
-    const rec = await recommendTime(db, { platform: p.platform, category: p.category, storyId: p.storyId, postId: p.id });
+    const rec = p.scheduledAt && p.scheduledAt.getTime() > Date.now() + 15 * 60_000 && p.scheduleReason
+      ? { at: p.scheduledAt, reason: p.scheduleReason }
+      : await recommendTime(db, { platform: p.platform, category: p.category, storyId: p.storyId, postId: p.id });
     await db
       .update(posts)
       .set({ status: "approved_for_publishing", approvedDesignId: designId, designApprovedBy: actor.id ?? null, designApprovedAt: new Date(), scheduledAt: rec.at, scheduleReason: rec.reason, updatedAt: new Date() })

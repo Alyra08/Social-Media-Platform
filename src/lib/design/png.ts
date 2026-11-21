@@ -5,7 +5,11 @@ import type { Db } from "@/db/client";
 import { designs } from "@/db/schema";
 import { readStored } from "../files";
 
-/** Font files used when rasterising designs (place TTF/OTF files in ./fonts). */
+/**
+ * Font files used when rasterising designs. ./fonts holds the open-licence Google Fonts
+ * (Anton, Cormorant Garamond, Nunito Sans, Mrs Saint Delafield; OFL) plus Brolia. Add the
+ * licensed Silk Serif ExtraLight file here to replace the Cormorant fallback.
+ */
 function fontFiles(): string[] {
   const dirs = [path.join(process.cwd(), "fonts"), path.join(process.cwd(), "src", "app")];
   return dirs.flatMap((d) => (fs.existsSync(d) ? fs.readdirSync(d).filter((f) => /\.(ttf|otf)$/i.test(f)).map((f) => path.join(d, f)) : []));

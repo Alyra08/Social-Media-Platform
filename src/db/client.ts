@@ -22,7 +22,11 @@ export async function createDb(opts: {
   }
   const { PGlite } = await import("@electric-sql/pglite");
   const dir = opts.dataDir && opts.dataDir !== "memory://" ? opts.dataDir : undefined;
-  if (dir) fs.mkdirSync(dir, { recursive: true });
+  if (dir) {
+    fs.mkdirSync(dir, { recursive: true });
+    // PGlite runs in-process; a postmaster.pid left by a killed dev server is always stale.
+    fs.rmSync(`${dir}/postmaster.pid`, { force: true });
+  }
   const client = dir ? new PGlite(dir) : new PGlite();
   const db = drizzlePglite(client, { schema });
   await migratePglite(db, { migrationsFolder: opts.migrationsFolder });

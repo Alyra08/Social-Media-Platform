@@ -69,7 +69,8 @@ export async function baseParams(db: Db, post: PostLike, variant: number): Promi
     canvas: t.canvas!,
     headline,
     emphasis: pickEmphasis(headline),
-    poster: post.treatment === "humorous" || variant === 2 ? post.taglines[0]?.replace(/[.?]$/, "").split(" ").slice(0, 4).join(" ") : undefined,
+    // One complete short statement (never a phrase cut mid-sentence).
+    poster: post.treatment === "humorous" || variant === 2 ? post.taglines.map((t) => t.replace(/[.?…]$/, "").trim()).find((t) => t.split(/\s+/).length <= 5 && !/[,;:]/.test(t)) : undefined,
     script: post.treatment === "inspirational" ? "together." : undefined,
     body: post.platform === "pinterest" || post.format === "carousel" ? post.caption.split(/(?<=[.?])\s/)[0] : undefined,
     label: post.format === "carousel" ? "Swipe" : post.platform === "community" ? "Say it out loud" : undefined,
@@ -198,6 +199,17 @@ export async function regenerateDesign(db: Db, designId: string) {
     status: "proposed",
     parentId: d.id,
   });
+}
+
+/** Re-render unapproved generated designs with the current engine (approved artwork is never changed). */
+export async function rerenderProposedDesigns(db: Db) {
+  const rows = await db.select().from(designs).where(and(eq(designs.status, "proposed"), eq(designs.source, "ai")));
+  const href = await logoHref(db);
+  for (const d of rows) {
+    if (!d.params) continue;
+    await db.update(designs).set({ svg: renderDesignSvg({ format: d.format, params: d.params, logoHref: href }) }).where(eq(designs.id, d.id));
+  }
+  return rows.length;
 }
 
 export async function liveDesignsForPost(db: Db, postId: string) {

@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray, lte, ne } from "drizzle-orm";
+import { and, eq, gte, lte, ne, notInArray } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { postMetrics, posts } from "@/db/schema";
 import { getSetting } from "./system";
@@ -70,7 +70,14 @@ export async function recommendTime(
   const booked = await db
     .select({ id: posts.id, scheduledAt: posts.scheduledAt, platform: posts.platform, category: posts.category, storyId: posts.storyId })
     .from(posts)
-    .where(and(inArray(posts.status, ["scheduled", "published"]), gte(posts.scheduledAt, new Date(start.getTime() - 7 * 86400_000)), lte(posts.scheduledAt, horizon), opts.postId ? ne(posts.id, opts.postId) : undefined));
+    .where(
+      and(
+        notInArray(posts.status, ["denied", "archived", "saved"]),
+        gte(posts.scheduledAt, new Date(start.getTime() - 7 * 86400_000)),
+        lte(posts.scheduledAt, horizon),
+        opts.postId ? ne(posts.id, opts.postId) : undefined,
+      ),
+    );
 
   const learned = await learnedSlots(db, opts.platform);
   const base = BASELINE[opts.platform] ?? BASELINE.instagram;

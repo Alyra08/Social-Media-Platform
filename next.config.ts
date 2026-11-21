@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Dashboard data is per-request and approval-sensitive, so pages render dynamically.
   cacheComponents: false,
-  serverExternalPackages: ["@electric-sql/pglite", "pg", "node-cron"],
+  serverExternalPackages: ["@electric-sql/pglite", "pg", "node-cron", "@resvg/resvg-js"],
   experimental: {
     serverActions: { bodySizeLimit: "25mb" },
   },
