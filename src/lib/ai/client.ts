@@ -12,11 +12,17 @@ export const DEFAULT_MODEL = "claude-opus-5-5";
 const FALLBACK_BETA = "server-side-fallback-2026-07-01";
 
 let client: Anthropic | null = null;
+let clientKey: string | undefined;
 export function aiEnabled(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
 }
 export function getClient(): Anthropic {
-  if (!client) client = new Anthropic({ maxRetries: 3, timeout: 10 * 60 * 1000 });
+  // Rebuilt when the key changes (keys can be added or replaced in Settings without a restart).
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!client || clientKey !== key) {
+    client = new Anthropic({ maxRetries: 3, timeout: 10 * 60 * 1000 });
+    clientKey = key;
+  }
   return client;
 }
 export const model = () => process.env.SBF_AI_MODEL || DEFAULT_MODEL;

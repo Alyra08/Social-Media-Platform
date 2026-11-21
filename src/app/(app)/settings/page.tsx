@@ -9,6 +9,8 @@ import { CATEGORY_LABELS } from "@/lib/brand/brief";
 import { formatBrisbane } from "@/lib/scheduling";
 import { aiEnabled, model } from "@/lib/ai/client";
 import { addTeamMember, changeOwnPassword, runJobNow, saveSettings, updateTeamMember } from "../actions";
+import { saveKeyAction } from "../keys-actions";
+import { KEY_GROUPS, keyStatuses } from "@/lib/keys";
 
 const NOTIFY: Record<string, string> = {
   research_ready: "New daily research is ready",
@@ -29,6 +31,7 @@ export default async function SettingsPage() {
   const db = await getDb();
   const s = await getAllSettings(db);
   const me = await requireUser();
+  const keys = me.role === "owner" ? await keyStatuses(db) : [];
   const [activity, audits, locks, team] = await Promise.all([
     db.select().from(activityLog).orderBy(desc(activityLog.createdAt)).limit(80),
     db.select().from(auditLog).orderBy(desc(auditLog.createdAt)).limit(60),
@@ -44,7 +47,7 @@ export default async function SettingsPage() {
         <section className="card grid gap-4 md:grid-cols-2">
           <div>
             <p className="label text-deepred">AI</p>
-            <p className="mt-1 text-[15px]">{aiEnabled() ? `Live. Model: ${model()} with web search and refusal fallbacks.` : "Demo mode. Add ANTHROPIC_API_KEY to .env.local and restart."}</p>
+            <p className="mt-1 text-[15px]">{aiEnabled() ? `Live. Model: ${model()} with web search and refusal fallbacks.` : "Demo mode. Add the Anthropic API key under Keys and connections below."}</p>
           </div>
           <label className="flex items-center gap-3 text-[15px]">
             <input type="checkbox" name="automationEnabled" defaultChecked={s.automationEnabled} className="h-5 w-5 accent-deepred" />
@@ -104,6 +107,69 @@ export default async function SettingsPage() {
 
         <button className="btn btn-primary">Save settings</button>
       </form>
+
+      {me.role === "owner" && (
+        <section id="keys" aria-labelledby="keys-h">
+          <h2 id="keys-h" className="mb-2">
+            Keys and connections.
+          </h2>
+          <p className="mb-4 text-[15px]">
+            Add these whenever you&apos;re ready. Each one switches on as soon as you save it, with no restart. Keys are encrypted before they&apos;re stored, only the last four characters are ever shown, and every change is recorded in the audit log. A key saved here is used instead of the same key in <code>.env.local</code>.
+          </p>
+          <div className="space-y-5">
+            {KEY_GROUPS.map((g) => {
+              const items = keys.filter((k) => k.group === g.id);
+              const on = items.filter((k) => k.source !== "none").length;
+              return (
+                <details key={g.id} className="card" open={g.id === "ai" && on === 0}>
+                  <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2">
+                    <span className="font-serif text-2xl font-light text-signal">{g.title}</span>
+                    <span className={on === items.length ? "pill-ok pill" : on ? "pill" : "pill"}>
+                      {on === items.length ? "All added" : on ? `${on} of ${items.length} added` : "Not added yet"}
+                    </span>
+                  </summary>
+                  <p className="mt-2 text-[15px]">{g.intro}</p>
+                  <ul className="mt-3 divide-y divide-rosemist">
+                    {items.map((k) => (
+                      <li key={k.name} className="py-3">
+                        <form action={saveKeyAction} className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_auto] md:items-center">
+                          <input type="hidden" name="name" value={k.name} />
+                          <div className="text-[15px]">
+                            <label htmlFor={`key-${k.name}`} className="font-bold text-ink">
+                              {k.label}
+                            </label>
+                            <p className="text-sm">
+                              {k.source === "app" ? `Added here: ${k.display}` : k.source === "env" ? `From .env.local: ${k.display}` : "Not added"}
+                              {k.help ? ` · ${k.help}` : ""}
+                            </p>
+                          </div>
+                          <input
+                            id={`key-${k.name}`}
+                            name="value"
+                            type={k.secret ? "password" : "text"}
+                            autoComplete="off"
+                            spellCheck={false}
+                            className="input"
+                            placeholder={k.source === "none" ? (k.placeholder ?? "Paste it here") : "Paste a new value to replace it"}
+                          />
+                          <div className="flex gap-2">
+                            <button className="btn btn-sm">Save</button>
+                            {k.source === "app" && (
+                              <button name="remove" value="1" formNoValidate className="btn btn-sm">
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </form>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section>
         <h2 className="mb-3">Team and access.</h2>

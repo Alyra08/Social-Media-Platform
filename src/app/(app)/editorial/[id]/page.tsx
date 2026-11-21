@@ -4,8 +4,6 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { articles, briefs, posts, stories } from "@/db/schema";
 import { DemoBadge, PageHeader, StatusPill, PLATFORM_LABEL } from "@/components/ui";
-import { saveArticle } from "../../actions";
-import { ARTICLE_STATUSES } from "@/lib/constants";
 
 function List({ title, items }: { title: string; items: string[] }) {
   if (!items?.length) return null;
@@ -173,38 +171,16 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {article && (
-        <section className="mt-8" aria-label="Writing area">
-          <h2 className="mb-4">Write the article.</h2>
-          <form action={saveArticle} className="card space-y-4">
-            <input type="hidden" name="id" value={article.id} />
-            <div>
-              <label className="label mb-1 block text-deepred" htmlFor="title">
-                Title
-              </label>
-              <input id="title" name="title" defaultValue={article.title} className="input" />
-            </div>
-            <div>
-              <label className="label mb-1 block text-deepred" htmlFor="body">
-                Article
-              </label>
-              <textarea id="body" name="body" defaultValue={article.body} className="textarea min-h-[480px] font-[inherit]" placeholder="Start with the oddly specific detail. Confess first." />
-            </div>
-            <div className="flex flex-wrap items-end gap-3">
-              <div>
-                <label className="label mb-1 block text-deepred" htmlFor="status">
-                  Status
-                </label>
-                <select id="status" name="status" defaultValue={article.status} className="select">
-                  {Object.entries(ARTICLE_STATUSES).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button className="btn btn-primary">Save article</button>
-            </div>
-          </form>
+        <section className="card-tint mt-8 flex flex-wrap items-center justify-between gap-3" aria-label="Writing area">
+          <div>
+            <h2>Write the article.</h2>
+            <p className="mt-1 text-[15px]">
+              {article.body.trim() ? `${article.body.split(/s+/).filter(Boolean).length} words so far. ` : ""}Write, brand-check, preview and publish it to the website in one place.
+            </p>
+          </div>
+          <Link href={`/website/articles/${article.id}`} className="btn btn-primary">
+            {article.body.trim() ? "Continue writing" : "Start writing"}
+          </Link>
         </section>
       )}
     </div>

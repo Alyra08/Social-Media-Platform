@@ -4,7 +4,8 @@ export const ARTICLE_STATUSES: Record<string, string> = {
   brief_approved: "Brief approved",
   drafting: "Drafting",
   editing: "Editing",
-  ready: "Ready for publication",
+  ready: "Ready for approval",
+  approved: "Approved for the website",
   published: "Published",
   archived: "Archived",
 };

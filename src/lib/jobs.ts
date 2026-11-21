@@ -8,6 +8,7 @@ import { generateReport, syncMetrics } from "./analytics";
 import { runCompetitorReport } from "./competitors";
 import { refreshExpiringTokens } from "./integrations/registry";
 import { runMaintenance } from "./maintenance";
+import { runNewsletterJob } from "./newsletter";
 import { getSetting, logActivity, notify } from "./system";
 
 /**
@@ -27,7 +28,8 @@ export type JobName =
   | "report:monthly"
   | "report:quarterly"
   | "competitors:weekly"
-  | "maintenance:daily";
+  | "maintenance:daily"
+  | "newsletter:send";
 
 export const JOBS: Record<JobName, { cron: string; description: string; run: (db: Db) => Promise<unknown> }> = {
   "research:daily": { cron: "0 6 * * *", description: "Daily research sweep at 6:00 am Brisbane", run: (db) => runResearch(db, "daily") },
@@ -42,6 +44,7 @@ export const JOBS: Record<JobName, { cron: string; description: string; run: (db
   "report:quarterly": { cron: "0 7 1 1,4,7,10 *", description: "Quarterly performance review", run: (db) => generateReport(db, "quarterly") },
   "competitors:weekly": { cron: "0 7 * * 1", description: "Weekly competitor intelligence", run: runCompetitorReport },
   "maintenance:daily": { cron: "30 2 * * *", description: "Data retention clean-up and local database backup", run: runMaintenance },
+  "newsletter:send": { cron: "*/5 * * * *", description: "Send newsletter confirmations and queued Sunday notes", run: runNewsletterJob },
 };
 
 export async function runJob(db: Db, name: JobName, opts: { force?: boolean } = {}) {

@@ -5,6 +5,8 @@ import { designs, posts } from "@/db/schema";
 import { DemoBadge, Empty, PageHeader, StatusPill, PLATFORM_LABEL } from "@/components/ui";
 import { DESIGN_FORMATS } from "@/lib/design/render";
 import { designDecision, editDesign, uploadDesign } from "../actions";
+import { importFromCanvaAction, openInCanvaAction } from "../keys-actions";
+import { canvaStatus } from "@/lib/canva";
 
 export default async function DesignPage({ searchParams }: { searchParams: Promise<{ post?: string; show?: string }> }) {
   const { post: onlyPost, show } = await searchParams;
@@ -23,6 +25,14 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
         .orderBy(designs.format, designs.variant, desc(designs.createdAt))
     : [];
   const templates = await db.select().from(designs).where(eq(designs.isTemplate, true)).orderBy(desc(designs.createdAt)).limit(12);
+  const canva = await canvaStatus(db);
+  const inCanva = waiting.length
+    ? await db
+        .select()
+        .from(designs)
+        .where(and(inArray(designs.postId, waiting.map((w) => w.id)), eq(designs.status, "in_canva")))
+        .orderBy(desc(designs.createdAt))
+    : [];
 
   return (
     <div>
@@ -42,6 +52,7 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
       ) : (
         waiting.map((p) => {
           const mine = ds.filter((d) => d.postId === p.id);
+          const mineInCanva = inCanva.filter((d) => d.postId === p.id);
           return (
             <section key={p.id} className="mb-12" aria-labelledby={`h-${p.id}`}>
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -57,6 +68,28 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                 <StatusPill status={p.status} />
               </div>
 
+              {mineInCanva.length > 0 && p.status === "awaiting_design" && (
+                <ul className="mb-4 space-y-2">
+                  {mineInCanva.map((d) => (
+                    <li key={d.id} className="card-tint flex flex-wrap items-center justify-between gap-3">
+                      <span className="text-[15px]">
+                        <strong className="text-ink">Being edited in Canva</strong> · {DESIGN_FORMATS[d.format]?.label ?? d.format}. When it&apos;s ready, bring it back here for approval.
+                      </span>
+                      <span className="flex flex-wrap gap-2">
+                        {d.canvaEditUrl && (
+                          <a href={d.canvaEditUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
+                            Open in Canva ↗
+                          </a>
+                        )}
+                        <form action={importFromCanvaAction}>
+                          <input type="hidden" name="designId" value={d.id} />
+                          <button className="btn btn-primary btn-sm">Bring it back for approval</button>
+                        </form>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
                 {mine.map((d) => (
                   <article key={d.id} className="card flex flex-col">
@@ -75,8 +108,16 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                       )}
                     </div>
                     {d.feedback && <p className="mt-2 text-sm">Feedback: “{d.feedback}”</p>}
-                    <p className="mt-2 text-sm">
+                    <p className="mt-2 flex flex-wrap gap-x-4 text-sm">
                       <a href={`/api/designs/${d.id}/image?download=1`}>Download PNG</a>
+                      {canva.connected && d.status !== "approved" && p.status === "awaiting_design" && (
+                        <form action={openInCanvaAction} className="inline">
+                          <input type="hidden" name="postId" value={p.id} />
+                          <input type="hidden" name="designId" value={d.id} />
+                          {d.source === "canva" && d.canvaEditUrl && <input type="hidden" name="reopen" value="1" />}
+                          <button className="font-bold text-deepred underline">{d.source === "canva" ? "Back to Canva for changes" : "Edit a copy in Canva"}</button>
+                        </form>
+                      )}
                     </p>
 
                     {d.status !== "approved" && p.status === "awaiting_design" && (
@@ -188,6 +229,18 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                       <input type="checkbox" name="template" value="1" className="accent-deepred" /> Also save as a reusable template
                     </label>
                     <button className="btn btn-sm">Upload</button>
+                    {canva.connected ? (
+                      <div className="border-t border-rosemist pt-3">
+                        <p className="mb-2 text-sm">Or start from scratch in Canva at the right size:</p>
+                        <button formAction={openInCanvaAction} formNoValidate className="btn btn-sm">
+                          New blank design in Canva
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-sm">
+                        Prefer Canva? <a href="/integrations#canva">Connect Canva</a> to edit designs there and bring them back here.
+                      </p>
+                    )}
                   </form>
                 )}
               </div>

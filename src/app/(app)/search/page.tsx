@@ -59,7 +59,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           <ul className="card divide-y divide-rosemist">
             {ar.map((a) => (
               <li key={a.id} className="py-2">
-                <Link href={a.briefId ? `/editorial/${a.briefId}` : "/editorial"}>{a.title}</Link>
+                <Link href={`/website/articles/${a.id}`}>{a.title}</Link>
               </li>
             ))}
           </ul>

@@ -36,22 +36,22 @@ export async function saveUpload(file: File): Promise<{ relPath: string; mime: s
   if (mime === "image/png" && buf.subarray(0, 4).toString("hex") !== "89504e47") throw new Error("File isn't a valid PNG.");
   if (mime === "image/jpeg" && buf.subarray(0, 2).toString("hex") !== "ffd8") throw new Error("File isn't a valid JPEG.");
   if (mime === "image/svg+xml" && /<script|on\w+=/i.test(buf.toString("utf8"))) throw new Error("SVG files with scripts aren't allowed.");
-  const rel = path.join(new Date().toISOString().slice(0, 7), `${crypto.randomUUID()}${ext}`);
-  const abs = path.join(ROOT(), rel);
+  const rel = path.join(/* turbopackIgnore: true */ new Date().toISOString().slice(0, 7), `${crypto.randomUUID()}${ext}`);
+  const abs = path.join(/* turbopackIgnore: true */ ROOT(), rel);
   fs.mkdirSync(path.dirname(abs), { recursive: true });
   fs.writeFileSync(abs, buf);
   return { relPath: rel.replace(/\\/g, "/"), mime, size: buf.length };
 }
 
 export function writeBytes(rel: string, buf: Buffer) {
-  const abs = path.join(ROOT(), rel);
+  const abs = path.join(/* turbopackIgnore: true */ ROOT(), rel);
   fs.mkdirSync(path.dirname(abs), { recursive: true });
   fs.writeFileSync(abs, buf);
 }
 
 export function readStored(rel: string): Buffer {
-  const abs = path.resolve(ROOT(), rel);
-  if (!abs.startsWith(path.resolve(ROOT()))) throw new Error("Invalid path");
+  const abs = path.resolve(/* turbopackIgnore: true */ ROOT(), rel);
+  if (!abs.startsWith(path.resolve(/* turbopackIgnore: true */ ROOT()))) throw new Error("Invalid path");
   return fs.readFileSync(abs);
 }
 

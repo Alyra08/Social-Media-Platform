@@ -20,6 +20,8 @@ npm run dev       # http://localhost:3000
 
 Sign in with the `SBF_OWNER_EMAIL` and `SBF_OWNER_PASSWORD` in `.env.local`. Change the password in **Settings → Team and access**.
 
+**Keys can be added later, in the app.** Every API key and connection setting (Anthropic, Resend email, Canva, each social network, the public web address) can be pasted into **Settings → Keys and connections** at any time. It's encrypted before it's stored, switches on straight away with no restart, and is used instead of the same key in `.env.local`. Removing it falls back to `.env.local`.
+
 Without an `ANTHROPIC_API_KEY` the platform runs in **demo mode**: research, briefs and captions are clearly labelled samples with placeholder sources and no statistics, and demo posts can only be published to sandbox accounts. Add the key to `.env.local` and restart for live research.
 
 ```bash
@@ -50,6 +52,11 @@ npm run build
 | Competitor intelligence | `src/lib/competitors.ts` |
 | Automation engine (jobs, locks, activity log) | `src/lib/jobs.ts`, `src/lib/scheduler.ts`, `src/instrumentation.ts` |
 | Retention and backups | `src/lib/maintenance.ts` |
+| Public website (home, stories hub with search, articles, events, Sunday note) | `src/app/site/*` |
+| Website admin (articles, newsletter, events) | `src/app/(app)/website/*`, `src/lib/website.ts`, `src/lib/newsletter.ts`, `src/lib/events.ts` |
+| Email (Resend) | `src/lib/email.ts` |
+| Canva Connect | `src/lib/canva.ts` |
+| Keys added in Settings | `src/lib/keys.ts` |
 | Tests | `tests/` |
 
 ## The approval safeguards (enforced in code, covered by tests)
@@ -63,6 +70,24 @@ npm run build
 7. A post is never marked published until the network confirms it, or until the owner pastes the live URL for manual posts.
 8. Duplicate publishing is prevented by an atomic status claim plus an idempotency key.
 9. Demo content can't reach a live account.
+
+The same rules cover the public website: articles, Sunday note issues and events need the owner's approval, a change after approval resets it (checked again by hash when publishing or sending), brand rules run on every save, and articles built on demo research can't be published.
+
+## Public website, Sunday note and events
+
+The public website lives at `/site` and needs no login: home, a searchable stories and knowledge hub with topics, article pages (SEO title, meta description, canonical link, Article structured data, sources), events with RSVPs, and the Sunday note sign-up. `/sitemap.xml` lists public pages only, and `/robots.txt` keeps the studio out of search engines.
+
+- **Articles.** Every story you approve in Daily News gets an article in **Website**. Write it there (or have a first draft written from the brief once the Anthropic key is added), preview it on the site, then **Approve and publish**. You can also start one with **New article**.
+- **Sunday note.** Double opt-in sign-ups from the website. Each issue is drafted from your latest live articles, approved by the owner, and sent in batches with one-click unsubscribe. Each subscriber gets each issue at most once. Until a Resend key is added, sign-ups are still collected, confirmation emails wait and send automatically later, and you can export subscribers and download an issue to send from another tool.
+- **Events.** Owner-approved listings with places, a waitlist that moves people up automatically when someone cancels, RSVP confirmation emails, the online link sent only to people who RSVP, and CSV export.
+- **Own domain.** Set `SITE_URL=https://yourdomain.com` in the hosting environment and point that domain at the same app: requests to it are served from `/site` automatically.
+- Public forms have a hidden spam trap and a per-visitor limit. Confirm, unsubscribe and cancel links need a button press, so email link scanners can't trigger them.
+
+## Canva
+
+Create an integration at canva.com/developers with the scopes `design:content:read`, `design:content:write`, `design:meta:read`, `asset:read`, `asset:write`, `profile:read` and the redirect URL `<APP_URL>/api/oauth/canva/callback`. Add the client ID and secret in Settings, then **Connect Canva** in Integrations. Testing locally? Canva only accepts `http://127.0.0.1`, not `localhost`, so open the studio at http://127.0.0.1:3000.
+
+In the Design Approval Centre you can open a copy of any design in Canva, or start a blank one at the right size. Press **Bring it back for approval** and the PNG is exported from Canva and goes through design approval like any other design.
 
 ## Automation (Australia/Brisbane time)
 
@@ -78,6 +103,7 @@ npm run build
 | Weekly report and competitor review | Mondays 7:00 am |
 | Monthly and quarterly reports | 1st of the month / quarter |
 | Retention clean-up and local backup | 2:30 am |
+| Newsletter confirmations and queued Sunday notes | every 5 minutes |
 
 Jobs run inside the Next.js server (`src/instrumentation.ts`) with database locks, so they never double-run. On serverless hosting, set `DISABLE_SCHEDULER=1` and call `POST /api/cron/<job>` (e.g. `/api/cron/research-daily`) with `Authorization: Bearer $CRON_SECRET` from your host's cron.
 
@@ -117,7 +143,7 @@ The app is a standard Next.js server. Recommended shape:
 1. A managed PostgreSQL (Neon, Supabase, RDS, Azure). Set `DATABASE_URL`; migrations run automatically on start.
 2. A Node host that stays running (Render, Railway, Fly.io, a VPS, Azure App Service), so the built-in scheduler works. On Vercel, use `DISABLE_SCHEDULER=1` plus Vercel Cron hitting `/api/cron/*`.
 3. Persistent file storage for uploads. Local disk via `UPLOAD_DIR` works on a VM. For multi-instance hosting, swap `src/lib/files.ts` for S3, R2 or Azure Blob.
-4. Set `APP_URL` and `PUBLIC_BASE_URL` to the public HTTPS address, and register `APP_URL/api/oauth/<network>/callback` as the redirect URI in each developer app.
+4. Set `APP_URL` and `PUBLIC_BASE_URL` to the public HTTPS address (in Settings or the hosting environment), and register `APP_URL/api/oauth/<network>/callback` as the redirect URI in each developer app.
 
 ## Fonts
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
 import { completeOAuth } from "@/lib/integrations/registry";
+import { completeCanvaAuth } from "@/lib/canva";
 import { audit, logActivity } from "@/lib/system";
 
 export async function GET(req: Request, { params }: { params: Promise<{ platform: string }> }) {
@@ -21,7 +22,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ platform
   }
   const db = await getDb();
   try {
-    await completeOAuth(db, platform, code, state);
+    if (platform === "canva") await completeCanvaAuth(db, code, state);
+    else await completeOAuth(db, platform, code, state);
     await audit(db, user, "account.connect", "account", null, platform);
     back.searchParams.set("connected", platform);
   } catch (e) {

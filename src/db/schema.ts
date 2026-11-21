@@ -156,8 +156,22 @@ export const articles = pgTable("articles", {
   storyId: uuid("story_id").references(() => stories.id),
   title: text("title").notNull(),
   body: text("body").notNull().default(""),
-  // idea | researching | brief_approved | drafting | editing | ready | published | archived
+  // idea | researching | brief_approved | drafting | editing | ready | approved | published | archived
   status: text("status").notNull().default("brief_approved"),
+  /* Public website fields */
+  slug: text("slug").unique(),
+  excerpt: text("excerpt"),
+  category: text("category"),
+  seoTitle: text("seo_title"),
+  metaDescription: text("meta_description"),
+  sources: jsonb("sources").$type<SourceRef[]>().notNull().default([]),
+  isDemo: boolean("is_demo").notNull().default(false),
+  brandIssues: jsonb("brand_issues").$type<BrandIssue[]>().notNull().default([]),
+  approvedHash: text("approved_hash"),
+  approvedBy: uuid("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  publishedBy: uuid("published_by").references(() => users.id),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -282,6 +296,8 @@ export const designs = pgTable("designs", {
   parentId: uuid("parent_id"),
   isTemplate: boolean("is_template").notNull().default(false),
   templateName: text("template_name"),
+  canvaDesignId: text("canva_design_id"),
+  canvaEditUrl: text("canva_edit_url"),
   createdAt: createdAt(),
 });
 
@@ -481,3 +497,101 @@ export const jobLocks = pgTable("job_locks", {
   lockedUntil: timestamp("locked_until", { withTimezone: true }).notNull(),
   lastRunAt: timestamp("last_run_at", { withTimezone: true }),
 });
+
+/* ───────────── Keys added in the app (encrypted) ───────────── */
+
+/** API keys and connection settings the owner pastes into Settings instead of .env.local. */
+export const appSecrets = pgTable("app_secrets", {
+  name: text("name").primaryKey(),
+  encryptedValue: text("encrypted_value").notNull(),
+  updatedBy: text("updated_by"),
+  updatedAt: updatedAt(),
+});
+
+/* ───────────── Public website: newsletter ───────────── */
+
+export const subscribers = pgTable("subscribers", {
+  id: id(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  status: text("status").notNull().default("pending"), // pending | confirmed | unsubscribed
+  token: text("token").notNull().unique(), // confirm + unsubscribe links
+  source: text("source").notNull().default("website"),
+  confirmationSentAt: timestamp("confirmation_sent_at", { withTimezone: true }),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+  createdAt: createdAt(),
+});
+
+export const newsletterIssues = pgTable("newsletter_issues", {
+  id: id(),
+  subject: text("subject").notNull(),
+  preheader: text("preheader"),
+  intro: text("intro").notNull().default(""),
+  articleIds: jsonb("article_ids").$type<string[]>().notNull().default([]),
+  closing: text("closing"),
+  brandIssues: jsonb("brand_issues").$type<BrandIssue[]>().notNull().default([]),
+  // draft | approved | sending | sent | sent_manually
+  status: text("status").notNull().default("draft"),
+  approvedHash: text("approved_hash"),
+  approvedBy: uuid("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  sendRequestedAt: timestamp("send_requested_at", { withTimezone: true }),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  recipientCount: integer("recipient_count").notNull().default(0),
+  failedCount: integer("failed_count").notNull().default(0),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+export const newsletterDeliveries = pgTable(
+  "newsletter_deliveries",
+  {
+    id: id(),
+    issueId: uuid("issue_id").notNull().references(() => newsletterIssues.id, { onDelete: "cascade" }),
+    subscriberId: uuid("subscriber_id").notNull().references(() => subscribers.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default("sent"), // sent | failed
+    error: text("error"),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("delivery_once_idx").on(t.issueId, t.subscriberId)],
+);
+
+/* ───────────── Public website: events ───────────── */
+
+export const events = pgTable("events", {
+  id: id(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  summary: text("summary").notNull().default(""),
+  body: text("body").notNull().default(""),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+  endsAt: timestamp("ends_at", { withTimezone: true }),
+  location: text("location"),
+  onlineUrl: text("online_url"), // only shown to people who RSVP
+  capacity: integer("capacity"),
+  priceNote: text("price_note"),
+  brandIssues: jsonb("brand_issues").$type<BrandIssue[]>().notNull().default([]),
+  // draft | approved | published | cancelled
+  status: text("status").notNull().default("draft"),
+  approvedHash: text("approved_hash"),
+  approvedBy: uuid("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+export const eventRsvps = pgTable(
+  "event_rsvps",
+  {
+    id: id(),
+    eventId: uuid("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    status: text("status").notNull().default("going"), // going | waitlist | cancelled
+    token: text("token").notNull().unique(),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("rsvp_once_idx").on(t.eventId, t.email)],
+);

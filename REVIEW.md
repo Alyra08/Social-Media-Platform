@@ -76,3 +76,35 @@ Sample data from my test run is already in the local database, so you'll see one
 - The local database, uploads and backups live in `%LOCALAPPDATA%\sbf-platform`, outside OneDrive, because syncing a live database can corrupt it. Consider moving the whole project out of OneDrive too, because `node_modules` is large and syncs slowly.
 - `.env.local` holds generated secrets and your owner login. It's git-ignored; keep it private.
 - Pinned and renamed this Claude session, and kept the computer awake while I worked.
+
+---
+
+# Second round: public website, Sunday note, events, Canva, keys in Settings
+
+Built 22 November 2026. Nothing was published, emailed or connected to a real account.
+
+## New
+- **Keys and connections (Settings).** Paste any API key whenever you're ready: Anthropic, Resend email, Canva, each social network and the public web address. Keys are encrypted, switch on without a restart, show only their last four characters, and every change goes in the audit log.
+- **Public website at `/site`.** Includes a home page, a searchable stories and knowledge hub with topics, article pages with SEO and sources, events with RSVPs, and the Sunday note sign-up. It has a sitemap, and search engines are told to index only the public site.
+- **Website section in the studio.** Every story you approve gets an article here. You can write it, brand-check it, preview it, then approve and publish. A change after approval takes the article off the site until you approve it again. Articles built on demo research can't be published.
+- **Sunday note.** Sign-ups need email confirmation. You approve each issue before it sends. Each subscriber gets an issue at most once, and every email has one-click unsubscribe. Until email is set up, sign-ups are still collected, and you can export the list and download issues as HTML to send from another tool.
+- **Events.** You approve each listing before it goes live. Events can have a limit on places and a waitlist that moves people up automatically, and you can export the RSVP list.
+- **Canva.** From Design approval you can open a copy of a design in Canva, or start a blank one at the right size. Bring it back and it goes through design approval as normal.
+
+## Needs you
+1. **Resend account** (for emails), with your sending domain verified there. Add the key and the "send from" address in Settings.
+2. **Canva developer integration** at canva.com/developers. Use the redirect URL `<studio address>/api/oauth/canva/callback`. To test locally, open the studio at http://127.0.0.1:3000, because Canva doesn't accept "localhost".
+3. **Privacy policy.** The site now collects names and emails for the Sunday note and events. This needs a privacy policy and an Australian Privacy Act check before launch.
+4. **Your own domain** for the website, if you want one. Set `SITE_URL` in the hosting environment.
+
+## Verified
+- 49 automated tests pass (16 of them new): keys, approval and reset for articles, issues and events, brand blocks, demo blocking, sending only once, waitlist moving people up, safe article rendering, and the Canva import (against a simulated Canva).
+- Type-check, lint and the production build are clean.
+- In the browser: every public page loads, a test sign-up works, unknown pages return "not found", studio pages still need a login, and there's no sideways scrolling at phone width.
+
+## Not verified
+- The signed-in studio screens (Website, Settings → Keys, the Canva buttons) in the browser. I couldn't sign in because the login is in `.env.local`. The logic behind them is covered by the tests, and the build checks they compile.
+- Real email sending through Resend, and the real Canva API. Both are written to the providers' published APIs but need your accounts.
+
+## Not built yet
+- Membership and member accounts, private discussion groups, user-submitted stories, paid events and ticketing.

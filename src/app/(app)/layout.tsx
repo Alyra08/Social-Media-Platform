@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
-import { interactions, notifications, posts, stories } from "@/db/schema";
+import { articles, interactions, notifications, posts, stories } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { aiEnabled } from "@/lib/ai/client";
 import { ensureSeed } from "@/lib/seed";
@@ -20,13 +20,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   await ensureSeed(db);
   const user = await requireUser();
   const n = sql<number>`count(*)::int`;
-  const [news, content, design, publishing, inbox, unread] = await Promise.all([
+  const [news, content, design, publishing, inbox, unread, website] = await Promise.all([
     count(db.select({ n }).from(stories).where(eq(stories.status, "pending"))),
     count(db.select({ n }).from(posts).where(inArray(posts.status, ["awaiting_content", "revision_requested"]))),
     count(db.select({ n }).from(posts).where(eq(posts.status, "awaiting_design"))),
     count(db.select({ n }).from(posts).where(inArray(posts.status, ["manual_required", "failed"]))),
     count(db.select({ n }).from(interactions).where(inArray(interactions.status, ["new", "drafted"]))),
     count(db.select({ n }).from(notifications).where(eq(notifications.read, false))),
+    count(db.select({ n }).from(articles).where(eq(articles.status, "ready"))),
   ]);
 
   return (
@@ -39,7 +40,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <Wordmark />
               <span className="label mt-1 block text-deepred">Studio</span>
             </Link>
-            <Nav badges={{ news, content, design, publishing, inbox }} />
+            <Nav badges={{ news, content, design, publishing, inbox, website }} />
           </div>
         </aside>
 
@@ -62,7 +63,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
           {!aiEnabled() && (
             <div className="card-tint mb-6 text-sm">
-              <strong className="text-ink">Demo mode.</strong> Research, briefs and captions are clearly marked samples until an Anthropic API key is added to <code>.env.local</code>. Nothing in demo mode is real research, and demo posts can only go to sandbox accounts.
+              <strong className="text-ink">Demo mode.</strong> Research, briefs and captions are clearly marked samples until you add an Anthropic API key in <Link href="/settings#keys">Settings → Keys and connections</Link>. Nothing in demo mode is real research, and demo posts can only go to sandbox accounts.
             </div>
           )}
           <main id="main">{children}</main>

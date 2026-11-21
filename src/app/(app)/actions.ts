@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { and, eq, inArray } from "drizzle-orm";
-import { accounts, articles, assets, brandPreferences, campaigns, competitors, designs, interactions, notifications, posts, stories, users } from "@/db/schema";
+import { accounts, assets, brandPreferences, campaigns, competitors, designs, interactions, notifications, posts, stories, users } from "@/db/schema";
 import { hashPassword, verifyPassword } from "@/lib/crypto";
 import { logout } from "@/lib/auth";
 import { act } from "@/lib/flash";
@@ -48,17 +48,6 @@ export async function storyDecision(f: FormData) {
       more_research: "More research requested.",
     }[decision];
   }, ["/news", "/editorial", "/content"]);
-}
-
-/* ───────────── Editorial ───────────── */
-
-export async function saveArticle(f: FormData) {
-  await act("editor", async ({ db, user }) => {
-    const id = s(f, "id");
-    await db.update(articles).set({ title: s(f, "title"), body: String(f.get("body") ?? ""), status: s(f, "status"), updatedAt: new Date() }).where(eq(articles.id, id));
-    await audit(db, user, "article.save", "article", id, s(f, "status"));
-    return "Article saved.";
-  }, ["/editorial"]);
 }
 
 /* ───────────── Social content ───────────── */

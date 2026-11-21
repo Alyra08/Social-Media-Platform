@@ -7,6 +7,7 @@ export const NAV: { href: string; label: string; badgeKey?: string }[] = [
   { href: "/", label: "Overview" },
   { href: "/news", label: "Daily news", badgeKey: "news" },
   { href: "/editorial", label: "Editorial" },
+  { href: "/website", label: "Website", badgeKey: "website" },
   { href: "/content", label: "Content approval", badgeKey: "content" },
   { href: "/design", label: "Design approval", badgeKey: "design" },
   { href: "/planner", label: "Planner" },
