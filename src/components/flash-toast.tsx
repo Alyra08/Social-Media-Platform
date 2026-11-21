@@ -18,9 +18,12 @@ export function FlashToast({ tick }: { tick: string }) {
   useEffect(() => {
     const f = readFlash();
     if (!f) return;
-    setFlash(f);
-    const t = setTimeout(() => setFlash(null), 7000);
-    return () => clearTimeout(t);
+    const show = setTimeout(() => setFlash(f), 0);
+    const hide = setTimeout(() => setFlash(null), 7000);
+    return () => {
+      clearTimeout(show);
+      clearTimeout(hide);
+    };
   }, [tick]);
   if (!flash) return null;
   return (

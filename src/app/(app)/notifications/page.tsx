@@ -6,13 +6,10 @@ import { Empty, PageHeader } from "@/components/ui";
 import { formatBrisbane } from "@/lib/scheduling";
 import { markNotifications } from "../actions";
 
-export default async function NotificationsPage() {
-  const db = await getDb();
-  const rows = await db.select().from(notifications).orderBy(desc(notifications.createdAt)).limit(150);
-  const attention = rows.filter((r) => r.requiresAttention);
-  const background = rows.filter((r) => !r.requiresAttention);
+type Row = typeof notifications.$inferSelect;
 
-  const List = ({ items }: { items: typeof rows }) => (
+function NotificationList({ items }: { items: Row[] }) {
+  return (
     <ul className="space-y-2">
       {items.map((n) => (
         <li key={n.id} className={`card flex flex-wrap items-start justify-between gap-3 py-3 ${n.read ? "opacity-75" : ""}`}>
@@ -34,6 +31,13 @@ export default async function NotificationsPage() {
       ))}
     </ul>
   );
+}
+
+export default async function NotificationsPage() {
+  const db = await getDb();
+  const rows = await db.select().from(notifications).orderBy(desc(notifications.createdAt)).limit(150);
+  const attention = rows.filter((r) => r.requiresAttention);
+  const background = rows.filter((r) => !r.requiresAttention);
 
   return (
     <div className="space-y-8">
@@ -44,11 +48,11 @@ export default async function NotificationsPage() {
       </PageHeader>
       <section>
         <h2 className="mb-3 text-2xl">Needs your attention.</h2>
-        {attention.length ? <List items={attention} /> : <Empty title="Nothing needs you right now." />}
+        {attention.length ? <NotificationList items={attention} /> : <Empty title="Nothing needs you right now." />}
       </section>
       <section>
         <h2 className="mb-3 text-2xl">Background activity.</h2>
-        {background.length ? <List items={background} /> : <p className="text-[15px]">Nothing yet.</p>}
+        {background.length ? <NotificationList items={background} /> : <p className="text-[15px]">Nothing yet.</p>}
       </section>
     </div>
   );

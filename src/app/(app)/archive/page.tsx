@@ -6,6 +6,7 @@ import { Empty, PageHeader, StatusPill, PLATFORM_LABEL } from "@/components/ui";
 import { CATEGORY_LABELS } from "@/lib/brand/brief";
 import { formatBrisbane } from "@/lib/scheduling";
 import { duplicatePostAction } from "../actions";
+import { daysSince } from "@/lib/time";
 
 export default async function ArchivePage({ searchParams }: { searchParams: Promise<{ q?: string; platform?: string; category?: string; campaign?: string; status?: string; from?: string; to?: string; sort?: string; open?: string }> }) {
   const sp = await searchParams;
@@ -44,7 +45,7 @@ export default async function ArchivePage({ searchParams }: { searchParams: Prom
         interactions: await db.select().from(interactions).where(eq(interactions.postId, open.id)),
       }
     : null;
-  const ageDays = (d: Date | null) => (d ? Math.round((Date.now() - d.getTime()) / 86400_000) : 0);
+  const ageDays = daysSince;
 
   return (
     <div>

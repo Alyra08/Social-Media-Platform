@@ -13,10 +13,21 @@ const SESSION_DAYS = 14;
 export type Role = "owner" | "editor" | "viewer";
 export type CurrentUser = { id: string; email: string; name: string; role: Role };
 
+/** Simple per-email throttle: 5 failed attempts locks that email for 15 minutes. */
+const failures = new Map<string, { n: number; until: number }>();
+
 export async function login(email: string, password: string): Promise<boolean> {
+  const key = email.toLowerCase().trim();
+  const f = failures.get(key);
+  if (f && f.n >= 5 && f.until > Date.now()) return false;
   const db = await getDb();
-  const user = await db.query.users.findFirst({ where: eq(users.email, email.toLowerCase().trim()) });
-  if (!user || !verifyPassword(password, user.passwordHash)) return false;
+  const user = await db.query.users.findFirst({ where: eq(users.email, key) });
+  if (!user || !verifyPassword(password, user.passwordHash)) {
+    const cur = f && f.until > Date.now() ? f : { n: 0, until: 0 };
+    failures.set(key, { n: cur.n + 1, until: Date.now() + 15 * 60_000 });
+    return false;
+  }
+  failures.delete(key);
   const token = randomToken();
   await db.insert(sessions).values({
     id: sha256(token),

@@ -9,6 +9,7 @@ import { Nav } from "@/components/nav";
 import { FlashToast } from "@/components/flash-toast";
 import { Stripe, Wordmark } from "@/components/ui";
 import { logoutAction } from "./actions";
+import { nowMs } from "@/lib/time";
 
 async function count(q: Promise<{ n: number }[]>) {
   return (await q)[0]?.n ?? 0;
@@ -44,7 +45,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         <div className="min-w-0 flex-1">
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <form action="/search" className="min-w-0 flex-1">
+            <form action="/search" className="min-w-0 flex-1 basis-full sm:basis-auto">
               <label className="sr-only" htmlFor="q">
                 Search everything
               </label>
@@ -71,7 +72,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </footer>
         </div>
       </div>
-      <FlashToast tick={String(Date.now())} />
+      <FlashToast tick={String(nowMs())} />
     </div>
   );
 }

@@ -85,9 +85,14 @@ export async function runResearch(db: Db, kind: "daily" | "breaking" | "more_res
       const today = new Date().toLocaleDateString("en-AU", { timeZone: "Australia/Brisbane", dateStyle: "full" });
       const areas = RESEARCH_AREAS.map((a) => `${a.code}. ${a.name}: ${a.topics.join("; ")}`).join("\n");
       const covered = recentTopics.map((t) => `${t.key} (${t.label}; seen ${t.mentions}x, covered ${t.timesCovered}x)`).join("\n") || "none yet";
+      const approved = await db
+        .select({ headline: stories.headline, topicKey: stories.topicKey, sourceUrl: stories.sourceUrl })
+        .from(stories)
+        .where(and(eq(stories.status, "approved"), gte(stories.decidedAt, new Date(Date.now() - 30 * 86400_000))))
+        .limit(20);
       const prompt =
         kind === "breaking"
-          ? `Today is ${today} (Brisbane). Check for significant BREAKING developments, viral conversations or emerging issues affecting women in the last 24 hours only. Report only genuinely significant items.\n\nAlready-known topics:\n${covered}`
+          ? `Today is ${today} (Brisbane). Check for significant BREAKING developments, viral conversations or emerging issues affecting women in the last 24 hours only. Report only genuinely significant items.\n\nAlso check for meaningful new developments on these stories SBF has already approved (corrections, new data, legal or policy changes). Report a development as its own story with the same topicKey and meaningfulDevelopment=true:\n${approved.map((a) => `- ${a.topicKey}: ${a.headline} (${a.sourceUrl})`).join("\n") || "none"}\n\nAlready-known topics:\n${covered}`
           : kind === "more_research"
             ? `Today is ${today}. Do deeper research on this story and find additional, independent, primary sources, updated figures, differing perspectives and any conflicting reports:\n${focus}`
             : `Today is ${today} (Brisbane). Conduct the daily SBF research sweep across these areas, and add any emerging area you discover:\n${areas}\n\nTopics already identified in the last 30 days (avoid repeating them unless there is a meaningful development; note renewed attention or sentiment change):\n${covered}\n\n${guidance}\n\nSearch widely (news, government statistics, research, advocacy organisations, Reddit and public social conversations, trend data). Then write research notes for the 12–15 most relevant and interesting stories, each with its source URLs, dates, key figures as stated in the source, and your assessment.`;

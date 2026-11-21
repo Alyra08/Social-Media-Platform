@@ -1,7 +1,8 @@
 "use server";
 import { redirect } from "next/navigation";
 import { and, eq, inArray } from "drizzle-orm";
-import { accounts, articles, assets, brandPreferences, campaigns, competitors, designs, interactions, notifications, posts, stories } from "@/db/schema";
+import { accounts, articles, assets, brandPreferences, campaigns, competitors, designs, interactions, notifications, posts, stories, users } from "@/db/schema";
+import { hashPassword, verifyPassword } from "@/lib/crypto";
 import { logout } from "@/lib/auth";
 import { act } from "@/lib/flash";
 import { runResearch } from "@/lib/research";
@@ -404,6 +405,51 @@ export async function disconnectAccount(f: FormData) {
     await audit(db, user, "account.disconnect", "account", s(f, "id"));
     return "Disconnected and tokens deleted.";
   }, ["/integrations"]);
+}
+
+/* ───────────── Team ───────────── */
+
+export async function addTeamMember(f: FormData) {
+  await act("owner", async ({ db, user }) => {
+    const email = s(f, "email").toLowerCase();
+    const password = String(f.get("password") ?? "");
+    const role = s(f, "role");
+    if (!["owner", "editor", "viewer"].includes(role)) return "Choose a role.";
+    if (password.length < 12) return "Use a password of at least 12 characters.";
+    const exists = await db.query.users.findFirst({ where: eq(users.email, email) });
+    if (exists) return "Someone with that email already has access.";
+    await db.insert(users).values({ email, name: s(f, "name") || email, role, passwordHash: hashPassword(password) });
+    await audit(db, user, "team.add", "user", null, `${email} as ${role}`);
+    return `${email} added as ${role}. Share the password with them privately.`;
+  }, ["/settings"]);
+}
+
+export async function updateTeamMember(f: FormData) {
+  await act("owner", async ({ db, user }) => {
+    const id = s(f, "id");
+    if (id === user.id) return "You can't change your own access here.";
+    if (s(f, "remove") === "1") {
+      await db.delete(users).where(eq(users.id, id));
+      await audit(db, user, "team.remove", "user", id);
+      return "Access removed.";
+    }
+    await db.update(users).set({ role: s(f, "role") }).where(eq(users.id, id));
+    await audit(db, user, "team.role", "user", id, s(f, "role"));
+    return "Role updated.";
+  }, ["/settings"]);
+}
+
+export async function changeOwnPassword(f: FormData) {
+  await act("viewer", async ({ db, user }) => {
+    const current = String(f.get("current") ?? "");
+    const next = String(f.get("next") ?? "");
+    const row = await db.query.users.findFirst({ where: eq(users.id, user.id) });
+    if (!row || !verifyPassword(current, row.passwordHash)) return "Your current password doesn't match.";
+    if (next.length < 12) return "Use a new password of at least 12 characters.";
+    await db.update(users).set({ passwordHash: hashPassword(next) }).where(eq(users.id, user.id));
+    await audit(db, user, "team.password_change", "user", user.id);
+    return "Password changed.";
+  }, ["/settings"]);
 }
 
 /* ───────────── Settings, automation, notifications ───────────── */

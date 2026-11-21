@@ -115,17 +115,17 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
 
                       <form action={updatePost} className="space-y-3">
                         <input type="hidden" name="id" value={p.id} />
-                        <Field label="Headline or opening hook" name="hook" value={p.hook} disabled={!editable} />
-                        <Field label="Caption" name="caption" value={p.caption} area rows={6} disabled={!editable} />
-                        {(p.supportingCopy || p.format === "carousel") && <Field label="Supporting copy" name="supportingCopy" value={p.supportingCopy ?? ""} area disabled={!editable} />}
+                        <Field label="Headline or opening hook" name="hook" value={p.hook} disabled={!editable} pid={p.id} />
+                        <Field label="Caption" name="caption" value={p.caption} area rows={6} disabled={!editable} pid={p.id} />
+                        {(p.supportingCopy || p.format === "carousel") && <Field label="Supporting copy" name="supportingCopy" value={p.supportingCopy ?? ""} area disabled={!editable} pid={p.id} />}
                         <div className="grid gap-3 md:grid-cols-2">
-                          <Field label="Call to action" name="callToAction" value={p.callToAction} disabled={!editable} />
-                          <Field label="Hashtags" name="hashtags" value={p.hashtags.join(" ")} disabled={!editable} />
+                          <Field label="Call to action" name="callToAction" value={p.callToAction} disabled={!editable} pid={p.id} />
+                          <Field label="Hashtags" name="hashtags" value={p.hashtags.join(" ")} disabled={!editable} pid={p.id} />
                         </div>
-                        <Field label="Alt text" name="altText" value={p.altText ?? ""} disabled={!editable} />
+                        <Field label="Alt text" name="altText" value={p.altText ?? ""} disabled={!editable} pid={p.id} />
                         <div className="grid gap-3 md:grid-cols-3">
-                          <Field label="Suggested date" name="suggestedDate" value={p.suggestedDate ?? ""} disabled={!editable} />
-                          <Field label="Suggested time" name="suggestedTime" value={p.suggestedTime ?? ""} disabled={!editable} />
+                          <Field label="Suggested date" name="suggestedDate" value={p.suggestedDate ?? ""} disabled={!editable} pid={p.id} />
+                          <Field label="Suggested time" name="suggestedTime" value={p.suggestedTime ?? ""} disabled={!editable} pid={p.id} />
                           <div>
                             <label className="label mb-1 block text-deepred" htmlFor={`camp-${p.id}`}>
                               Campaign
@@ -252,8 +252,8 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   );
 }
 
-function Field({ label, name, value, area, rows, disabled }: { label: string; name: string; value: string; area?: boolean; rows?: number; disabled?: boolean }) {
-  const id = `${name}-${Math.random().toString(36).slice(2, 8)}`;
+function Field({ label, name, value, area, rows, disabled, pid }: { label: string; name: string; value: string; area?: boolean; rows?: number; disabled?: boolean; pid: string }) {
+  const id = `${name}-${pid}`;
   return (
     <div>
       <label className="label mb-1 block text-deepred" htmlFor={id}>

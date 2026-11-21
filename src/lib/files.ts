@@ -6,7 +6,7 @@ import crypto from "node:crypto";
  * File storage. Local disk under .data/uploads by default; swap `saveFile`/`readFile` for
  * S3/R2/Azure Blob in production (see README → Storage).
  */
-const ROOT = () => process.env.UPLOAD_DIR ?? path.join(process.cwd(), ".data", "uploads");
+const ROOT = (): string => process.env.UPLOAD_DIR ?? path.join(/* turbopackIgnore: true */ process.cwd(), ".data", "uploads");
 
 export const ALLOWED_MIME: Record<string, string> = {
   "image/png": ".png",

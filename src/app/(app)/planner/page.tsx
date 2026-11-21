@@ -8,6 +8,7 @@ import { plannerWarnings } from "@/lib/planner";
 import { weeklyOverview } from "@/lib/analytics";
 import { CATEGORY_LABELS } from "@/lib/brand/brief";
 import { createCampaign } from "../actions";
+import { nowMs } from "@/lib/time";
 
 const STATUS_LABEL: Record<string, string> = {
   awaiting_content: "Awaiting content approval",
@@ -100,7 +101,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
     return `/planner?${p}`;
   };
 
-  const [warnings, overview] = await Promise.all([plannerWarnings(db, new Date(Math.max(Date.now(), r.from.getTime())), r.to), weeklyOverview(db, range("week", todayIso).from)]);
+  const [warnings, overview] = await Promise.all([plannerWarnings(db, new Date(Math.max(nowMs(), r.from.getTime())), r.to), weeklyOverview(db, range("week", todayIso).from)]);
   const title = startOfLocalDay(anchor).toLocaleDateString("en-AU", { timeZone: "Australia/Brisbane", month: "long", year: "numeric", day: view === "day" || view === "week" ? "numeric" : undefined });
 
   return (
