@@ -108,7 +108,7 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                       )}
                     </div>
                     {d.feedback && <p className="mt-2 text-sm">Feedback: “{d.feedback}”</p>}
-                    <p className="mt-2 flex flex-wrap gap-x-4 text-sm">
+                    <div className="mt-2 flex flex-wrap gap-x-4 text-sm">
                       <a href={`/api/designs/${d.id}/image?download=1`}>Download PNG</a>
                       {canva.connected && d.status !== "approved" && p.status === "awaiting_design" && (
                         <form action={openInCanvaAction} className="inline">
@@ -118,7 +118,7 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                           <button className="font-bold text-deepred underline">{d.source === "canva" ? "Back to Canva for changes" : "Edit a copy in Canva"}</button>
                         </form>
                       )}
-                    </p>
+                    </div>
 
                     {d.status !== "approved" && p.status === "awaiting_design" && (
                       <>

@@ -228,7 +228,7 @@ export async function cancelRsvp(db: Db, token: string): Promise<{ title: string
   const e = await db.query.events.findFirst({ where: eq(events.id, r.eventId) });
   if (r.status !== "cancelled") {
     await db.update(eventRsvps).set({ status: "cancelled" }).where(eq(eventRsvps.id, r.id));
-    if (r.status === "going" && e) await promoteFromWaitlist(db, e);
+    if (r.status === "going" && e?.status === "published") await promoteFromWaitlist(db, e);
   }
   return e ? { title: e.title } : null;
 }
