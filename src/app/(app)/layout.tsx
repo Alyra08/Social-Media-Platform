@@ -2,7 +2,7 @@ import Link from "next/link";
 import { eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { articles, interactions, notifications, posts, stories } from "@/db/schema";
-import { requireUser } from "@/lib/auth";
+import { devAutoLoginActive, requireUser } from "@/lib/auth";
 import { aiEnabled } from "@/lib/ai/client";
 import { ensureSeed } from "@/lib/seed";
 import { Nav } from "@/components/nav";
@@ -19,6 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const db = await getDb();
   await ensureSeed(db);
   const user = await requireUser();
+  const autoLogin = await devAutoLoginActive();
   const n = sql<number>`count(*)::int`;
   const [news, content, design, publishing, inbox, unread, website] = await Promise.all([
     count(db.select({ n }).from(stories).where(eq(stories.status, "pending"))),
@@ -61,6 +62,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </button>
             </form>
           </div>
+          {autoLogin && (
+            <div className="card-tint mb-6 text-sm">
+              <strong className="text-ink">Login skipped on this computer.</strong> You&apos;re signed in as {user.name} automatically for testing. Remove <code>SBF_DEV_AUTOLOGIN=1</code> from <code>.env.local</code> to turn the login back on. The live site always needs a login.
+            </div>
+          )}
           {!aiEnabled() && (
             <div className="card-tint mb-6 text-sm">
               <strong className="text-ink">Demo mode.</strong> Research, briefs and captions are clearly marked samples until you add an Anthropic API key in <Link href="/settings#keys">Settings → Keys and connections</Link>. Nothing in demo mode is real research, and demo posts can only go to sandbox accounts.

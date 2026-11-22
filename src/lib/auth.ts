@@ -1,5 +1,5 @@
 import "server-only";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { and, eq, gt } from "drizzle-orm";
 import { getDb } from "@/db";
@@ -54,9 +54,26 @@ export async function logout() {
   jar.delete(SESSION_COOKIE);
 }
 
+/**
+ * Local testing only: with SBF_DEV_AUTOLOGIN=1 in .env.local, the development server signs you in
+ * as the owner without a password. Never active in production builds, and only for requests to
+ * localhost / 127.0.0.1 (not other devices on your network).
+ */
+export async function devAutoLoginActive(): Promise<boolean> {
+  if (process.env.NODE_ENV === "production" || process.env.SBF_DEV_AUTOLOGIN !== "1") return false;
+  const host = ((await headers()).get("host") ?? "").replace(/:\d+$/, "");
+  return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+}
+
+async function devOwner(): Promise<CurrentUser | null> {
+  const db = await getDb();
+  const row = await db.query.users.findFirst({ where: eq(users.role, "owner"), columns: { id: true, email: true, name: true, role: true } });
+  return (row as CurrentUser) ?? null;
+}
+
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!token) return null;
+  if (!token) return (await devAutoLoginActive()) ? devOwner() : null;
   const db = await getDb();
   const rows = await db
     .select({ id: users.id, email: users.email, name: users.name, role: users.role })

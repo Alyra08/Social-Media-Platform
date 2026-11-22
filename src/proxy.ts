@@ -17,6 +17,8 @@ export function proxy(req: NextRequest) {
     return NextResponse.rewrite(url);
   }
   if (PUBLIC.test(path)) return NextResponse.next();
+  // Local testing only (see devAutoLoginActive in lib/auth.ts).
+  if (process.env.NODE_ENV !== "production" && process.env.SBF_DEV_AUTOLOGIN === "1" && ["localhost", "127.0.0.1", "[::1]"].includes(req.nextUrl.hostname)) return NextResponse.next();
   if (!req.cookies.get("sbf_session")) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
