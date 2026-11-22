@@ -33,7 +33,7 @@
 @layer base {
   html,
   body {
-    background: var(--color-shell);
+    background: var(--color-blush);
     color: var(--color-charcoal);
     font-family: var(--font-sans);
     font-size: 17px;
@@ -67,13 +67,12 @@
     letter-spacing: 0.24em;
     font-size: 0.66rem;
   }
-  /* Elevated surfaces: white paper on a soft shell page, hairline edge, quiet shadow. */
+  /* Refined surfaces: Shell cards on Blush, hairline edge, no shadows (brand rule). */
   .card {
-    background: #fff;
+    background: var(--color-shell);
     border: 1px solid rgb(200 0 20 / 0.07);
     border-radius: var(--radius-card);
     padding: 1.6rem;
-    box-shadow: 0 1px 2px rgb(42 26 29 / 0.03), 0 12px 32px -18px rgb(42 26 29 / 0.14);
   }
   .card-tint {
     background: var(--color-peachcream);
@@ -81,11 +80,10 @@
     border-radius: var(--radius-card);
     padding: 1.6rem;
   }
-  .card-link { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
   .card-link:hover {
     transform: translateY(-2px);
-    border-color: rgb(200 0 20 / 0.18);
-    box-shadow: 0 1px 2px rgb(42 26 29 / 0.04), 0 22px 40px -22px rgb(200 0 20 / 0.28);
+    border-color: rgb(200 0 20 / 0.3);
+    background: var(--color-peachcream);
   }
   .rule { height: 1px; background: rgb(200 0 20 / 0.14); }
   /* Buttons: one solid Deep Red per view; everything else is an outline pill that fills on hover. */
@@ -97,7 +95,7 @@
     min-height: 44px;
     padding: 0 1.15rem;
     border-radius: 999px;
-    border: 1px solid var(--color-deepred);
+    border: 1.5px solid var(--color-deepred);
     color: var(--color-deepred);
     background: transparent;
     font-weight: 700;
@@ -125,15 +123,15 @@
     border: 1px solid var(--color-rosemist);
     color: var(--color-ink);
   }
-  /* Quiet tags: tinted with a coloured edge, so the one solid button stays the loudest thing. */
-  .pill-red { background: #fff0f1; border-color: rgb(200 0 20 / 0.35); color: var(--color-deepred); }
+  /* Tags: hairline-edged tints; attention tags stay Deep Red with white text (brand rule). */
+  .pill-red { background: var(--color-deepred); border-color: var(--color-deepred); color: #fff; }
   .pill-ok { background: var(--color-peachcream); border-color: rgb(251 101 38 / 0.3); color: var(--color-ink); }
   .pill-ink { background: #fff; border-color: rgb(42 26 29 / 0.35); color: var(--color-ink); }
   .input,
   .textarea,
   .select {
     width: 100%;
-    background: #fff;
+    background: var(--color-peachcream);
     border: 1px solid var(--color-rosemist);
     border-radius: 999px;
     padding: 0.55rem 1rem;

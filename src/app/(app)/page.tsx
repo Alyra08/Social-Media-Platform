@@ -348,7 +348,7 @@ export default async function Overview() {
             <ul className="flex flex-wrap gap-2">
               {todo.map((t) => (
                 <li key={t.href}>
-                  <Link href={t.href} className="btn btn-sm bg-white hover:bg-deepred">
+                  <Link href={t.href} className="btn btn-sm bg-shell hover:bg-deepred">
                     <span className="font-serif text-lg font-light leading-none">{t.n}</span> {t.label}
                   </Link>
                 </li>
