@@ -47,7 +47,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         <div className="min-w-0 flex-1">
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <form action="/search" className="min-w-0 flex-1 basis-full sm:basis-auto">
+            <form action="/search" className="min-w-0 flex-1 basis-48">
               <label className="sr-only" htmlFor="q">
                 Search everything
               </label>
@@ -63,16 +63,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </form>
           </div>
           {autoLogin && (
-            <div className="card-tint mb-6 text-sm">
-              <strong className="text-ink">Login skipped on this computer.</strong> You&apos;re signed in as {user.name} automatically for testing. Remove <code>SBF_DEV_AUTOLOGIN=1</code> from <code>.env.local</code> to turn the login back on. The live site always needs a login.
-            </div>
+            <p className="mb-2 rounded-[14px] bg-peachcream px-4 py-2 text-sm" title="Remove SBF_DEV_AUTOLOGIN=1 from .env.local to turn the login back on. The live site always needs a login.">
+              <strong className="text-ink">Login skipped on this computer</strong> for testing.
+            </p>
           )}
           {!aiEnabled() && (
-            <div className="card-tint mb-6 text-sm">
-              <strong className="text-ink">Demo mode.</strong> Research, briefs and captions are clearly marked samples until you add an Anthropic API key in <Link href="/settings#keys">Settings → Keys and connections</Link>. Nothing in demo mode is real research, and demo posts can only go to sandbox accounts.
-            </div>
+            <p className="mb-2 rounded-[14px] bg-peachcream px-4 py-2 text-sm">
+              <strong className="text-ink">Demo mode:</strong> research and captions are samples. <Link href="/settings#keys">Add the Anthropic key</Link> to go live.
+            </p>
           )}
-          <main id="main">{children}</main>
+          <main id="main" className="mt-4">{children}</main>
           <footer className="mt-16">
             <Stripe />
             <p className="label mt-3 text-deepred">Unapologetically fierce. Beautifully imperfect.</p>
