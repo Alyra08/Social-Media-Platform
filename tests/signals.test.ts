@@ -3,7 +3,7 @@ import { algorithmSignals, dataDecisions, type PostPerf } from "@/lib/analytics"
 
 const post = (o: Partial<PostPerf>): PostPerf => ({
   postId: crypto.randomUUID(), platform: "instagram", category: "career", format: "carousel", hook: "Hook", treatment: "type", publishedAt: new Date("2026-11-16T22:00:00Z"), liveUrl: null,
-  impressions: 1000, reach: 1000, likes: 10, comments: 2, shares: 1, saves: 1, clicks: 0, views: 0, profileVisits: 0, watchTimeSeconds: 0, completionRate: null, ...o,
+  impressions: 1000, reach: 1000, likes: 10, comments: 2, shares: 1, saves: 1, clicks: 0, views: 0, profileVisits: 0, watchTimeSeconds: 0, completionRate: null, engagementRate: 0, ...o,
 });
 
 describe("algorithm signals", () => {
