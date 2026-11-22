@@ -12,14 +12,14 @@ export function Stripe({ className = "" }: { className?: string }) {
   );
 }
 
-/** Typographic stand-in for the wordmark until the logo file is uploaded. */
+/**
+ * Logo slot, left blank on purpose until the real logo file is supplied.
+ * Keeps the brand name for screen readers so links stay labelled.
+ */
 export function Wordmark({ small = false }: { small?: boolean }) {
   return (
-    <span className="inline-flex flex-col leading-none text-signal" aria-label="Simply Being Female">
-      <span className={`font-serif font-light ${small ? "text-lg" : "text-2xl"}`}>
-        s<span className="relative">ı<span className={`absolute left-1/2 -translate-x-1/2 ${small ? "-top-0.5 text-[8px]" : "-top-1 text-[10px]"} text-hot`}>♀</span></span>mply being
-      </span>
-      <span className={`font-poster tracking-[0.3em] ${small ? "text-sm" : "text-lg"}`}>FEMALE</span>
+    <span className={`block ${small ? "h-6" : "h-2"}`}>
+      <span className="sr-only">Simply Being Female</span>
     </span>
   );
 }

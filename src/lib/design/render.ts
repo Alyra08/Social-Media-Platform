@@ -89,14 +89,10 @@ function badge(cx: number, cy: number, r: number) {
   return `<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="${colours.tangerine}"/><text x="${cx}" y="${cy + r * 0.2}" text-anchor="middle" font-family="Anton, 'Nunito Sans', sans-serif" font-size="${r * 0.62}" fill="#FFFFFF" letter-spacing="2">SBF</text></g>`;
 }
 
-/** Placeholder typographic wordmark (replace with the uploaded logo file in Brand Library). */
+/** The uploaded logo (Brand Library, type "Logos"). Left blank until the real logo is uploaded; the zone stays reserved. */
 function wordmark(x: number, y: number, scale: number, logoHref?: string) {
   if (logoHref) return `<image href="${esc(logoHref)}" x="${x}" y="${y - 50 * scale}" width="${260 * scale}" height="${90 * scale}" preserveAspectRatio="xMinYMid meet"/>`;
-  return `<g transform="translate(${x} ${y}) scale(${scale})">
-    <text x="0" y="0" font-family="'Cormorant Garamond', serif" font-weight="300" font-size="34" fill="${colours.signal}">simply being</text>
-    <text x="0" y="40" font-family="Anton, sans-serif" font-size="40" letter-spacing="6" fill="${colours.signal}">FEMALE</text>
-    <circle cx="16" cy="-25" r="4.5" fill="${colours.hot}"/>
-  </g>`;
+  return "";
 }
 
 export type RenderOptions = { format: string; params: DesignParams; logoHref?: string };
