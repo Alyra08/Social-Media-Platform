@@ -33,11 +33,12 @@
 @layer base {
   html,
   body {
-    background: var(--color-blush);
+    background: var(--color-shell);
     color: var(--color-charcoal);
     font-family: var(--font-sans);
     font-size: 17px;
-    line-height: 1.55;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
   h1,
   h2,
@@ -45,11 +46,11 @@
     font-family: var(--font-serif);
     font-weight: 300;
     color: var(--color-signal);
-    line-height: 1.1;
-    letter-spacing: -0.01em;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
   }
-  h1 { font-size: clamp(2rem, 3.2vw, 2.9rem); }
-  h2 { font-size: 1.7rem; }
+  h1 { font-size: clamp(2.3rem, 4vw, 3.5rem); letter-spacing: -0.025em; }
+  h2 { font-size: 1.75rem; }
   h3 { font-size: 1.3rem; color: var(--color-ink); }
   h1 em, h2 em, h3 em { color: var(--color-hot); font-style: italic; }
   a { color: var(--color-deepred); }
@@ -63,15 +64,30 @@
   .label {
     font-family: var(--font-label);
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    font-size: 0.66rem;
   }
+  /* Elevated surfaces: white paper on a soft shell page, hairline edge, quiet shadow. */
   .card {
-    background: var(--color-shell);
+    background: #fff;
+    border: 1px solid rgb(200 0 20 / 0.07);
     border-radius: var(--radius-card);
-    padding: 1.4rem;
+    padding: 1.6rem;
+    box-shadow: 0 1px 2px rgb(42 26 29 / 0.03), 0 12px 32px -18px rgb(42 26 29 / 0.14);
   }
-  .card-tint { background: var(--color-peachcream); border-radius: var(--radius-card); padding: 1.4rem; }
+  .card-tint {
+    background: var(--color-peachcream);
+    border: 1px solid rgb(251 101 38 / 0.12);
+    border-radius: var(--radius-card);
+    padding: 1.6rem;
+  }
+  .card-link { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+  .card-link:hover {
+    transform: translateY(-2px);
+    border-color: rgb(200 0 20 / 0.18);
+    box-shadow: 0 1px 2px rgb(42 26 29 / 0.04), 0 22px 40px -22px rgb(200 0 20 / 0.28);
+  }
+  .rule { height: 1px; background: rgb(200 0 20 / 0.14); }
   /* Buttons: one solid Deep Red per view; everything else is an outline pill that fills on hover. */
   .btn {
     display: inline-flex;
@@ -81,14 +97,15 @@
     min-height: 44px;
     padding: 0 1.15rem;
     border-radius: 999px;
-    border: 1.5px solid var(--color-deepred);
+    border: 1px solid var(--color-deepred);
     color: var(--color-deepred);
     background: transparent;
-    font-weight: 800;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 13.5px;
+    letter-spacing: 0.02em;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.15s, color 0.15s;
+    transition: background 0.2s, color 0.2s;
     white-space: nowrap;
   }
   .btn:hover { background: var(--color-deepred); color: #fff; }
@@ -100,21 +117,24 @@
     align-items: center;
     gap: 0.3rem;
     border-radius: 999px;
-    padding: 0.15rem 0.7rem;
-    font-size: 0.78rem;
+    padding: 0.12rem 0.65rem;
+    font-size: 0.74rem;
     font-weight: 700;
-    background: var(--color-rosemist);
+    letter-spacing: 0.03em;
+    background: var(--color-blush);
+    border: 1px solid var(--color-rosemist);
     color: var(--color-ink);
   }
-  .pill-red { background: var(--color-deepred); color: #fff; }
-  .pill-ok { background: var(--color-peach); color: var(--color-ink); }
-  .pill-ink { background: var(--color-ink); color: #fff; }
+  /* Quiet tags: tinted with a coloured edge, so the one solid button stays the loudest thing. */
+  .pill-red { background: #fff0f1; border-color: rgb(200 0 20 / 0.35); color: var(--color-deepred); }
+  .pill-ok { background: var(--color-peachcream); border-color: rgb(251 101 38 / 0.3); color: var(--color-ink); }
+  .pill-ink { background: #fff; border-color: rgb(42 26 29 / 0.35); color: var(--color-ink); }
   .input,
   .textarea,
   .select {
     width: 100%;
     background: #fff;
-    border: 1.5px solid var(--color-rosemist);
+    border: 1px solid var(--color-rosemist);
     border-radius: 999px;
     padding: 0.55rem 1rem;
     min-height: 44px;
@@ -123,7 +143,7 @@
   }
   .textarea { border-radius: 18px; min-height: 110px; line-height: 1.5; }
   .input:focus, .textarea:focus, .select:focus { outline: 2px solid var(--color-ink); border-color: transparent; }
-  .stripe { display: flex; height: 10px; }
+  .stripe { display: flex; height: 4px; }
   .stripe > span { flex: 1; }
   .poster {
     font-family: var(--font-poster);

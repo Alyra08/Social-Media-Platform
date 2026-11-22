@@ -45,15 +45,17 @@ const PILL: Record<Tone, string> = { attention: "pill-red pill", ok: "pill-ok pi
 
 function CapabilityCard({ c }: { c: Capability }) {
   return (
-    <Link href={c.href} title={c.blurb} className="card group flex h-full flex-col gap-1.5 p-4 no-underline transition-colors hover:bg-white sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
-        <h3 className="font-serif text-lg font-light leading-tight text-signal group-hover:underline sm:text-xl">{c.title}</h3>
-        {c.status && <span className={`${PILL[c.status.tone]} text-[0.68rem]`}>{c.status.label}</span>}
+    <Link href={c.href} title={c.blurb} className="card card-link group flex h-full flex-col gap-2 p-4 text-charcoal no-underline sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1.5">
+        <h3 className="font-serif text-xl font-light leading-tight text-signal sm:text-[1.6rem]">{c.title}</h3>
+        {c.status && <span className={`${PILL[c.status.tone]} text-[0.66rem]`}>{c.status.label}</span>}
       </div>
-      <p className="hidden text-[15px] leading-snug md:block">{c.blurb}</p>
-      <p className="mt-auto flex items-baseline gap-2 pt-1">
-        <span className="kpi text-2xl sm:text-3xl">{c.value}</span>
-        <span className="text-sm leading-tight">{c.unit}</span>
+      <p className="hidden text-[14.5px] leading-relaxed md:block">{c.blurb}</p>
+      <div className="rule mt-auto" />
+      <p className="flex items-baseline gap-2 pt-1">
+        <span className="kpi text-3xl sm:text-4xl">{c.value}</span>
+        <span className="text-[13px] leading-tight">{c.unit}</span>
+        <span aria-hidden className="ml-auto text-deepred opacity-0 transition-opacity group-hover:opacity-100">→</span>
       </p>
     </Link>
   );
@@ -328,7 +330,7 @@ export default async function Overview() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-14">
       <PageHeader eyebrow="Overview" title="Everything the studio does, in one place." emphasis="in one place">
         <form action={runResearchNow.bind(null, "daily")}>
           <button className="btn btn-primary">Run research now</button>
@@ -346,8 +348,8 @@ export default async function Overview() {
             <ul className="flex flex-wrap gap-2">
               {todo.map((t) => (
                 <li key={t.href}>
-                  <Link href={t.href} className="btn btn-sm">
-                    <span className="rounded-full bg-deepred px-2 text-white">{t.n}</span> {t.label}
+                  <Link href={t.href} className="btn btn-sm bg-white hover:bg-deepred">
+                    <span className="font-serif text-lg font-light leading-none">{t.n}</span> {t.label}
                   </Link>
                 </li>
               ))}
@@ -357,16 +359,22 @@ export default async function Overview() {
         </div>
       </section>
 
-      <div className="space-y-7">
+      <div className="space-y-12">
         {groups.map((g) => (
           <section key={g.step} aria-labelledby={`g-${g.step}`}>
-            <h2 id={`g-${g.step}`} className="mb-3 flex items-baseline gap-3 text-2xl">
-              <span className="poster text-3xl" aria-hidden>
-                {g.step}
-              </span>
-              {g.title}.
-            </h2>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+            <div className="mb-5 flex items-center gap-4">
+              <h2 id={`g-${g.step}`} className="flex items-baseline gap-3 text-[1.7rem] sm:text-3xl">
+                <span className="label text-deepred" aria-hidden>
+                  {g.step.padStart(2, "0")}
+                </span>
+                <span>
+                  {g.title}
+                  <em>.</em>
+                </span>
+              </h2>
+              <div className="rule flex-1" aria-hidden />
+            </div>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
               {g.items.map((item) => (
                 <CapabilityCard key={item.href} c={item} />
               ))}
