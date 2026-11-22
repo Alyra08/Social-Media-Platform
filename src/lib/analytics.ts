@@ -51,6 +51,10 @@ export type PostPerf = {
   shares: number;
   saves: number;
   clicks: number;
+  views: number;
+  profileVisits: number;
+  watchTimeSeconds: number;
+  completionRate: number | null;
   engagementRate: number;
 };
 
@@ -69,6 +73,7 @@ export async function postPerformance(db: Db, from: Date, to: Date, includeSandb
     seen.set(p.id, {
       postId: p.id, platform: p.platform, category: p.category, format: p.format, hook: p.hook, treatment: p.treatment, publishedAt: p.publishedAt, liveUrl: p.liveUrl,
       impressions: m.impressions, reach: m.reach, likes: m.likes, comments: m.comments, shares: m.shares, saves: m.saves, clicks: m.clicks,
+      views: m.views, profileVisits: m.profileVisits, watchTimeSeconds: m.watchTimeSeconds, completionRate: m.completionRate,
       engagementRate: (m.likes + m.comments + m.shares + m.saves) / denom,
     });
   }
@@ -164,4 +169,80 @@ export async function weeklyOverview(db: Db, weekStart: Date) {
     byCategory: dist("category"),
     byPlatform: dist("platform"),
   };
+}
+
+/* ───────────── Algorithm signals and decisions (Overview) ───────────── */
+
+export type Signal = { key: string; label: string; value: number | null; prev: number | null; unit: "pct" | "sec"; why: string; act: string };
+
+const perReach = (perf: PostPerf[], k: (p: PostPerf) => number) => {
+  const reach = perf.reduce((a, p) => a + (p.reach || p.impressions), 0);
+  return reach ? perf.reduce((a, p) => a + k(p), 0) / reach : null;
+};
+const avgCompletion = (perf: PostPerf[]) => {
+  const v = perf.filter((p) => p.completionRate != null);
+  return v.length ? v.reduce((a, p) => a + (p.completionRate ?? 0), 0) / v.length : null;
+};
+const watchPerView = (perf: PostPerf[]) => {
+  const views = perf.reduce((a, p) => a + p.views, 0);
+  return views ? perf.reduce((a, p) => a + p.watchTimeSeconds, 0) / views : null;
+};
+
+/**
+ * The ranking signals platforms reward, each as a rate (so a quiet week and a big week compare fairly),
+ * with what it means and what to do. Instagram has said publicly that watch time, likes and sends
+ * (shares) are its biggest ranking signals; TikTok and YouTube lean heavily on watch time and completion.
+ */
+export function algorithmSignals(perf: PostPerf[], prev: PostPerf[]): Signal[] {
+  return [
+    { key: "share", label: "Share rate", value: perReach(perf, (p) => p.shares), prev: perReach(prev, (p) => p.shares), unit: "pct", why: "Shares and sends are the strongest signal for reaching people who don't follow you yet.", act: "Make posts people send to a friend: specific, quotable, a little brave." },
+    { key: "save", label: "Save rate", value: perReach(perf, (p) => p.saves), prev: perReach(prev, (p) => p.saves), unit: "pct", why: "Saves tell the platform the post is worth coming back to.", act: "Carousels with scripts, lists and how-tos earn saves." },
+    { key: "comment", label: "Comment rate", value: perReach(perf, (p) => p.comments), prev: perReach(prev, (p) => p.comments), unit: "pct", why: "Conversation keeps a post in circulation for longer.", act: "End with a real question and reply within a day." },
+    { key: "completion", label: "Video completion", value: avgCompletion(perf), prev: avgCompletion(prev), unit: "pct", why: "Watch time and finishing the video are top signals for Reels, TikTok and YouTube.", act: "Put the hook in the first two seconds and cut anything that doesn't earn its place." },
+    { key: "watch", label: "Watch time per view", value: watchPerView(perf), prev: watchPerView(prev), unit: "sec", why: "Longer average watch time tells the platform people stayed.", act: "Open on the twist, not the intro." },
+    { key: "profile", label: "Profile visit rate", value: perReach(perf, (p) => p.profileVisits), prev: perReach(prev, (p) => p.profileVisits), unit: "pct", why: "Curiosity about the brand: the step before a follow.", act: "Keep the bio and pinned posts pointing to the circle and the Sunday note." },
+    { key: "click", label: "Link click rate", value: perReach(perf, (p) => p.clicks), prev: perReach(prev, (p) => p.clicks), unit: "pct", why: "Moves people off the platform to things you own: the Sunday note and the website.", act: "Say exactly what happens: \"Get the Sunday note\"." },
+  ];
+}
+
+const PLATFORM_NAMES: Record<string, string> = { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", linkedin: "LinkedIn", pinterest: "Pinterest", threads: "Threads", x: "X", bluesky: "Bluesky", youtube: "YouTube", sandbox: "Sandbox" };
+const BRISBANE_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const brisbane = (d: Date) => new Date(d.getTime() + 10 * 3600_000);
+/** "Strong signal" score: weights shares and saves above likes, matching what platforms reward. */
+const signalScore = (p: PostPerf) => (p.shares * 3 + p.saves * 2 + p.comments * 1.5 + p.likes) / Math.max(1, p.reach || p.impressions);
+
+/** Plain-English decisions from the data. Each states its sample size; nothing appears without enough posts. */
+export function dataDecisions(perf: PostPerf[]): string[] {
+  if (perf.length < 5) return [`Decisions appear once at least 5 posts have results (${perf.length} so far). Keep posting consistently: the data needs volume before it can guide you.`];
+  const out: string[] = [];
+  const best = (key: (p: PostPerf) => string, min = 2) => {
+    const g = new Map<string, { n: number; s: number }>();
+    for (const p of perf) {
+      const k = key(p);
+      const c = g.get(k) ?? { n: 0, s: 0 };
+      c.n++;
+      c.s += signalScore(p);
+      g.set(k, c);
+    }
+    return [...g.entries()].filter(([, v]) => v.n >= min).map(([k, v]) => ({ k, n: v.n, avg: v.s / v.n })).sort((a, b) => b.avg - a.avg);
+  };
+  const lift = (a: number, b: number) => (b > 0 ? Math.round((a / b - 1) * 100) : 0);
+  const overall = perf.reduce((a, p) => a + signalScore(p), 0) / perf.length;
+
+  const plat = best((p) => PLATFORM_NAMES[p.platform] ?? p.platform);
+  if (plat.length >= 2) out.push(`Lean into ${plat[0].k}: its posts earn ${lift(plat[0].avg, overall)}% more shares, saves and comments per person reached than your average (${plat[0].n} posts). ${plat.at(-1)!.k} is weakest (${plat.at(-1)!.n} posts): adapt the format there rather than cross-posting.`);
+  const fmt = best((p) => p.format.replace(/_/g, " "));
+  if (fmt.length >= 2) out.push(`Make more ${fmt[0].k} posts: the strongest format for algorithm signals (${fmt[0].n} posts). Fewer ${fmt.at(-1)!.k} posts, or give them a stronger hook.`);
+  const cat = best((p) => CATEGORY_LABELS[p.category] ?? p.category);
+  if (cat.length >= 2) out.push(`"${cat[0].k}" is the content pillar your audience pushes furthest (${cat[0].n} posts). Consider a recurring weekly series on it.`);
+  const day = best((p) => (p.publishedAt ? BRISBANE_DAYS[brisbane(p.publishedAt).getUTCDay()] : "unknown"));
+  if (day.length >= 2 && day[0].k !== "unknown") out.push(`${day[0].k} posts perform best (${day[0].n} posts, Brisbane time). Schedule your strongest piece of the week then.`);
+  const hour = best((p) => {
+    if (!p.publishedAt) return "unknown";
+    const h = brisbane(p.publishedAt).getUTCHours();
+    return h < 9 ? "early morning (before 9am)" : h < 12 ? "mid-morning (9am to noon)" : h < 17 ? "afternoon (noon to 5pm)" : "evening (after 5pm)";
+  });
+  if (hour.length >= 2 && hour[0].k !== "unknown") out.push(`Best time window: ${hour[0].k} (${hour[0].n} posts).`);
+  for (const i of computeInsights(perf)) if (!out.some((o) => o.startsWith(i.slice(0, 20)))) out.push(i);
+  return out.slice(0, 6);
 }

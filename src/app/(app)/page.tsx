@@ -30,6 +30,7 @@ import { canvaStatus } from "@/lib/canva";
 import { keyStatuses } from "@/lib/keys";
 import { JOBS } from "@/lib/jobs";
 import { runResearchNow } from "./actions";
+import { OverviewAnalytics } from "./overview-analytics";
 
 type Tone = "attention" | "ok" | "setup" | "quiet";
 type Capability = {
@@ -358,6 +359,8 @@ export default async function Overview() {
           <p className="text-sm md:ml-auto">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
         </div>
       </section>
+
+      <OverviewAnalytics db={db} />
 
       <div className="space-y-12">
         {groups.map((g) => (
