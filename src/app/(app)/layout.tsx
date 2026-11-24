@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="flex items-center justify-between gap-3 lg:block">
             <Link href="/" className="no-underline lg:mb-6 lg:block lg:px-4">
               <Wordmark />
-              <span className="font-serif text-[1.85rem] font-light leading-none text-signal">
+              <span className="font-serif text-[2.4rem] font-medium leading-none text-signal">
                 Studio<span className="text-hot">.</span>
               </span>
             </Link>
