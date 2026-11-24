@@ -137,3 +137,20 @@ export function Tile({ i, href, icon, title, blurb, value, unit, pill }: TilePro
     </Link>
   );
 }
+
+/** Quick-action tile: a soft card with an icon square, a name and a short hint. */
+export const actionTileCls =
+  "group flex h-full w-full flex-col items-start gap-2.5 rounded-[18px] bg-shell p-3 text-left no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:ring-[rgb(200_0_20/0.25)] sm:gap-3 sm:p-4";
+export function ActionTileFace({ icon, label, hint }: { icon: string; label: string; hint: string }) {
+  return (
+    <>
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-blush text-deepred transition-colors group-hover:bg-signal group-hover:text-white">
+        <Icon name={icon} className="h-[22px] w-[22px]" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[14px] font-bold leading-tight text-ink">{label}</span>
+        <span className="mt-0.5 block text-[12px] leading-tight text-charcoal">{hint}</span>
+      </span>
+    </>
+  );
+}

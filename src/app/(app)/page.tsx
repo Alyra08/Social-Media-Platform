@@ -31,7 +31,7 @@ import { keyStatuses } from "@/lib/keys";
 import { JOBS } from "@/lib/jobs";
 import { runResearchNow } from "./actions";
 import { OverviewAnalytics } from "./overview-analytics";
-import { Icon, ShortcutFace, Tile } from "./overview-ui";
+import { ActionTileFace, actionTileCls, Icon, Tile } from "./overview-ui";
 
 const STAGE_ICON: Record<string, string> = { "1": "search", "2": "palette", "3": "calendar", "4": "chat", "5": "chart", "6": "sliders" };
 
@@ -389,14 +389,14 @@ export default async function Overview() {
     "/analytics": "chart", "/intelligence": "spark", "/archive": "archive", "/settings#keys": "key", "/settings": "sliders", "/notifications": "bell", "/create": "plus", "/ava": "spark",
   };
   const shortcuts = [
-    { icon: "plus", label: "Create a post", href: "/create" },
-    { icon: "palette", label: "Designs", href: "/design" },
-    { icon: "brief", label: "New article", href: "/website" },
-    { icon: "calendar", label: "Planner", href: "/planner" },
-    { icon: "event", label: "Events", href: "/website/events" },
-    { icon: "chat", label: "Inbox", href: "/inbox" },
-    { icon: "mail", label: "Sunday note", href: "/website/newsletter" },
-    { icon: "chart", label: "Analytics", href: "/analytics" },
+    { icon: "plus", label: "Create a post", hint: "Design studio", href: "/create" },
+    { icon: "palette", label: "Designs", hint: "Approve and edit", href: "/design" },
+    { icon: "brief", label: "New article", hint: "Website", href: "/website" },
+    { icon: "calendar", label: "Planner", hint: "Calendar and grid", href: "/planner" },
+    { icon: "event", label: "Events", hint: "Circles and RSVPs", href: "/website/events" },
+    { icon: "chat", label: "Inbox", hint: "Comments", href: "/inbox" },
+    { icon: "mail", label: "Sunday note", hint: "Newsletter", href: "/website/newsletter" },
+    { icon: "chart", label: "Analytics", hint: "Results", href: "/analytics" },
   ];
 
   return (
@@ -467,20 +467,20 @@ export default async function Overview() {
         </div>
       </section>
 
-      {/* Round shortcuts, Canva-style. */}
-      <nav aria-label="Quick actions" className="no-scrollbar -mx-1 overflow-x-auto px-1 pb-1">
-        <ul className="flex justify-start gap-2 sm:justify-center sm:gap-4">
+      {/* Quick actions as tiles: an icon, the name and a short hint. */}
+      <nav aria-label="Quick actions">
+        <ul className="grid grid-cols-3 gap-2 sm:gap-3">
           <li>
-            <form action={runResearchNow.bind(null, "daily")} className="flex w-20 shrink-0 flex-col items-center sm:w-24">
-              <button className="group flex cursor-pointer flex-col items-center gap-2">
-                <ShortcutFace icon="search" label="Run research" />
+            <form action={runResearchNow.bind(null, "daily")} className="h-full">
+              <button className={`${actionTileCls} cursor-pointer`}>
+                <ActionTileFace icon="search" label="Run research" hint="Fresh stories now" />
               </button>
             </form>
           </li>
           {shortcuts.map((s) => (
             <li key={s.href}>
-              <Link href={s.href} className="group flex w-20 shrink-0 flex-col items-center gap-2 no-underline sm:w-24">
-                <ShortcutFace icon={s.icon} label={s.label} />
+              <Link href={s.href} className={actionTileCls}>
+                <ActionTileFace icon={s.icon} label={s.label} hint={s.hint} />
               </Link>
             </li>
           ))}
