@@ -8,7 +8,7 @@
   --color-rose: #fea0ae;
   --color-tangerine: #fb6526;
   --color-blush: #ffecef;
-  --color-page: #fff6f7; /* Blush at 50% over white: the page background */
+  --color-page: #ffffff; /* Page background: white (owner choice, 24 Nov 2026). The brief says Blush; change back here if wanted. */
   --color-shell: #fff9fa;
   --color-rosemist: #ffe0e3;
   --color-candy: #ffe0ed;
@@ -34,7 +34,7 @@
 @layer base {
   html,
   body {
-    /* Blush at 50% strength over white (#fff6f7): a paler page. */
+    /* Page background (white). Set by --color-page in @theme. */
     background: var(--color-page);
     color: var(--color-charcoal);
     font-family: var(--font-sans);
