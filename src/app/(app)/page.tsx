@@ -408,8 +408,7 @@ export default async function Overview() {
       <section aria-labelledby="hero" className="relative overflow-hidden rounded-[32px] bg-blush ring-1 ring-inset ring-[rgb(200_0_20/0.06)]">
         <div className="grid grid-cols-1 items-stretch md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           <div className="relative px-6 py-10 sm:px-10 sm:py-14">
-            <p className="label text-deepred">SBF Studio</p>
-            <h1 id="hero" className="mt-4 text-[2.5rem] leading-[1.02] sm:text-6xl xl:text-[4.25rem]">
+            <h1 id="hero" className="text-[2.5rem] leading-[1.02] sm:text-6xl xl:text-[4.25rem]">
               What are we making{" "}
               <span className="script inline-block text-[1.25em] leading-none" style={{ transform: "translateY(0.08em)" }}>
                 today?
