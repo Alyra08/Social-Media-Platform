@@ -518,8 +518,7 @@ export default async function Overview() {
             {/* Editorial header: small stage label, large light serif title, one sentence, then what runs by itself. */}
             <div className="mb-7 grid gap-x-10 gap-y-3 md:grid-cols-[minmax(0,1fr)_16rem] md:items-end">
               <div className="min-w-0">
-                <p className="label text-deepred">Stage {g.step.padStart(2, "0")}</p>
-                <h2 id={`g-${g.step}`} className="mt-2 text-[2.2rem] font-medium sm:text-[2.9rem]">
+                <h2 id={`g-${g.step}`} className="text-[2.2rem] font-medium sm:text-[2.9rem]">
                   {g.title}
                   <em>.</em>
                 </h2>
