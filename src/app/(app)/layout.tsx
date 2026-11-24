@@ -35,11 +35,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen">
       <Stripe />
       <div className="mx-auto flex max-w-[1500px] flex-col gap-6 px-4 py-5 lg:flex-row lg:px-6">
-        <aside className="lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)] lg:w-64 lg:shrink-0 lg:overflow-y-auto">
-          <div className="flex items-center justify-between gap-3 lg:mb-6 lg:block">
-            <Link href="/" className="no-underline">
+        <aside className="no-scrollbar lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)] lg:w-64 lg:shrink-0 lg:overflow-y-auto lg:rounded-[28px] lg:bg-blush lg:px-3 lg:py-6">
+          <div className="flex items-center justify-between gap-3 lg:block">
+            <Link href="/" className="no-underline lg:mb-6 lg:block lg:px-4">
               <Wordmark />
-              <span className="label mt-1 block text-deepred">Studio</span>
+              <span className="font-serif text-[1.85rem] font-light leading-none text-signal">
+                Studio<span className="text-hot">.</span>
+              </span>
             </Link>
             <Nav badges={{ news, content, design, publishing, inbox, website }} />
           </div>
@@ -62,15 +64,25 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </button>
             </form>
           </div>
-          {autoLogin && (
-            <p className="mb-2 rounded-[14px] bg-peachcream px-4 py-2 text-sm" title="Remove SBF_DEV_AUTOLOGIN=1 from .env.local to turn the login back on. The live site always needs a login.">
-              <strong className="text-ink">Login skipped on this computer</strong> for testing.
-            </p>
-          )}
-          {!aiEnabled() && (
-            <p className="mb-2 rounded-[14px] bg-peachcream px-4 py-2 text-sm">
-              <strong className="text-ink">Demo mode:</strong> research and captions are samples. <Link href="/settings#keys">Add the Anthropic key</Link> to go live.
-            </p>
+          {(autoLogin || !aiEnabled()) && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
+              {autoLogin && (
+                <span className="block sm:inline" title="Remove SBF_DEV_AUTOLOGIN=1 from .env.local to turn the login back on. The live site always needs a login.">
+                  <span aria-hidden className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-tangerine align-middle" />
+                  <strong className="text-ink">Testing:</strong> login skipped on this computer
+                </span>
+              )}
+              {!aiEnabled() && (
+                <span className="block sm:inline">
+                  <span aria-hidden className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-hot align-middle" />
+                  <strong className="text-ink">Demo mode:</strong> research and captions are samples.
+                  {" "}
+                  <Link href="/settings#keys" className="font-bold">
+                    Add the AI key
+                  </Link>
+                </span>
+              )}
+            </div>
           )}
           <main id="main" className="mt-4">{children}</main>
           <footer className="mt-16">

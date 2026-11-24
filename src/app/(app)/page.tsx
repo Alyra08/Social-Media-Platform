@@ -379,7 +379,7 @@ export default async function Overview() {
   ];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-16">
       {/*
         Banner. Soft Blush field carries it; Signal Red arrives once, as an arch holding the poster line.
         Type: light serif headline, one handwritten word (brand allows one), Charcoal body. Motifs: arch + hearts.
@@ -403,6 +403,28 @@ export default async function Overview() {
               <input id="hero-q" name="q" placeholder="Search stories, posts, designs, comments" className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-ink outline-none placeholder:text-charcoal" />
               <button className="btn btn-primary btn-sm shrink-0">Search</button>
             </form>
+
+            {/* Needs you now: quiet chips inside the banner, so the first screen answers "what do I do next?" */}
+            <section className="mt-7" aria-labelledby="now">
+              <p id="now" className="font-serif text-[1.35rem] italic leading-none text-deepred">
+                Needs you now
+              </p>
+              {todo.length === 0 ? (
+                <p className="mt-3 text-[15px] text-ink">✓ You&apos;re all caught up.</p>
+              ) : (
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {todo.map((t) => (
+                    <li key={t.href}>
+                      <Link href={t.href} className="group inline-flex items-center gap-2 rounded-full bg-shell py-1.5 pl-1.5 pr-4 text-[14px] font-bold text-ink no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.14)] transition-colors hover:bg-deepred hover:text-white">
+                        <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-deepred px-1.5 text-[13px] text-white group-hover:bg-shell group-hover:text-deepred">{t.n}</span>
+                        {t.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="mt-3 text-[12.5px]">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
+            </section>
           </div>
 
           {/* The one bright moment: a Signal Red arch with the poster line (white, large). */}
@@ -445,37 +467,14 @@ export default async function Overview() {
         </ul>
       </nav>
 
-      {/* Needs you now, as a row of tiles. */}
-      <section aria-labelledby="now">
-        <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h2 id="now" className="text-3xl">
-            Needs you <em>now</em>.
-          </h2>
-          <p className="text-[13px]">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
-        </div>
-        {todo.length === 0 ? (
-          <p className="card text-[15px]">✓ You&apos;re all caught up.</p>
-        ) : (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-            {todo.map((t) => (
-              <li key={t.href}>
-                <Link href={t.href} className="card card-link flex h-full flex-col gap-1 p-4 text-ink no-underline">
-                  <span className="kpi text-4xl">{t.n}</span>
-                  <span className="text-[14px] font-bold leading-snug">{t.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Stage tabs. */}
-      <nav id="how" aria-label="Studio stages" className="scroll-mt-6">
-        <ul className="flex flex-wrap gap-2">
+      {/* Stage index: an editorial contents line. */}
+      <nav id="how" aria-label="Studio stages" className="scroll-mt-6 border-y border-rosemist py-4">
+        <ul className="flex flex-wrap gap-x-7 gap-y-2">
           {groups.map((g) => (
-            <li key={g.step} className="shrink-0">
-              <a href={`#stage-${g.step}`} className="btn btn-sm bg-shell hover:bg-deepred">
-                <span className="font-poster tracking-wide">{g.step.padStart(2, "0")}</span> {g.title}
+            <li key={g.step}>
+              <a href={`#stage-${g.step}`} className="group inline-flex items-baseline gap-2 text-ink no-underline">
+                <span className="label text-deepred">{g.step.padStart(2, "0")}</span>
+                <span className="font-serif text-[1.2rem] leading-none group-hover:text-deepred group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{g.title}</span>
               </a>
             </li>
           ))}
@@ -486,19 +485,19 @@ export default async function Overview() {
         const pv = previews[g.step];
         return (
           <section key={g.step} id={`stage-${g.step}`} aria-labelledby={`g-${g.step}`} className="scroll-mt-6">
-            <div className="mb-5 flex flex-wrap items-end gap-x-5 gap-y-2">
-              <span aria-hidden className="poster poster-outline text-5xl leading-none sm:text-6xl">
-                {g.step.padStart(2, "0")}
-              </span>
-              <div className="min-w-0 flex-1">
-                <h2 id={`g-${g.step}`} className="text-[1.9rem] sm:text-[2.3rem]">
+            {/* Editorial header: small stage label, large light serif title, one sentence, then what runs by itself. */}
+            <div className="mb-7 grid gap-x-10 gap-y-3 md:grid-cols-[minmax(0,1fr)_16rem] md:items-end">
+              <div className="min-w-0">
+                <p className="label text-deepred">Stage {g.step.padStart(2, "0")}</p>
+                <h2 id={`g-${g.step}`} className="mt-2 text-[2.2rem] sm:text-[2.9rem]">
                   {g.title}
                   <em>.</em>
                 </h2>
-                <p className="max-w-3xl text-[15px] leading-relaxed">{g.line}</p>
+                <p className="mt-2 max-w-2xl text-[15.5px] leading-relaxed">{g.line}</p>
               </div>
-              <p className="text-[12.5px] sm:max-w-xs sm:text-right">
-                <span className="label mr-1 text-deepred">Runs on its own</span> {g.auto}
+              <p className="border-l-2 border-rose pl-4 text-[13px] leading-snug">
+                <span className="block font-serif text-[1.05rem] italic text-deepred">Runs on its own</span>
+                {g.auto}
               </p>
             </div>
 
