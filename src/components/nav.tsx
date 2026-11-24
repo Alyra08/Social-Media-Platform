@@ -53,7 +53,7 @@ export const NAV_GROUPS: { title: string; items: Item[] }[] = [
 ];
 export const NAV: Item[] = NAV_GROUPS.flatMap((g) => g.items);
 
-export function Nav({ badges }: { badges: Record<string, number> }) {
+export function Nav({ badges, footer }: { badges: Record<string, number>; footer?: React.ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
@@ -95,6 +95,7 @@ export function Nav({ badges }: { badges: Record<string, number> }) {
             </div>
           ))}
         </div>
+        {footer}
       </nav>
     </>
   );

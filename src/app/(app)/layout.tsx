@@ -7,7 +7,7 @@ import { aiEnabled } from "@/lib/ai/client";
 import { ensureSeed } from "@/lib/seed";
 import { Nav } from "@/components/nav";
 import { FlashToast } from "@/components/flash-toast";
-import { CommandMenu, QuickFindButton } from "@/components/command-menu";
+import { CommandMenu } from "@/components/command-menu";
 import { Stripe, Wordmark } from "@/components/ui";
 import { logoutAction } from "./actions";
 import { nowMs } from "@/lib/time";
@@ -44,29 +44,31 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 Studio<span className="text-hot">.</span>
               </span>
             </Link>
-            <Nav badges={{ news, content, design, publishing, inbox, website }} />
+            <Nav
+              badges={{ news, content, design, publishing, inbox, website }}
+              footer={
+                <div className="mt-6 space-y-0.5 border-t border-rosemist pt-4">
+                  <Link href="/notifications" className="label flex min-h-10 items-center justify-between gap-2 rounded-full px-4 text-ink no-underline hover:bg-shell/70" aria-label={`Notifications, ${unread} unread`}>
+                    <span className="flex items-center gap-2">
+                      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-transparent" />
+                      Notifications
+                    </span>
+                    {unread > 0 && <span className="min-w-6 rounded-full bg-deepred px-2 text-center text-[0.7rem] tracking-normal text-white">{unread}</span>}
+                  </Link>
+                  <form action={logoutAction}>
+                    <button className="label flex min-h-10 w-full items-center gap-2 rounded-full px-4 text-left text-ink hover:bg-shell/70" title={user.email}>
+                      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-transparent" />
+                      Sign out
+                    </button>
+                  </form>
+                </div>
+              }
+            />
           </div>
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <form action="/search" className="min-w-0 flex-1 basis-48">
-              <label className="sr-only" htmlFor="q">
-                Search everything
-              </label>
-              <input id="q" name="q" className="input" placeholder="Search stories, posts, briefs, assets, comments" />
-            </form>
-            <QuickFindButton />
-            <CommandMenu />
-            <Link href="/notifications" className="btn btn-sm" aria-label={`Notifications, ${unread} unread`}>
-              Notifications {unread > 0 && <span className="rounded-full bg-deepred px-2 text-white">{unread}</span>}
-            </Link>
-            <form action={logoutAction}>
-              <button className="btn btn-sm" title={user.email}>
-                Sign out
-              </button>
-            </form>
-          </div>
+          <CommandMenu />
           {(autoLogin || !aiEnabled()) && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
               {autoLogin && (
