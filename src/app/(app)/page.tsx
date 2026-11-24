@@ -415,7 +415,7 @@ export default async function Overview() {
                 today?
               </span>
             </h1>
-            <p className="mt-5 max-w-lg text-[17px] leading-relaxed">Research, write, design, publish and grow your community. Everything waits for your approval before it goes out.</p>
+            <p className="mt-5 max-w-lg text-[15.5px] leading-[1.45]">Research, write, design, publish and grow your community. Everything waits for your approval before it goes out.</p>
             <form action="/search" className="mt-7 flex max-w-xl items-center gap-2 rounded-full bg-shell py-1.5 pl-5 pr-1.5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
               <Icon name="search" className="h-5 w-5 shrink-0 text-deepred" />
               <label htmlFor="hero-q" className="sr-only">
