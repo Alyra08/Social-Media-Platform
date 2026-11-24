@@ -33,6 +33,8 @@ import { runResearchNow } from "./actions";
 import { OverviewAnalytics } from "./overview-analytics";
 import { Icon, ShortcutFace, Tile } from "./overview-ui";
 
+const STAGE_ICON: Record<string, string> = { "1": "search", "2": "palette", "3": "calendar", "4": "chat", "5": "chart", "6": "sliders" };
+
 type Tone = "attention" | "ok" | "setup" | "quiet";
 type Capability = {
   href: string;
@@ -486,18 +488,27 @@ export default async function Overview() {
         </ul>
       </nav>
 
-      {/* Stage index: an editorial contents line. */}
-      <nav id="how" aria-label="Studio stages" className="scroll-mt-6 border-y border-rosemist py-4">
-        <ul className="flex flex-wrap gap-x-7 gap-y-2">
+      {/* How it works: six steps as round icons joined by a dashed line; each jumps to its section. */}
+      <nav id="how" aria-labelledby="how-title" className="scroll-mt-6">
+        <h2 id="how-title" className="mb-8 text-center text-[1.9rem] sm:text-[2.3rem]">
+          How the studio <em>works</em>.
+        </h2>
+        <ol className="relative grid grid-cols-3 gap-x-2 gap-y-8 sm:grid-cols-6">
+          {/* Dashed connector behind the circles (one row on wider screens). */}
+          <span aria-hidden className="absolute left-[8.33%] right-[8.33%] top-8 hidden border-t-2 border-dashed border-rose sm:block" />
           {groups.map((g) => (
-            <li key={g.step}>
-              <a href={`#stage-${g.step}`} className="group inline-flex items-baseline gap-2 text-ink no-underline">
-                <span className="label text-deepred">{g.step.padStart(2, "0")}</span>
-                <span className="font-serif text-[1.2rem] leading-none group-hover:text-deepred group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{g.title}</span>
+            <li key={g.step} className="relative">
+              <a href={`#stage-${g.step}`} className="group flex flex-col items-center gap-3 text-center no-underline">
+                <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-blush text-deepred ring-4 ring-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-signal group-hover:text-white">
+                  <Icon name={STAGE_ICON[g.step] ?? "spark"} className="h-7 w-7" />
+                  <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-bold text-deepred ring-1 ring-rose">{g.step}</span>
+                </span>
+                <span className="max-w-[9rem] text-[14px] font-bold leading-snug text-ink group-hover:text-deepred">{g.title}</span>
+                <span className="-mt-2 text-[12.5px] text-charcoal">{g.stat}</span>
               </a>
             </li>
           ))}
-        </ul>
+        </ol>
       </nav>
 
       {groups.map((g) => {
