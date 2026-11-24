@@ -42,7 +42,7 @@ export default async function EditorialPage({ searchParams }: { searchParams: Pr
                 <span className="pill-ink pill">{ARTICLE_STATUSES[a.status] ?? a.status}</span>
                 {b?.isDemo && <DemoBadge />}
               </div>
-              <h3 className="font-serif text-2xl font-light text-signal">{a.title}</h3>
+              <h3 className="font-serif text-2xl font-light text-deepred">{a.title}</h3>
               {s && <p className="mt-2 text-sm">From: {s.headline}</p>}
               <p className="mt-2 text-sm">Updated {formatBrisbane(a.updatedAt)}</p>
             </Link>

@@ -54,7 +54,7 @@ export function ArticleCard({ a, large = false }: { a: CardArticle; large?: bool
     <article className={`card flex h-full flex-col ${large ? "md:p-8" : ""}`}>
       {a.category && <p className="label mb-2 text-deepred">{CATEGORY_LABELS[a.category] ?? a.category}</p>}
       <h3 className={`font-serif font-light text-signal ${large ? "text-4xl" : "text-2xl"}`}>
-        <Link href={`/site/articles/${a.slug}`} className="text-signal no-underline hover:underline">
+        <Link href={`/site/articles/${a.slug}`} className="text-deepred no-underline hover:underline">
           {a.title}
         </Link>
       </h3>

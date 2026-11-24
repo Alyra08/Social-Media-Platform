@@ -32,7 +32,7 @@ export default async function EventsAdmin() {
           {rows.map(({ e, going }) => (
             <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
               <div>
-                <Link href={`/website/events/${e.id}`} className="font-serif text-xl font-light text-signal no-underline hover:underline">
+                <Link href={`/website/events/${e.id}`} className="font-serif text-xl font-light text-deepred no-underline hover:underline">
                   {e.title}
                 </Link>
                 <p className="text-sm">

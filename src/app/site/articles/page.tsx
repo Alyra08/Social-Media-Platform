@@ -55,7 +55,7 @@ export default async function ArticlesHub({ searchParams }: { searchParams: Prom
 
       {list.length === 0 ? (
         <div className="card text-center">
-          <p className="font-serif text-2xl font-light text-signal">{q || cat ? "Nothing matches that yet." : "The first stories are on their way."}</p>
+          <p className="font-serif text-2xl font-light text-deepred">{q || cat ? "Nothing matches that yet." : "The first stories are on their way."}</p>
           {(q || cat) && (
             <p className="mt-2">
               <Link href="/site/articles">See every story</Link>

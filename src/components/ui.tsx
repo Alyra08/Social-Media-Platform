@@ -76,7 +76,7 @@ export function StatusPill({ status }: { status: string }) {
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="card text-center">
-      <p className="font-serif text-2xl font-light text-signal">{title}</p>
+      <p className="font-serif text-2xl font-light text-deepred">{title}</p>
       {children && <div className="mt-2">{children}</div>}
     </div>
   );

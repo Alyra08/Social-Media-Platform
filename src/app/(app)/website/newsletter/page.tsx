@@ -59,7 +59,7 @@ export default async function NewsletterAdmin() {
           {issues.map((i) => (
             <li key={i.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
               <div>
-                <Link href={`/website/newsletter/${i.id}`} className="font-serif text-xl font-light text-signal no-underline hover:underline">
+                <Link href={`/website/newsletter/${i.id}`} className="font-serif text-xl font-light text-deepred no-underline hover:underline">
                   {i.subject}
                 </Link>
                 <p className="text-sm">

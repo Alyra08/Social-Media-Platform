@@ -64,7 +64,7 @@ export default async function WebsitePage({ searchParams }: { searchParams: Prom
             return (
               <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <Link href={`/website/articles/${a.id}`} className="font-serif text-xl font-light text-signal no-underline hover:underline">
+                  <Link href={`/website/articles/${a.id}`} className="font-serif text-xl font-light text-deepred no-underline hover:underline">
                     {a.title}
                   </Link>
                   <p className="text-sm">

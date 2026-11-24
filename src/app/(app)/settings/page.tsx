@@ -123,7 +123,7 @@ export default async function SettingsPage() {
               return (
                 <details key={g.id} className="card" open={g.id === "ai" && on === 0}>
                   <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2">
-                    <span className="font-serif text-2xl font-light text-signal">{g.title}</span>
+                    <span className="font-serif text-2xl font-light text-deepred">{g.title}</span>
                     <span className={on === items.length ? "pill-ok pill" : on ? "pill" : "pill"}>
                       {on === items.length ? "All added" : on ? `${on} of ${items.length} added` : "Not added yet"}
                     </span>

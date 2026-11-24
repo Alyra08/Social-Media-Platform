@@ -86,7 +86,7 @@ export default async function BrandPage() {
         </div>
         <div className="card-tint">
           <p className="label text-deepred">Fixed lines (never rewritten)</p>
-          <p className="mt-2 font-serif text-2xl font-light text-signal">Unapologetically fierce. Beautifully imperfect.</p>
+          <p className="mt-2 font-serif text-2xl font-light text-deepred">Unapologetically fierce. Beautifully imperfect.</p>
           <p className="mt-2 font-serif text-xl font-light text-ink">A space for the unapologetically fierce, beautifully imperfect woman.</p>
           <p className="label mt-5 text-deepred">Calls to action</p>
           <p>Get the Sunday note · See the next circle · Join the circle · Read the full story</p>

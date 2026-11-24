@@ -19,7 +19,7 @@ import {
   stories,
   subscribers,
 } from "@/db/schema";
-import { PageHeader, PLATFORM_LABEL } from "@/components/ui";
+import { PLATFORM_LABEL } from "@/components/ui";
 import { formatBrisbane } from "@/lib/scheduling";
 import { weeklyOverview } from "@/lib/analytics";
 import { plannerWarnings } from "@/lib/planner";
@@ -48,7 +48,7 @@ function CapabilityCard({ c }: { c: Capability }) {
   return (
     <Link href={c.href} title={c.blurb} className="card card-link group flex h-full flex-col gap-2 p-4 text-charcoal no-underline sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1.5">
-        <h3 className="font-serif text-xl font-light leading-tight text-signal sm:text-[1.6rem]">{c.title}</h3>
+        <h3 className="font-serif text-xl font-light leading-tight text-deepred sm:text-[1.6rem]">{c.title}</h3>
         {c.status && <span className={`${PILL[c.status.tone]} text-[0.66rem]`}>{c.status.label}</span>}
       </div>
       <p className="hidden text-[14.5px] leading-relaxed md:block">{c.blurb}</p>
@@ -126,7 +126,13 @@ export default async function Overview() {
     canvaStatus(db),
     keyStatuses(db),
   ]);
-  const templates = await c(db.select({ n }).from(designs).where(eq(designs.isTemplate, true)));
+  const [templates, topStories, toApprove, nextEvents, openComments] = await Promise.all([
+    c(db.select({ n }).from(designs).where(eq(designs.isTemplate, true))),
+    db.select({ id: stories.id, headline: stories.headline, category: stories.category, score: stories.relevanceScore }).from(stories).where(eq(stories.status, "pending")).orderBy(desc(stories.relevanceScore)).limit(3),
+    db.select({ id: posts.id, hook: posts.hook, platform: posts.platform }).from(posts).where(inArray(posts.status, ["awaiting_content", "revision_requested", "awaiting_design"])).orderBy(desc(posts.createdAt)).limit(3),
+    db.select({ id: events.id, title: events.title, startsAt: events.startsAt }).from(events).where(and(eq(events.status, "published"), gte(events.startsAt, now))).orderBy(events.startsAt).limit(2),
+    db.select({ id: interactions.id, author: interactions.author, text: interactions.text, platform: interactions.platform }).from(interactions).where(inArray(interactions.status, ["new", "drafted"])).orderBy(desc(interactions.priority)).limit(2),
+  ]);
   const ai = aiEnabled();
   const email = emailReady();
   const keysAdded = keys.filter((k) => k.source !== "none").length;
@@ -140,10 +146,34 @@ export default async function Overview() {
     { n: inboxOpen, label: inboxOpen === 1 ? "comment to answer" : "comments to answer", href: "/inbox" },
   ].filter((t) => t.n > 0);
 
-  const groups: { step: string; title: string; items: Capability[] }[] = [
+  const previewItem = (key: string, href: string, title: string, meta: string) => ({ key, href, title, meta });
+  const previews: Record<string, { empty: string; items: { key: string; href: string; title: string; meta: string }[] }> = {
+    "1": { empty: "No stories waiting. The next research run is at 6:00 am.", items: topStories.map((s) => previewItem(s.id, "/news", s.headline, `${CATEGORY_LABELS[s.category] ?? s.category} · relevance ${s.score}`)) },
+    "2": { empty: "Nothing waiting for approval.", items: toApprove.map((p) => previewItem(p.id, "/content", p.hook || "Untitled post", PLATFORM_LABEL[p.platform] ?? p.platform)) },
+    "3": { empty: "Nothing scheduled in the next 7 days.", items: upcoming.slice(0, 3).map((p) => previewItem(p.id, "/planner", p.hook || "Untitled post", `${PLATFORM_LABEL[p.platform] ?? p.platform} · ${p.scheduledAt ? formatBrisbane(p.scheduledAt) : ""}`)) },
+    "4": {
+      empty: "No comments waiting and no events coming up.",
+      items: [
+        ...nextEvents.map((e) => previewItem(e.id, `/website/events/${e.id}`, e.title, `Event · ${formatBrisbane(e.startsAt)}`)),
+        ...openComments.map((i) => previewItem(i.id, "/inbox", i.text.length > 80 ? `${i.text.slice(0, 80)}…` : i.text, `${i.author} · ${PLATFORM_LABEL[i.platform] ?? i.platform}`)),
+      ],
+    },
+  };
+  const setupChecklist = [
+    { label: "AI research and writing", on: ai, href: "/settings#keys" },
+    { label: "Email for the Sunday note", on: email, href: "/settings#keys" },
+    { label: "Canva", on: canva.connected, href: "/integrations" },
+    { label: "A social account", on: liveAccounts > 0, href: "/integrations" },
+  ];
+
+  const groups: { step: string; title: string; line: string; auto: string; stat: string; tint: string; items: Capability[] }[] = [
     {
       step: "1",
       title: "Find what matters",
+      line: "The studio reads the news for you, scores each story for relevance to SBF and turns the ones you approve into briefs.",
+      auto: "Research every morning at 6:00 am, competitor check weekly.",
+      stat: `${pendingStories} to review`,
+      tint: "bg-shell",
       items: [
         {
           href: "/news",
@@ -172,6 +202,10 @@ export default async function Overview() {
     {
       step: "2",
       title: "Create and approve",
+      line: "Captions, designs and full articles, drafted in your voice and checked against the brand brief. Nothing goes anywhere until you approve it.",
+      auto: "Brand check on every draft; approval resets if anything changes.",
+      stat: `${awaitingContent + awaitingDesign + articlesReady} to approve`,
+      tint: "bg-peachcream",
       items: [
         {
           href: "/content",
@@ -209,6 +243,10 @@ export default async function Overview() {
     {
       step: "3",
       title: "Schedule and publish",
+      line: "Approved posts land on the calendar at the best time for each platform, then go out on their own. If anything fails, you hear about it.",
+      auto: "Publishing checks every few minutes, with retries.",
+      stat: `${scheduled} scheduled`,
+      tint: "bg-shell",
       items: [
         {
           href: "/planner",
@@ -239,6 +277,10 @@ export default async function Overview() {
     {
       step: "4",
       title: "Your community",
+      line: "Comments and messages in one inbox, the Sunday note, events with RSVPs and the public website where it all lives.",
+      auto: "Comments sorted by priority; sensitive ones always come to you.",
+      stat: `${subscribersConfirmed} ${subscribersConfirmed === 1 ? "subscriber" : "subscribers"}`,
+      tint: "bg-peachcream",
       items: [
         {
           href: "/inbox",
@@ -276,6 +318,10 @@ export default async function Overview() {
     {
       step: "5",
       title: "Learn and improve",
+      line: "Real results from every platform, the signals the algorithms reward, and what the studio has learned from your approvals.",
+      auto: "Results collected daily; reports weekly, monthly and quarterly.",
+      stat: `${learnedPrefs} learned`,
+      tint: "bg-shell",
       items: [
         {
           href: "/analytics",
@@ -303,6 +349,10 @@ export default async function Overview() {
     {
       step: "6",
       title: "Set up and settings",
+      line: "Add keys and accounts whenever you're ready. Each one switches its part of the studio on straight away.",
+      auto: `${Object.keys(JOBS).length} jobs run on their own once set up.`,
+      stat: `${setupChecklist.filter((s) => s.on).length} of ${setupChecklist.length} on`,
+      tint: "bg-peachcream",
       items: [
         {
           href: "/settings#keys",
@@ -331,104 +381,181 @@ export default async function Overview() {
   ];
 
   return (
-    <div className="space-y-14">
-      <PageHeader eyebrow="Overview" title="Everything the studio does, in one place." emphasis="in one place">
-        <form action={runResearchNow.bind(null, "daily")}>
-          <button className="btn btn-primary">Run research now</button>
-        </form>
-      </PageHeader>
+    <div className="space-y-12">
+      {/* Hero: one poster statement, the day's to-dos beside it. Motifs: arch + stripe. */}
+      <section aria-labelledby="hero" className="card relative overflow-hidden p-6 sm:p-10">
+        <div aria-hidden className="pointer-events-none absolute -right-10 -top-6 hidden h-72 w-56 rounded-t-full bg-rose opacity-60 lg:block" />
+        <div className="relative grid gap-8 lg:grid-cols-[1.35fr_1fr] lg:items-end">
+          <div>
+            <p className="label text-deepred">SBF Studio · overview</p>
+            <h1 id="hero" className="sr-only">
+              Find it. Make it. Say it out loud.
+            </h1>
+            <p aria-hidden className="poster mt-4 text-[2.6rem] sm:text-6xl xl:text-7xl">
+              Find it. Make it.
+            </p>
+            <p aria-hidden className="poster poster-outline text-[2.6rem] sm:text-6xl xl:text-7xl">
+              Say it out loud.
+            </p>
+            <p className="mt-5 max-w-xl font-serif text-xl font-light leading-snug text-ink sm:text-2xl">
+              Research, writing, design, publishing, community and results, in one studio. <em className="text-deepred">You approve everything</em> before it goes out.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <form action={runResearchNow.bind(null, "daily")}>
+                <button className="btn btn-primary">Run research now</button>
+              </form>
+              <a href="#how" className="btn">
+                See how it works
+              </a>
+            </div>
+          </div>
 
-      <section aria-labelledby="now" className="card-tint">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-          <h2 id="now" className="text-2xl">
-            Needs you now.
-          </h2>
-          {todo.length === 0 ? (
-            <p className="text-[15px]">✓ You&apos;re all caught up.</p>
-          ) : (
-            <ul className="flex flex-wrap gap-2">
-              {todo.map((t) => (
-                <li key={t.href}>
-                  <Link href={t.href} className="btn btn-sm bg-shell hover:bg-deepred">
-                    <span className="font-serif text-lg font-light leading-none">{t.n}</span> {t.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-          <p className="text-sm md:ml-auto">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
+          <div className="card-tint relative">
+            <h2 id="now" className="text-3xl">
+              Needs you <em>now</em>.
+            </h2>
+            {todo.length === 0 ? (
+              <p className="mt-3 text-[15px]">✓ You&apos;re all caught up.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-rosemist">
+                {todo.map((t) => (
+                  <li key={t.href}>
+                    <Link href={t.href} className="group flex items-baseline gap-3 py-2.5 text-ink no-underline">
+                      <span className="kpi w-10 text-3xl">{t.n}</span>
+                      <span className="text-[15px] font-bold group-hover:underline">{t.label}</span>
+                      <span aria-hidden className="ml-auto text-deepred">
+                        →
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-3 text-[13px]">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
+          </div>
         </div>
       </section>
 
-      <OverviewAnalytics db={db} />
-
-      <div className="space-y-12">
-        {groups.map((g) => (
-          <section key={g.step} aria-labelledby={`g-${g.step}`}>
-            <div className="mb-5 flex items-center gap-4">
-              <h2 id={`g-${g.step}`} className="flex items-baseline gap-3 text-[1.7rem] sm:text-3xl">
-                <span className="label text-deepred" aria-hidden>
+      {/* How it works: the six stages as one flow, each jumping to its band. */}
+      <section id="how" aria-labelledby="how-title" className="scroll-mt-6">
+        <div className="mb-5 flex items-center gap-4">
+          <h2 id="how-title" className="text-[1.7rem] sm:text-3xl">
+            How the studio <em>works</em>.
+          </h2>
+          <div className="rule flex-1" aria-hidden />
+        </div>
+        <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+          {groups.map((g) => (
+            <li key={g.step}>
+              <a href={`#stage-${g.step}`} className="card card-link group flex h-full flex-col gap-1 p-4 text-charcoal no-underline">
+                <span aria-hidden className="poster poster-outline text-4xl">
                   {g.step.padStart(2, "0")}
                 </span>
-                <span>
-                  {g.title}
-                  <em>.</em>
-                </span>
-              </h2>
-              <div className="rule flex-1" aria-hidden />
-            </div>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
-              {g.items.map((item) => (
-                <CapabilityCard key={item.href} c={item} />
-              ))}
-            </div>
-          </section>
-        ))}
+                <span className="font-serif text-lg font-light leading-tight text-deepred sm:text-xl">{g.title}</span>
+                <span className="mt-auto pt-2 text-[12.5px] font-bold text-ink">{g.stat}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* One band per stage: what it does, what runs on its own, what's in it right now, and its tools. */}
+      <div className="space-y-6">
+        {groups.map((g) => {
+          const pv = previews[g.step];
+          return (
+            <section key={g.step} id={`stage-${g.step}`} aria-labelledby={`g-${g.step}`} className={`scroll-mt-6 rounded-[28px] ${g.tint} p-5 sm:p-8`}>
+              <div className="grid gap-6 lg:grid-cols-[19rem_1fr] lg:gap-8">
+                <div className="flex flex-col gap-3">
+                  <span aria-hidden className="poster poster-outline text-6xl leading-none sm:text-7xl">
+                    {g.step.padStart(2, "0")}
+                  </span>
+                  <h2 id={`g-${g.step}`} className="text-[1.9rem] sm:text-[2.2rem]">
+                    {g.title}
+                    <em>.</em>
+                  </h2>
+                  <p className="text-[15px] leading-relaxed">{g.line}</p>
+                  <p className="text-[13px]">
+                    <span className="label mr-1 text-deepred">Runs on its own</span> {g.auto}
+                  </p>
+
+                  {pv && (
+                    <div className="mt-1 rounded-[18px] border border-rosemist bg-shell p-4">
+                      <p className="label mb-2 text-deepred">Right now</p>
+                      {pv.items.length === 0 ? (
+                        <p className="text-[14px]">{pv.empty}</p>
+                      ) : (
+                        <ul className="space-y-2.5">
+                          {pv.items.map((it) => (
+                            <li key={it.key}>
+                              <Link href={it.href} className="block text-[14px] font-bold leading-snug text-ink no-underline hover:underline">
+                                {it.title}
+                              </Link>
+                              <span className="block text-[12px]">{it.meta}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+
+                  {g.step === "3" && (
+                    <dl className="mt-1 grid grid-cols-4 gap-2 rounded-[18px] border border-rosemist bg-shell p-3 text-center text-[12px]">
+                      {[
+                        ["Planned", week.planned],
+                        ["Approving", week.awaitingApproval],
+                        ["Scheduled", week.scheduled],
+                        ["Published", week.published],
+                      ].map(([k, v]) => (
+                        <div key={k} className="flex flex-col-reverse">
+                          <dt>{k}</dt>
+                          <dd className="kpi text-2xl">{v}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+
+                  {g.step === "6" && (
+                    <ul className="mt-1 space-y-1.5 rounded-[18px] border border-rosemist bg-shell p-4 text-[14px]">
+                      {setupChecklist.map((s) => (
+                        <li key={s.label} className="flex items-center gap-2">
+                          <span aria-hidden className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${s.on ? "bg-ink text-white" : "border border-deepred text-deepred"}`}>
+                            {s.on ? "✓" : ""}
+                          </span>
+                          <span className={s.on ? "text-ink" : ""}>{s.label}</span>
+                          {!s.on && (
+                            <Link href={s.href} className="ml-auto text-[12px] font-bold">
+                              Set up
+                            </Link>
+                          )}
+                          <span className="sr-only">{s.on ? "is on" : "is not set up"}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className="grid content-start gap-3 sm:grid-cols-2 md:gap-4 2xl:grid-cols-3">
+                  {g.items.map((item) => (
+                    <CapabilityCard key={item.href} c={item} />
+                  ))}
+                </div>
+
+                {g.step === "5" && (
+                  <div className="lg:col-span-2">
+                    <OverviewAnalytics db={db} />
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })}
       </div>
 
-      <section aria-labelledby="today" className="grid gap-6 lg:grid-cols-3">
+      <section aria-labelledby="today" className="grid gap-6 lg:grid-cols-2">
         <h2 id="today" className="sr-only">
-          This week
+          Alerts and activity
         </h2>
-        <div className="card">
-          <p className="label mb-2 text-deepred">Coming up this week</p>
-          {upcoming.length === 0 ? (
-            <p className="text-[15px]">Nothing scheduled yet.</p>
-          ) : (
-            <ul className="divide-y divide-rosemist text-[15px]">
-              {upcoming.map((p) => (
-                <li key={p.id} className="py-2">
-                  <span className="label mr-2 text-deepred">{PLATFORM_LABEL[p.platform]}</span>
-                  {p.hook}
-                  <span className="block text-sm">{formatBrisbane(p.scheduledAt)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          <dl className="mt-3 grid grid-cols-4 gap-2 border-t border-rosemist pt-3 text-center text-sm">
-            {[
-              ["Planned", week.planned],
-              ["Approving", week.awaitingApproval],
-              ["Scheduled", week.scheduled],
-              ["Published", week.published],
-            ].map(([k, v]) => (
-              <div key={k} className="flex flex-col-reverse">
-                <dt>{k}</dt>
-                <dd className="font-bold text-ink">{v}</dd>
-              </div>
-            ))}
-          </dl>
-          {Object.keys(week.byCategory).length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1">
-              {Object.entries(week.byCategory).map(([k, v]) => (
-                <span key={k} className="pill">
-                  {CATEGORY_LABELS[k] ?? k}: {v}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
         <div className="card">
           <p className="label mb-2 text-deepred">Alerts</p>
           {attention.length === 0 && warnings.length === 0 ? (

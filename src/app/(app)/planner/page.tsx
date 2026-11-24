@@ -114,7 +114,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
             {v[0].toUpperCase() + v.slice(1)}
           </Link>
         ))}
-        <span className="mx-2 font-serif text-2xl font-light text-signal">{title}</span>
+        <span className="mx-2 font-serif text-2xl font-light text-deepred">{title}</span>
         <Link href={q({ date: step(-1) })} className="btn btn-sm" aria-label="Previous">
           ‹ Previous
         </Link>

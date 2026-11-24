@@ -33,7 +33,7 @@ export default async function IntegrationsPage({ searchParams }: { searchParams:
           return (
             <article key={a.id} className="card flex flex-col gap-3">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="font-serif text-2xl font-light text-signal">{a.name}</h3>
+                <h3 className="font-serif text-2xl font-light text-deepred">{a.name}</h3>
                 <span className={status === "connected" ? "pill-ok pill" : status === "expired" || status === "error" ? "pill-red pill" : "pill"}>
                   {status === "connected" ? "✓ Connected" : status === "expired" ? "Reconnect needed" : status === "error" ? "Error" : "Not connected"}
                 </span>
@@ -94,7 +94,7 @@ export default async function IntegrationsPage({ searchParams }: { searchParams:
         })}
         <article className="card flex flex-col gap-3" id="canva">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-serif text-2xl font-light text-signal">Canva</h3>
+            <h3 className="font-serif text-2xl font-light text-deepred">Canva</h3>
             <span className={canva.connected ? "pill-ok pill" : "pill"}>{canva.connected ? "✓ Connected" : "Not connected"}</span>
           </div>
           <p className="text-[15px]">

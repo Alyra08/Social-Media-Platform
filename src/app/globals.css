@@ -65,7 +65,7 @@
     font-family: var(--font-label);
     text-transform: uppercase;
     letter-spacing: 0.24em;
-    font-size: 0.66rem;
+    font-size: 0.7rem;
   }
   /* Refined surfaces: Shell cards on Blush, hairline edge, no shadows (brand rule). */
   .card {
@@ -149,10 +149,10 @@
     color: var(--color-signal);
     line-height: 0.95;
   }
-  .poster-outline { color: transparent; -webkit-text-stroke: 1.5px var(--color-signal); }
+  .poster-outline { color: transparent; -webkit-text-stroke: 2px var(--color-signal); }
   .script { font-family: var(--font-script); color: var(--color-hot); }
   .muted { color: var(--color-charcoal); opacity: 0.85; }
-  .kpi { font-family: var(--font-serif); font-weight: 300; font-size: 2.6rem; color: var(--color-signal); line-height: 1; }
+  .kpi { font-family: var(--font-serif); font-weight: 400; font-size: 2.6rem; color: var(--color-deepred); line-height: 1; }
 }
 
 /* Public website: long-form reading */

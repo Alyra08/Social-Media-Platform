@@ -49,7 +49,7 @@ export default async function SiteHome({ searchParams }: { searchParams: Promise
           </div>
         ) : (
           <div className="card text-center">
-            <p className="font-serif text-2xl font-light text-signal">The first stories are on their way.</p>
+            <p className="font-serif text-2xl font-light text-deepred">The first stories are on their way.</p>
             <p className="mt-2">Get the Sunday note and you&apos;ll hear the moment they land.</p>
           </div>
         )}
@@ -69,8 +69,8 @@ export default async function SiteHome({ searchParams }: { searchParams: Promise
             {upcoming.map((e) => (
               <li key={e.id} className="card-tint">
                 <p className="label text-deepred">{eventWhen(e.startsAt)}</p>
-                <h3 className="mt-2 font-serif text-2xl font-light text-signal">
-                  <Link href={`/site/events/${e.slug}`} className="text-signal no-underline hover:underline">
+                <h3 className="mt-2 font-serif text-2xl font-light text-deepred">
+                  <Link href={`/site/events/${e.slug}`} className="text-deepred no-underline hover:underline">
                     {e.title}
                   </Link>
                 </h3>

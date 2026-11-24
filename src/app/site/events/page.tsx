@@ -20,7 +20,7 @@ export default async function EventsPage() {
       </header>
       {upcoming.length === 0 ? (
         <div className="card text-center">
-          <p className="font-serif text-2xl font-light text-signal">Nothing on the calendar just yet.</p>
+          <p className="font-serif text-2xl font-light text-deepred">Nothing on the calendar just yet.</p>
           <p className="mt-2">
             New events go out first in <Link href="/site/newsletter">the Sunday note</Link>.
           </p>
@@ -31,7 +31,7 @@ export default async function EventsPage() {
             <li key={e.id} className="card flex flex-col">
               <p className="label text-deepred">{eventWhen(e.startsAt)}</p>
               <h2 className="mt-2 text-3xl">
-                <Link href={`/site/events/${e.slug}`} className="text-signal no-underline hover:underline">
+                <Link href={`/site/events/${e.slug}`} className="text-deepred no-underline hover:underline">
                   {e.title}
                 </Link>
               </h2>

@@ -215,7 +215,7 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
 
                 {p.status === "awaiting_design" && (
                   <form action={uploadDesign} className="card-tint flex flex-col justify-center gap-3">
-                    <p className="font-serif text-xl font-light text-signal">Upload my own design.</p>
+                    <p className="font-serif text-xl font-light text-deepred">Upload my own design.</p>
                     <input type="hidden" name="postId" value={p.id} />
                     <select name="format" className="select" aria-label="Format">
                       {Object.entries(DESIGN_FORMATS).map(([k, v]) => (
