@@ -9,6 +9,7 @@ import { weeklyOverview } from "@/lib/analytics";
 import { CATEGORY_LABELS } from "@/lib/brand/brief";
 import { createCampaign } from "../actions";
 import { nowMs } from "@/lib/time";
+import { InstagramGrid } from "./instagram-grid";
 
 const STATUS_LABEL: Record<string, string> = {
   awaiting_content: "Awaiting content approval",
@@ -49,10 +50,10 @@ function range(view: string, anchorIso: string) {
 
 export default async function PlannerPage({ searchParams }: { searchParams: Promise<{ view?: string; date?: string; platform?: string; category?: string; campaign?: string }> }) {
   const sp = await searchParams;
-  const view = ["day", "week", "month", "quarter", "campaign"].includes(sp.view ?? "") ? sp.view! : "month";
+  const view = ["day", "week", "month", "quarter", "campaign", "grid"].includes(sp.view ?? "") ? sp.view! : "month";
   const todayIso = isoLocal(new Date());
   const anchor = sp.date ?? todayIso;
-  const r = range(view === "campaign" ? "month" : view, anchor);
+  const r = range(view === "campaign" || view === "grid" ? "month" : view, anchor);
   const db = await getDb();
 
   let rows = await db
@@ -110,25 +111,29 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <nav aria-label="View" className="segmented">
-          {["day", "week", "month", "quarter", "campaign"].map((v) => (
+          {["day", "week", "month", "quarter", "campaign", "grid"].map((v) => (
             <Link key={v} href={q({ view: v })} className="seg" aria-current={view === v ? "page" : undefined}>
-              {v[0].toUpperCase() + v.slice(1)}
+              {v === "grid" ? "Instagram grid" : v[0].toUpperCase() + v.slice(1)}
             </Link>
           ))}
         </nav>
-        <span className="mx-2 font-serif text-2xl font-light text-deepred">{title}</span>
-        <Link href={q({ date: step(-1) })} className="btn btn-sm" aria-label="Previous">
-          ‹ Previous
-        </Link>
-        <Link href={q({ date: todayIso })} className="btn btn-sm">
-          Today
-        </Link>
-        <Link href={q({ date: step(1) })} className="btn btn-sm" aria-label="Next">
-          Next ›
-        </Link>
+        {view !== "grid" && (
+          <>
+            <span className="mx-2 font-serif text-2xl font-medium text-deepred">{title}</span>
+            <Link href={q({ date: step(-1) })} className="btn btn-sm" aria-label="Previous">
+              ‹ Previous
+            </Link>
+            <Link href={q({ date: todayIso })} className="btn btn-sm">
+              Today
+            </Link>
+            <Link href={q({ date: step(1) })} className="btn btn-sm" aria-label="Next">
+              Next ›
+            </Link>
+          </>
+        )}
       </div>
 
-      <form className="mb-6 flex flex-wrap gap-2" aria-label="Calendar filters">
+      <form className={`mb-6 flex flex-wrap gap-2 ${view === "grid" ? "hidden" : ""}`} aria-label="Calendar filters">
         <input type="hidden" name="view" value={view} />
         <input type="hidden" name="date" value={anchor} />
         <select name="platform" defaultValue={sp.platform ?? ""} className="select max-w-[200px]" aria-label="Platform">
@@ -162,7 +167,9 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
 
       <div className="grid gap-6 xl:grid-cols-4">
         <div className="xl:col-span-3">
-          {view === "campaign" ? (
+          {view === "grid" ? (
+            <InstagramGrid db={db} />
+          ) : view === "campaign" ? (
             <div className="space-y-4">
               {[...camps, { id: "", name: "No campaign" }].map((c) => {
                 const list = rows.filter((p) => (p.campaignId ?? "") === c.id);

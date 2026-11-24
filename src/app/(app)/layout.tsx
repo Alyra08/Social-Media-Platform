@@ -7,6 +7,7 @@ import { aiEnabled } from "@/lib/ai/client";
 import { ensureSeed } from "@/lib/seed";
 import { Nav } from "@/components/nav";
 import { FlashToast } from "@/components/flash-toast";
+import { CommandMenu, QuickFindButton } from "@/components/command-menu";
 import { Stripe, Wordmark } from "@/components/ui";
 import { logoutAction } from "./actions";
 import { nowMs } from "@/lib/time";
@@ -55,6 +56,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </label>
               <input id="q" name="q" className="input" placeholder="Search stories, posts, briefs, assets, comments" />
             </form>
+            <QuickFindButton />
+            <CommandMenu />
             <Link href="/notifications" className="btn btn-sm" aria-label={`Notifications, ${unread} unread`}>
               Notifications {unread > 0 && <span className="rounded-full bg-deepred px-2 text-white">{unread}</span>}
             </Link>

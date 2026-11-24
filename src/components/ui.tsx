@@ -27,10 +27,11 @@ export function Wordmark({ small = false }: { small?: boolean }) {
 export function PageHeader({ eyebrow, title, emphasis, children }: { eyebrow?: string; title: string; emphasis?: string; children?: ReactNode }) {
   const parts = emphasis && title.includes(emphasis) ? title.split(emphasis) : null;
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        {eyebrow && <p className="label mb-2 text-deepred">{eyebrow}</p>}
-        <h1>
+    <header className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-b border-rosemist pb-6">
+      <div className="min-w-0">
+        {eyebrow && <p className="label mb-2.5 text-deepred">{eyebrow}</p>}
+        <h1 className="font-medium">
+
           {parts ? (
             <>
               {parts[0]}
@@ -73,11 +74,17 @@ export function StatusPill({ status }: { status: string }) {
   return <span className={s.cls}>{s.label}</span>;
 }
 
+/** Kind empty state: the brand arch and a heart, a clear title, and what to do next. */
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="card text-center">
-      <p className="font-serif text-2xl font-light text-deepred">{title}</p>
-      {children && <div className="mt-2">{children}</div>}
+    <div className="flex flex-col items-center rounded-[22px] bg-shell px-6 py-12 text-center ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+      <span aria-hidden className="relative mb-5 flex h-20 w-16 items-end justify-center rounded-t-full bg-blush">
+        <svg viewBox="-12 -8 24 24" className="mb-4 h-7 w-7">
+          <path d="M0 6C-8-6-22 4 0 20 22 4 8-6 0 6z" transform="scale(0.55)" fill="var(--color-signal)" />
+        </svg>
+      </span>
+      <p className="font-serif text-[1.75rem] font-medium leading-tight text-deepred">{title}</p>
+      {children && <div className="mt-2 max-w-md text-[15px] leading-relaxed">{children}</div>}
     </div>
   );
 }
