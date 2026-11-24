@@ -268,7 +268,7 @@ export const postVersions = pgTable("post_versions", {
 export type DesignParams = {
   layout: "poster" | "editorial" | "quote" | "stripe" | "arch";
   lead: "signal" | "hot" | "tangerine";
-  canvas: "blush" | "shell" | "roseMist" | "candy" | "peach" | "peachCream";
+  canvas: "white" | "blush" | "shell" | "roseMist" | "candy" | "peach" | "peachCream";
   headline: string;
   emphasis: string; // the 2–3 words set in italic
   poster?: string; // one Anton statement

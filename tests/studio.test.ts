@@ -152,3 +152,12 @@ describe("post score", () => {
     expect(draft.checks.find((c) => !c.ok)?.key).toBe("caption");
   });
 });
+
+describe("white background", () => {
+  it("offers a pure white canvas and understands 'white background'", async () => {
+    const { renderDesignSvg } = await import("@/lib/design/render");
+    const r = applyPrompt(base, "white background");
+    expect(r.params.canvas).toBe("white");
+    expect(renderDesignSvg({ format: "ig_portrait", params: r.params })).toContain('fill="#FFFFFF"/>');
+  });
+});

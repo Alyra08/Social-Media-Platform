@@ -122,7 +122,7 @@ const AiDesignDelta = z.object({
   emphasis: z.string().nullable(),
   layout: z.enum(["poster", "editorial", "quote", "stripe", "arch"]).nullable(),
   lead: z.enum(["signal", "hot", "tangerine"]).nullable(),
-  canvas: z.enum(["blush", "shell", "roseMist", "candy", "peach", "peachCream"]).nullable(),
+  canvas: z.enum(["white", "blush", "shell", "roseMist", "candy", "peach", "peachCream"]).nullable(),
   headlineScale: z.number().nullable(),
   logoScale: z.number().nullable(),
   textDensity: z.number().nullable(),

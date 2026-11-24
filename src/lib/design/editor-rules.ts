@@ -22,6 +22,7 @@ export const LEADS: { key: DesignParams["lead"]; label: string; hex: string }[] 
   { key: "tangerine", label: "Tangerine", hex: "#FB6526" },
 ];
 export const CANVASES: { key: DesignParams["canvas"]; label: string; hex: string }[] = [
+  { key: "white", label: "White", hex: "#FFFFFF" },
   { key: "blush", label: "Blush", hex: "#FFECEF" },
   { key: "shell", label: "Shell", hex: "#FFF9FA" },
   { key: "roseMist", label: "Rose Mist", hex: "#FFE0E3" },
@@ -103,6 +104,7 @@ const RULES: Rule[] = [
   { re: /peach/i, say: "Peach canvas", apply: (p) => ({ ...p, canvas: "peach" }) },
   { re: /candy/i, say: "Candy canvas", apply: (p) => ({ ...p, canvas: "candy" }) },
   { re: /blush/i, say: "Blush canvas", apply: (p) => ({ ...p, canvas: "blush" }) },
+  { re: /\bwhite\b/i, say: "White background", apply: (p) => ({ ...p, canvas: "white" }) },
   { re: /no (motifs|decoration)|plain/i, say: "Removed decoration", apply: (p) => ({ ...p, motifs: [] }) },
 ];
 
