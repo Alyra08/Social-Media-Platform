@@ -37,13 +37,15 @@ export function Icon({ name, className = "h-5 w-5" }: { name: string; className?
   );
 }
 
-const SHORTCUT_BG = ["bg-signal", "bg-hot", "bg-tangerine", "bg-deepred"];
 
-/** Round, colourful quick action with its label underneath (the label sits on the light page, never on the bright). */
-export function ShortcutFace({ i, icon, label }: { i: number; icon: string; label: string }) {
+/**
+ * Round quick action: a soft Blush circle with a Deep Red icon that fills Signal Red on hover.
+ * Tints at rest keep the row calm; colour arrives on intent.
+ */
+export function ShortcutFace({ icon, label }: { i?: number; icon: string; label: string }) {
   return (
     <>
-      <span className={`flex h-14 w-14 items-center justify-center rounded-full text-white transition-transform group-hover:-translate-y-0.5 sm:h-16 sm:w-16 ${SHORTCUT_BG[i % SHORTCUT_BG.length]}`}>
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush text-deepred ring-1 ring-inset ring-[rgb(200_0_20/0.10)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-signal group-hover:text-white group-hover:ring-signal sm:h-16 sm:w-16">
         <Icon name={icon} className="h-6 w-6 sm:h-7 sm:w-7" />
       </span>
       <span className="text-center text-[12.5px] font-bold leading-tight text-ink sm:text-[13px]">{label}</span>
@@ -51,34 +53,42 @@ export function ShortcutFace({ i, icon, label }: { i: number; icon: string; labe
   );
 }
 
-/* Thumbnail styles: a field colour, the colour of the big number on it, and one motif. */
-const THUMBS = [
-  { bg: "bg-signal", num: "text-white", motif: "arch" },
-  { bg: "bg-peach", num: "text-deepred", motif: "hearts" },
-  { bg: "bg-hot", num: "text-white", motif: "flower" },
-  { bg: "bg-candy", num: "text-deepred", motif: "stripe" },
-  { bg: "bg-tangerine", num: "text-white", motif: "arch" },
-  { bg: "bg-rosemist", num: "text-deepred", motif: "rosearch" },
+/*
+ * Thumbnails. Balance rule: the soft tints carry the page; the first tile in each section is the
+ * one bright "feature" (Signal Red). Brights elsewhere appear only as small motifs.
+ * Numbers: white on Signal Red (large type, 4:1), Deep Red on tints (4.9:1 or better).
+ */
+const FEATURE = { bg: "bg-signal", num: "text-white", motif: "arch", ring: "" };
+const TINTS = [
+  { bg: "bg-blush", num: "text-deepred", motif: "hearts", ring: "ring-1 ring-inset ring-[rgb(200_0_20/0.06)]" },
+  { bg: "bg-peachcream", num: "text-deepred", motif: "rosearch", ring: "ring-1 ring-inset ring-[rgb(251_101_38/0.12)]" },
+  { bg: "bg-candy", num: "text-deepred", motif: "flower", ring: "ring-1 ring-inset ring-[rgb(255_0_108/0.08)]" },
+  { bg: "bg-rosemist", num: "text-deepred", motif: "stripe", ring: "ring-1 ring-inset ring-[rgb(200_0_20/0.06)]" },
 ] as const;
 
 function Motif({ kind }: { kind: string }) {
   switch (kind) {
     case "arch":
-      return <span aria-hidden className="absolute -bottom-6 right-4 h-24 w-20 rounded-t-full bg-shell opacity-25 sm:h-28 sm:w-24" />;
+      return (
+        <>
+          <span aria-hidden className="absolute -bottom-8 right-5 h-28 w-24 rounded-t-full bg-shell opacity-20 sm:h-32 sm:w-28" />
+          <span aria-hidden className="absolute -bottom-10 right-14 h-20 w-16 rounded-t-full bg-shell opacity-10 sm:h-24 sm:w-20" />
+        </>
+      );
     case "rosearch":
-      return <span aria-hidden className="absolute -bottom-4 right-4 h-24 w-20 rounded-t-full bg-rose sm:h-28 sm:w-24" />;
+      return <span aria-hidden className="absolute -bottom-6 right-5 h-24 w-20 rounded-t-full bg-rose opacity-70 sm:h-28 sm:w-24" />;
     case "flower":
       return (
-        <svg aria-hidden viewBox="0 0 100 100" className="absolute -bottom-5 -right-3 h-28 w-28 sm:h-32 sm:w-32">
+        <svg aria-hidden viewBox="0 0 100 100" className="absolute -bottom-6 -right-4 h-24 w-24 opacity-90 sm:h-28 sm:w-28">
           {[0, 60, 120, 180, 240, 300].map((r) => (
-            <ellipse key={r} cx="50" cy="26" rx="14" ry="24" fill="var(--color-tangerine)" transform={`rotate(${r} 50 50)`} />
+            <ellipse key={r} cx="50" cy="26" rx="14" ry="24" fill="var(--color-hot)" transform={`rotate(${r} 50 50)`} />
           ))}
           <circle cx="50" cy="50" r="13" fill="var(--color-peach)" />
         </svg>
       );
     case "hearts":
       return (
-        <svg aria-hidden viewBox="0 0 100 60" className="absolute bottom-2 right-2 h-16 w-28">
+        <svg aria-hidden viewBox="0 0 100 60" className="absolute bottom-2 right-2 h-14 w-24 sm:h-16 sm:w-28">
           {[
             [70, 18, 1],
             [44, 38, 0.7],
@@ -90,7 +100,7 @@ function Motif({ kind }: { kind: string }) {
       );
     case "stripe":
       return (
-        <span aria-hidden className="absolute inset-x-0 bottom-0 flex h-3">
+        <span aria-hidden className="absolute inset-x-0 bottom-0 flex h-2">
           <span className="flex-1 bg-signal" />
           <span className="flex-1 bg-hot" />
           <span className="flex-1 bg-tangerine" />
@@ -104,12 +114,12 @@ function Motif({ kind }: { kind: string }) {
 
 export type TileProps = { i: number; href: string; icon: string; title: string; blurb: string; value: number | string; unit: string; pill?: { label: string; cls: string } };
 
-/** Canva-style tile: a picture-like thumbnail (colour field, motif, icon, big number), then the name underneath. */
+/** Picture-style tile: thumbnail (colour field, motif, icon, big number), then the name underneath. i = position within its section. */
 export function Tile({ i, href, icon, title, blurb, value, unit, pill }: TileProps) {
-  const t = THUMBS[i % THUMBS.length];
+  const t = i === 0 ? FEATURE : TINTS[(i - 1) % TINTS.length];
   return (
-    <Link href={href} title={blurb} className="group flex flex-col gap-2.5 text-charcoal no-underline">
-      <div className={`relative aspect-[16/11] overflow-hidden rounded-[18px] ${t.bg} p-3.5 transition-transform duration-300 group-hover:-translate-y-1 sm:p-4`}>
+    <Link href={href} title={blurb} className="group flex flex-col gap-3 text-charcoal no-underline">
+      <div className={`relative aspect-[16/11] overflow-hidden rounded-[20px] ${t.bg} ${t.ring} p-3.5 transition-transform duration-300 group-hover:-translate-y-1 sm:p-4`}>
         <Motif kind={t.motif} />
         <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-shell text-deepred">
           <Icon name={icon} className="h-[18px] w-[18px]" />
@@ -120,8 +130,8 @@ export function Tile({ i, href, icon, title, blurb, value, unit, pill }: TilePro
         </span>
       </div>
       <div className="px-0.5">
-        <p className="font-serif text-[1.3rem] font-normal leading-tight text-deepred group-hover:underline">{title}</p>
-        <p className="text-[13px] leading-snug">{unit}</p>
+        <p className="font-serif text-[1.35rem] font-normal leading-tight text-deepred decoration-1 underline-offset-4 group-hover:underline">{title}</p>
+        <p className="mt-0.5 text-[13px] font-bold leading-snug text-ink">{unit}</p>
         <p className="mt-1 hidden text-[13.5px] leading-snug md:block">{blurb}</p>
       </div>
     </Link>

@@ -377,47 +377,68 @@ export default async function Overview() {
     { icon: "mail", label: "Sunday note", href: "/website/newsletter" },
     { icon: "chart", label: "Analytics", href: "/analytics" },
   ];
-  let tileIndex = 0;
 
   return (
     <div className="space-y-12">
-      {/* Banner: one bright field, big white type, the search front and centre. Motifs: arch + flower. */}
-      <section aria-labelledby="hero" className="relative overflow-hidden rounded-[28px] bg-signal px-5 py-10 text-center sm:px-10 sm:py-14">
-        <span aria-hidden className="pointer-events-none absolute -left-8 bottom-[-3rem] h-44 w-36 rounded-t-full bg-shell opacity-15 sm:h-56 sm:w-44" />
-        <svg aria-hidden viewBox="0 0 100 100" className="pointer-events-none absolute -right-9 -top-9 h-24 w-24 sm:-right-6 sm:-top-6 sm:h-44 sm:w-44">
-          {[0, 60, 120, 180, 240, 300].map((r) => (
-            <ellipse key={r} cx="50" cy="26" rx="14" ry="24" fill="var(--color-tangerine)" transform={`rotate(${r} 50 50)`} />
-          ))}
-          <circle cx="50" cy="50" r="13" fill="var(--color-peach)" />
-        </svg>
-        <h1 id="hero" className="relative mx-auto max-w-3xl text-[2.4rem] leading-[1.05] text-white sm:text-6xl">
-          What are we <em className="text-white">making</em> today?
-        </h1>
-        <p className="relative mx-auto mt-3 max-w-2xl text-[19px] font-bold text-white">Research, write, design, publish and grow. All in one studio.</p>
-        <form action="/search" className="relative mx-auto mt-7 flex max-w-2xl items-center gap-2 rounded-full bg-shell py-1.5 pl-5 pr-1.5">
-          <Icon name="search" className="h-5 w-5 shrink-0 text-deepred" />
-          <label htmlFor="hero-q" className="sr-only">
-            Search the studio
-          </label>
-          <input id="hero-q" name="q" placeholder="Search stories, posts, designs, comments" className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-ink outline-none placeholder:text-charcoal" />
-          <button className="btn btn-primary btn-sm shrink-0">Search</button>
-        </form>
+      {/*
+        Banner. Soft Blush field carries it; Signal Red arrives once, as an arch holding the poster line.
+        Type: light serif headline, one handwritten word (brand allows one), Charcoal body. Motifs: arch + hearts.
+      */}
+      <section aria-labelledby="hero" className="relative overflow-hidden rounded-[32px] bg-blush ring-1 ring-inset ring-[rgb(200_0_20/0.06)]">
+        <div className="grid grid-cols-1 items-stretch md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          <div className="relative px-6 py-10 sm:px-10 sm:py-14">
+            <p className="label text-deepred">SBF Studio</p>
+            <h1 id="hero" className="mt-4 text-[2.5rem] leading-[1.02] sm:text-6xl xl:text-[4.25rem]">
+              What are we making{" "}
+              <span className="script inline-block text-[1.25em] leading-none" style={{ transform: "translateY(0.08em)" }}>
+                today?
+              </span>
+            </h1>
+            <p className="mt-5 max-w-lg text-[17px] leading-relaxed">Research, write, design, publish and grow your community. Everything waits for your approval before it goes out.</p>
+            <form action="/search" className="mt-7 flex max-w-xl items-center gap-2 rounded-full bg-shell py-1.5 pl-5 pr-1.5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
+              <Icon name="search" className="h-5 w-5 shrink-0 text-deepred" />
+              <label htmlFor="hero-q" className="sr-only">
+                Search the studio
+              </label>
+              <input id="hero-q" name="q" placeholder="Search stories, posts, designs, comments" className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-ink outline-none placeholder:text-charcoal" />
+              <button className="btn btn-primary btn-sm shrink-0">Search</button>
+            </form>
+          </div>
+
+          {/* The one bright moment: a Signal Red arch with the poster line (white, large). */}
+          <div aria-hidden className="relative hidden min-h-[320px] items-end justify-center overflow-hidden md:flex">
+            <div className="relative mr-8 flex h-[88%] w-[72%] max-w-[300px] flex-col items-center justify-center rounded-t-full bg-signal px-6 pt-10 text-center">
+              <p className="poster text-[2.6rem] leading-[0.92] text-white lg:text-5xl">Say it</p>
+              <p className="poster text-[2.6rem] leading-[0.92] text-white lg:text-5xl">out loud.</p>
+              <svg viewBox="0 0 100 60" className="mt-5 h-10 w-20">
+                {[
+                  [50, 14, 1],
+                  [24, 34, 0.6],
+                  [78, 36, 0.6],
+                ].map(([x, y, s], k) => (
+                  <path key={k} transform={`translate(${x} ${y}) scale(${s})`} d="M0 6C-8-6-22 4 0 20 22 4 8-6 0 6z" fill="var(--color-blush)" />
+                ))}
+              </svg>
+            </div>
+            <span className="absolute -bottom-6 right-0 h-36 w-24 rounded-t-full bg-rose opacity-80" />
+          </div>
+        </div>
       </section>
 
       {/* Round shortcuts, Canva-style. */}
-      <nav aria-label="Quick actions" className="-mx-1 overflow-x-auto px-1 pb-1">
+      <nav aria-label="Quick actions" className="no-scrollbar -mx-1 overflow-x-auto px-1 pb-1">
         <ul className="flex justify-start gap-2 sm:justify-center sm:gap-4">
           <li>
             <form action={runResearchNow.bind(null, "daily")} className="flex w-20 shrink-0 flex-col items-center sm:w-24">
               <button className="group flex cursor-pointer flex-col items-center gap-2">
-                <ShortcutFace i={0} icon="search" label="Run research" />
+                <ShortcutFace icon="search" label="Run research" />
               </button>
             </form>
           </li>
-          {shortcuts.map((s, i) => (
+          {shortcuts.map((s) => (
             <li key={s.href}>
               <Link href={s.href} className="group flex w-20 shrink-0 flex-col items-center gap-2 no-underline sm:w-24">
-                <ShortcutFace i={i + 1} icon={s.icon} label={s.label} />
+                <ShortcutFace icon={s.icon} label={s.label} />
               </Link>
             </li>
           ))}
@@ -449,8 +470,8 @@ export default async function Overview() {
       </section>
 
       {/* Stage tabs. */}
-      <nav id="how" aria-label="Studio stages" className="scroll-mt-6 overflow-x-auto pb-1">
-        <ul className="flex gap-2">
+      <nav id="how" aria-label="Studio stages" className="scroll-mt-6">
+        <ul className="flex flex-wrap gap-2">
           {groups.map((g) => (
             <li key={g.step} className="shrink-0">
               <a href={`#stage-${g.step}`} className="btn btn-sm bg-shell hover:bg-deepred">
@@ -482,10 +503,10 @@ export default async function Overview() {
             </div>
 
             <div className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-5 xl:grid-cols-4">
-              {g.items.map((item) => (
+              {g.items.map((item, idx) => (
                 <Tile
                   key={item.href}
-                  i={tileIndex++}
+                  i={idx}
                   href={item.href}
                   icon={ICON[item.href] ?? "spark"}
                   title={item.title}

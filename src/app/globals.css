@@ -179,3 +179,9 @@
   .site-link:hover, .site-link[aria-current="page"] { color: var(--color-deepred); text-decoration: underline; text-underline-offset: 6px; }
   .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 }
+
+/* Horizontal rows that swipe on phones without showing a scrollbar. */
+@layer utilities {
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+}
