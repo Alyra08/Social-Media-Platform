@@ -31,6 +31,7 @@ import { keyStatuses } from "@/lib/keys";
 import { JOBS } from "@/lib/jobs";
 import { runResearchNow } from "./actions";
 import { OverviewAnalytics } from "./overview-analytics";
+import { Icon, ShortcutFace, Tile } from "./overview-ui";
 
 type Tone = "attention" | "ok" | "setup" | "quiet";
 type Capability = {
@@ -43,24 +44,6 @@ type Capability = {
 };
 
 const PILL: Record<Tone, string> = { attention: "pill-red pill", ok: "pill-ok pill", setup: "pill-ink pill", quiet: "pill" };
-
-function CapabilityCard({ c }: { c: Capability }) {
-  return (
-    <Link href={c.href} title={c.blurb} className="card card-link group flex h-full flex-col gap-2 p-4 text-charcoal no-underline sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1.5">
-        <h3 className="font-serif text-xl font-light leading-tight text-deepred sm:text-[1.6rem]">{c.title}</h3>
-        {c.status && <span className={`${PILL[c.status.tone]} text-[0.66rem]`}>{c.status.label}</span>}
-      </div>
-      <p className="hidden text-[14.5px] leading-relaxed md:block">{c.blurb}</p>
-      <div className="rule mt-auto" />
-      <p className="flex items-baseline gap-2 pt-1">
-        <span className="kpi text-3xl sm:text-4xl">{c.value}</span>
-        <span className="text-[13px] leading-tight">{c.unit}</span>
-        <span aria-hidden className="ml-auto text-deepred opacity-0 transition-opacity group-hover:opacity-100">→</span>
-      </p>
-    </Link>
-  );
-}
 
 export default async function Overview() {
   const db = await getDb();
@@ -380,107 +363,143 @@ export default async function Overview() {
     },
   ];
 
+  const ICON: Record<string, string> = {
+    "/news": "news", "/editorial": "brief", "/competitors": "eye", "/content": "check", "/design": "palette", "/website": "globe", "/brand": "book",
+    "/planner": "calendar", "/publishing": "send", "/integrations": "plug", "/inbox": "chat", "/website/newsletter": "mail", "/website/events": "event", "/site": "globe",
+    "/analytics": "chart", "/intelligence": "spark", "/archive": "archive", "/settings#keys": "key", "/settings": "sliders", "/notifications": "bell",
+  };
+  const shortcuts = [
+    { icon: "palette", label: "Designs", href: "/design" },
+    { icon: "brief", label: "New article", href: "/website" },
+    { icon: "calendar", label: "Planner", href: "/planner" },
+    { icon: "event", label: "Events", href: "/website/events" },
+    { icon: "chat", label: "Inbox", href: "/inbox" },
+    { icon: "mail", label: "Sunday note", href: "/website/newsletter" },
+    { icon: "chart", label: "Analytics", href: "/analytics" },
+  ];
+  let tileIndex = 0;
+
   return (
     <div className="space-y-12">
-      {/* Hero: one poster statement, the day's to-dos beside it. Motifs: arch + stripe. */}
-      <section aria-labelledby="hero" className="card relative overflow-hidden p-6 sm:p-10">
-        <div aria-hidden className="pointer-events-none absolute -right-10 -top-6 hidden h-72 w-56 rounded-t-full bg-rose opacity-60 lg:block" />
-        <div className="relative grid gap-8 lg:grid-cols-[1.35fr_1fr] lg:items-end">
-          <div>
-            <p className="label text-deepred">SBF Studio · overview</p>
-            <h1 id="hero" className="sr-only">
-              Find it. Make it. Say it out loud.
-            </h1>
-            <p aria-hidden className="poster mt-4 text-[2.6rem] sm:text-6xl xl:text-7xl">
-              Find it. Make it.
-            </p>
-            <p aria-hidden className="poster poster-outline text-[2.6rem] sm:text-6xl xl:text-7xl">
-              Say it out loud.
-            </p>
-            <p className="mt-5 max-w-xl font-serif text-xl font-light leading-snug text-ink sm:text-2xl">
-              Research, writing, design, publishing, community and results, in one studio. <em className="text-deepred">You approve everything</em> before it goes out.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <form action={runResearchNow.bind(null, "daily")}>
-                <button className="btn btn-primary">Run research now</button>
-              </form>
-              <a href="#how" className="btn">
-                See how it works
-              </a>
-            </div>
-          </div>
-
-          <div className="card-tint relative">
-            <h2 id="now" className="text-3xl">
-              Needs you <em>now</em>.
-            </h2>
-            {todo.length === 0 ? (
-              <p className="mt-3 text-[15px]">✓ You&apos;re all caught up.</p>
-            ) : (
-              <ul className="mt-3 divide-y divide-rosemist">
-                {todo.map((t) => (
-                  <li key={t.href}>
-                    <Link href={t.href} className="group flex items-baseline gap-3 py-2.5 text-ink no-underline">
-                      <span className="kpi w-10 text-3xl">{t.n}</span>
-                      <span className="text-[15px] font-bold group-hover:underline">{t.label}</span>
-                      <span aria-hidden className="ml-auto text-deepred">
-                        →
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className="mt-3 text-[13px]">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
-          </div>
-        </div>
+      {/* Banner: one bright field, big white type, the search front and centre. Motifs: arch + flower. */}
+      <section aria-labelledby="hero" className="relative overflow-hidden rounded-[28px] bg-signal px-5 py-10 text-center sm:px-10 sm:py-14">
+        <span aria-hidden className="pointer-events-none absolute -left-8 bottom-[-3rem] h-44 w-36 rounded-t-full bg-shell opacity-15 sm:h-56 sm:w-44" />
+        <svg aria-hidden viewBox="0 0 100 100" className="pointer-events-none absolute -right-9 -top-9 h-24 w-24 sm:-right-6 sm:-top-6 sm:h-44 sm:w-44">
+          {[0, 60, 120, 180, 240, 300].map((r) => (
+            <ellipse key={r} cx="50" cy="26" rx="14" ry="24" fill="var(--color-tangerine)" transform={`rotate(${r} 50 50)`} />
+          ))}
+          <circle cx="50" cy="50" r="13" fill="var(--color-peach)" />
+        </svg>
+        <h1 id="hero" className="relative mx-auto max-w-3xl text-[2.4rem] leading-[1.05] text-white sm:text-6xl">
+          What are we <em className="text-white">making</em> today?
+        </h1>
+        <p className="relative mx-auto mt-3 max-w-2xl text-[19px] font-bold text-white">Research, write, design, publish and grow. All in one studio.</p>
+        <form action="/search" className="relative mx-auto mt-7 flex max-w-2xl items-center gap-2 rounded-full bg-shell py-1.5 pl-5 pr-1.5">
+          <Icon name="search" className="h-5 w-5 shrink-0 text-deepred" />
+          <label htmlFor="hero-q" className="sr-only">
+            Search the studio
+          </label>
+          <input id="hero-q" name="q" placeholder="Search stories, posts, designs, comments" className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-ink outline-none placeholder:text-charcoal" />
+          <button className="btn btn-primary btn-sm shrink-0">Search</button>
+        </form>
       </section>
 
-      {/* How it works: the six stages as one flow, each jumping to its band. */}
-      <section id="how" aria-labelledby="how-title" className="scroll-mt-6">
-        <div className="mb-5 flex items-center gap-4">
-          <h2 id="how-title" className="text-[1.7rem] sm:text-3xl">
-            How the studio <em>works</em>.
+      {/* Round shortcuts, Canva-style. */}
+      <nav aria-label="Quick actions" className="-mx-1 overflow-x-auto px-1 pb-1">
+        <ul className="flex justify-start gap-2 sm:justify-center sm:gap-4">
+          <li>
+            <form action={runResearchNow.bind(null, "daily")} className="flex w-20 shrink-0 flex-col items-center sm:w-24">
+              <button className="group flex cursor-pointer flex-col items-center gap-2">
+                <ShortcutFace i={0} icon="search" label="Run research" />
+              </button>
+            </form>
+          </li>
+          {shortcuts.map((s, i) => (
+            <li key={s.href}>
+              <Link href={s.href} className="group flex w-20 shrink-0 flex-col items-center gap-2 no-underline sm:w-24">
+                <ShortcutFace i={i + 1} icon={s.icon} label={s.label} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Needs you now, as a row of tiles. */}
+      <section aria-labelledby="now">
+        <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <h2 id="now" className="text-3xl">
+            Needs you <em>now</em>.
           </h2>
-          <div className="rule flex-1" aria-hidden />
+          <p className="text-[13px]">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
         </div>
-        <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+        {todo.length === 0 ? (
+          <p className="card text-[15px]">✓ You&apos;re all caught up.</p>
+        ) : (
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+            {todo.map((t) => (
+              <li key={t.href}>
+                <Link href={t.href} className="card card-link flex h-full flex-col gap-1 p-4 text-ink no-underline">
+                  <span className="kpi text-4xl">{t.n}</span>
+                  <span className="text-[14px] font-bold leading-snug">{t.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Stage tabs. */}
+      <nav id="how" aria-label="Studio stages" className="scroll-mt-6 overflow-x-auto pb-1">
+        <ul className="flex gap-2">
           {groups.map((g) => (
-            <li key={g.step}>
-              <a href={`#stage-${g.step}`} className="card card-link group flex h-full flex-col gap-1 p-4 text-charcoal no-underline">
-                <span aria-hidden className="poster poster-outline text-4xl">
-                  {g.step.padStart(2, "0")}
-                </span>
-                <span className="font-serif text-lg font-light leading-tight text-deepred sm:text-xl">{g.title}</span>
-                <span className="mt-auto pt-2 text-[12.5px] font-bold text-ink">{g.stat}</span>
+            <li key={g.step} className="shrink-0">
+              <a href={`#stage-${g.step}`} className="btn btn-sm bg-shell hover:bg-deepred">
+                <span className="font-poster tracking-wide">{g.step.padStart(2, "0")}</span> {g.title}
               </a>
             </li>
           ))}
-        </ol>
-      </section>
+        </ul>
+      </nav>
 
-      {/* One band per stage: what it does, what runs on its own, what's in it right now, and its tools. */}
-      <div className="space-y-6">
-        {groups.map((g) => {
-          const pv = previews[g.step];
-          return (
-            <section key={g.step} id={`stage-${g.step}`} aria-labelledby={`g-${g.step}`} className={`scroll-mt-6 rounded-[28px] ${g.tint} p-5 sm:p-8`}>
-              <div className="grid gap-6 lg:grid-cols-[19rem_1fr] lg:gap-8">
-                <div className="flex flex-col gap-3">
-                  <span aria-hidden className="poster poster-outline text-6xl leading-none sm:text-7xl">
-                    {g.step.padStart(2, "0")}
-                  </span>
-                  <h2 id={`g-${g.step}`} className="text-[1.9rem] sm:text-[2.2rem]">
-                    {g.title}
-                    <em>.</em>
-                  </h2>
-                  <p className="text-[15px] leading-relaxed">{g.line}</p>
-                  <p className="text-[13px]">
-                    <span className="label mr-1 text-deepred">Runs on its own</span> {g.auto}
-                  </p>
+      {groups.map((g) => {
+        const pv = previews[g.step];
+        return (
+          <section key={g.step} id={`stage-${g.step}`} aria-labelledby={`g-${g.step}`} className="scroll-mt-6">
+            <div className="mb-5 flex flex-wrap items-end gap-x-5 gap-y-2">
+              <span aria-hidden className="poster poster-outline text-5xl leading-none sm:text-6xl">
+                {g.step.padStart(2, "0")}
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 id={`g-${g.step}`} className="text-[1.9rem] sm:text-[2.3rem]">
+                  {g.title}
+                  <em>.</em>
+                </h2>
+                <p className="max-w-3xl text-[15px] leading-relaxed">{g.line}</p>
+              </div>
+              <p className="text-[12.5px] sm:max-w-xs sm:text-right">
+                <span className="label mr-1 text-deepred">Runs on its own</span> {g.auto}
+              </p>
+            </div>
 
+            <div className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-5 xl:grid-cols-4">
+              {g.items.map((item) => (
+                <Tile
+                  key={item.href}
+                  i={tileIndex++}
+                  href={item.href}
+                  icon={ICON[item.href] ?? "spark"}
+                  title={item.title}
+                  blurb={item.blurb}
+                  value={item.value}
+                  unit={item.unit}
+                  pill={item.status ? { label: item.status.label, cls: PILL[item.status.tone] } : undefined}
+                />
+              ))}
+
+              {(pv || g.step === "3" || g.step === "6") && (
+                <div className="card col-span-2 flex flex-col gap-3 p-4 sm:p-5 md:col-span-1">
                   {pv && (
-                    <div className="mt-1 rounded-[18px] border border-rosemist bg-shell p-4">
+                    <div>
                       <p className="label mb-2 text-deepred">Right now</p>
                       {pv.items.length === 0 ? (
                         <p className="text-[14px]">{pv.empty}</p>
@@ -498,9 +517,8 @@ export default async function Overview() {
                       )}
                     </div>
                   )}
-
                   {g.step === "3" && (
-                    <dl className="mt-1 grid grid-cols-4 gap-2 rounded-[18px] border border-rosemist bg-shell p-3 text-center text-[12px]">
+                    <dl className="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-rosemist pt-3 text-center text-[12px]">
                       {[
                         ["Planned", week.planned],
                         ["Approving", week.awaitingApproval],
@@ -514,43 +532,39 @@ export default async function Overview() {
                       ))}
                     </dl>
                   )}
-
                   {g.step === "6" && (
-                    <ul className="mt-1 space-y-1.5 rounded-[18px] border border-rosemist bg-shell p-4 text-[14px]">
-                      {setupChecklist.map((s) => (
-                        <li key={s.label} className="flex items-center gap-2">
-                          <span aria-hidden className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${s.on ? "bg-ink text-white" : "border border-deepred text-deepred"}`}>
-                            {s.on ? "✓" : ""}
-                          </span>
-                          <span className={s.on ? "text-ink" : ""}>{s.label}</span>
-                          {!s.on && (
-                            <Link href={s.href} className="ml-auto text-[12px] font-bold">
-                              Set up
-                            </Link>
-                          )}
-                          <span className="sr-only">{s.on ? "is on" : "is not set up"}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div>
+                      <p className="label mb-2 text-deepred">Set-up checklist</p>
+                      <ul className="space-y-1.5 text-[14px]">
+                        {setupChecklist.map((s) => (
+                          <li key={s.label} className="flex items-center gap-2">
+                            <span aria-hidden className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] ${s.on ? "bg-ink text-white" : "border border-deepred text-deepred"}`}>
+                              {s.on ? "✓" : ""}
+                            </span>
+                            <span className={s.on ? "text-ink" : ""}>{s.label}</span>
+                            {!s.on && (
+                              <Link href={s.href} className="ml-auto text-[12px] font-bold">
+                                Set up
+                              </Link>
+                            )}
+                            <span className="sr-only">{s.on ? "is on" : "is not set up"}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
+              )}
+            </div>
 
-                <div className="grid content-start gap-3 sm:grid-cols-2 md:gap-4 2xl:grid-cols-3">
-                  {g.items.map((item) => (
-                    <CapabilityCard key={item.href} c={item} />
-                  ))}
-                </div>
-
-                {g.step === "5" && (
-                  <div className="lg:col-span-2">
-                    <OverviewAnalytics db={db} />
-                  </div>
-                )}
+            {g.step === "5" && (
+              <div className="mt-8">
+                <OverviewAnalytics db={db} />
               </div>
-            </section>
-          );
-        })}
-      </div>
+            )}
+          </section>
+        );
+      })}
 
       <section aria-labelledby="today" className="grid gap-6 lg:grid-cols-2">
         <h2 id="today" className="sr-only">

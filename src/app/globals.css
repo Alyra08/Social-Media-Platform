@@ -8,6 +8,7 @@
   --color-rose: #fea0ae;
   --color-tangerine: #fb6526;
   --color-blush: #ffecef;
+  --color-page: #fff6f7; /* Blush at 50% over white: the page background */
   --color-shell: #fff9fa;
   --color-rosemist: #ffe0e3;
   --color-candy: #ffe0ed;
@@ -33,7 +34,8 @@
 @layer base {
   html,
   body {
-    background: var(--color-blush);
+    /* Blush at 50% strength over white (#fff6f7): a paler page. */
+    background: var(--color-page);
     color: var(--color-charcoal);
     font-family: var(--font-sans);
     font-size: 17px;

@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-blush">
+    <div className="flex min-h-screen flex-col bg-page">
       <a href="#content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
         Skip to content
       </a>
