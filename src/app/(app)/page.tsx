@@ -523,7 +523,7 @@ export default async function Overview() {
                   {g.title}
                   <em>.</em>
                 </h2>
-                <p className="mt-2 max-w-2xl text-[15.5px] leading-relaxed">{g.line}</p>
+                <p className="mt-2 max-w-2xl text-[15.5px] leading-[1.45]">{g.line}</p>
               </div>
               <p className="border-l-2 border-rose pl-4 text-[13px] leading-snug">
                 <span className="block font-serif text-[1.05rem] italic text-deepred">Runs on its own</span>
