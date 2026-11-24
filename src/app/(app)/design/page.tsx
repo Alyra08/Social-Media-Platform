@@ -37,12 +37,17 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
   return (
     <div>
       <PageHeader eyebrow="Post design approval centre" title="Make it look like us." emphasis="like us">
-        <Link href="/design" className={`btn btn-sm ${show !== "approved" ? "btn-primary" : ""}`}>
-          Awaiting approval
+        <Link href="/create" className="btn btn-sm">
+          Open the design studio
         </Link>
-        <Link href="/design?show=approved" className={`btn btn-sm ${show === "approved" ? "btn-primary" : ""}`}>
-          Approved
-        </Link>
+        <nav aria-label="Show" className="segmented">
+          <Link href="/design" className="seg" aria-current={show !== "approved" ? "page" : undefined}>
+            Awaiting approval
+          </Link>
+          <Link href="/design?show=approved" className="seg" aria-current={show === "approved" ? "page" : undefined}>
+            Approved
+          </Link>
+        </nav>
       </PageHeader>
 
       {waiting.length === 0 ? (
@@ -110,6 +115,11 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                     {d.feedback && <p className="mt-2 text-sm">Feedback: “{d.feedback}”</p>}
                     <div className="mt-2 flex flex-wrap gap-x-4 text-sm">
                       <a href={`/api/designs/${d.id}/image?download=1`}>Download PNG</a>
+                      {d.params && (
+                        <Link href={`/create/${d.id}`} className="font-bold">
+                          Edit in the studio
+                        </Link>
+                      )}
                       {canva.connected && d.status !== "approved" && p.status === "awaiting_design" && (
                         <form action={openInCanvaAction} className="inline">
                           <input type="hidden" name="postId" value={p.id} />

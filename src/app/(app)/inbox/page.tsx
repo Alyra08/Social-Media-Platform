@@ -33,12 +33,14 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
   return (
     <div>
       <PageHeader eyebrow="Community engagement centre" title="The conversations that need you." emphasis="need you">
-        <Link href="/inbox" className={`btn btn-sm ${show === "open" ? "btn-primary" : ""}`}>
+        <nav aria-label="Show" className="segmented">
+        <Link href="/inbox" className="seg" aria-current={show === "open" ? "page" : undefined}>
           Open
         </Link>
-        <Link href="/inbox?show=done" className={`btn btn-sm ${show !== "open" ? "btn-primary" : ""}`}>
+        <Link href="/inbox?show=done" className="seg" aria-current={show !== "open" ? "page" : undefined}>
           Done
         </Link>
+        </nav>
       </PageHeader>
       <div className="mb-6 flex flex-wrap gap-2">
         <Link href={`/inbox?show=${show}`} className={`pill ${!category ? "pill-red" : ""}`}>

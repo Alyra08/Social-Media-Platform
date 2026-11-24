@@ -207,6 +207,9 @@ export const posts = pgTable(
     seoNotes: text("seo_notes"),
     taglines: jsonb("taglines").$type<string[]>().notNull().default([]),
     designConcept: text("design_concept"),
+    pillar: text("pillar"), // Ava's content pillar (see lib/ava.ts)
+    contentType: text("content_type"), // Ava's content type (see lib/ava.ts)
+    author: text("author"), // who drafted it: "ava" | null (owner/team)
     altText: text("alt_text"),
     script: text("script"),
     suggestedDate: text("suggested_date"),
@@ -277,6 +280,9 @@ export type DesignParams = {
   logoScale: number;
   textDensity: number; // 0.5–1.5
   imageUrl?: string;
+  headlineFont?: string; // keys from lib/design/fonts.ts (brand fonts when unset)
+  posterFont?: string;
+  bodyFont?: string;
 };
 
 export const designs = pgTable("designs", {

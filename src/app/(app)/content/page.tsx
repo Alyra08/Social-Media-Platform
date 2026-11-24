@@ -3,6 +3,8 @@ import { desc, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { campaigns, postVersions, posts, stories } from "@/db/schema";
 import { DemoBadge, Empty, PageHeader, StatusPill, PLATFORM_LABEL } from "@/components/ui";
+import { AvaAvatar } from "@/components/ava";
+import { pillarLabel, typeLabel } from "@/lib/ava";
 import { formatBrisbane } from "@/lib/scheduling";
 import { bulkApprove, duplicatePostAction, postDecision, restorePostVersion, updatePost } from "../actions";
 
@@ -33,9 +35,9 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   return (
     <div>
       <PageHeader eyebrow="Social media content approval centre" title="One topic. Every platform, in your voice." emphasis="in your voice" />
-      <nav className="mb-4 flex flex-wrap gap-2" aria-label="Status">
+      <nav className="segmented mb-4" aria-label="Status">
         {TABS.map((t) => (
-          <Link key={t.key} href={`/content?tab=${t.key}`} className={`btn btn-sm ${tab === t.key ? "btn-primary" : ""}`}>
+          <Link key={t.key} href={`/content?tab=${t.key}`} className="seg" aria-current={tab === t.key ? "page" : undefined}>
             {t.label}
           </Link>
         ))}
@@ -88,6 +90,13 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
                             {PLATFORM_LABEL[p.platform] ?? p.platform} · {p.format}
                           </span>
                           <span className="pill">{p.treatment}</span>
+                          {p.author === "ava" && (
+                            <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-ink" title="Drafted by Ava, your caption specialist">
+                              <AvaAvatar size="sm" /> Ava
+                            </span>
+                          )}
+                          {pillarLabel(p.pillar) && <span className="pill-ok pill">{pillarLabel(p.pillar)}</span>}
+                          {typeLabel(p.contentType) && <span className="pill">{typeLabel(p.contentType)}</span>}
                           {p.isDemo && <DemoBadge />}
                         </div>
                         <div className="flex items-center gap-2">

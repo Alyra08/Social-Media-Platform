@@ -1,3 +1,4 @@
+import { AVA_PERSONA, avaGuidance, contentTypeEnum, pillarEnum } from "./ava";
 import { z } from "zod";
 import type { Db } from "@/db/client";
 import type { BriefData } from "@/db/schema";
@@ -112,17 +113,21 @@ const PostSchema = z.object({
   suggestedTime: z.string().nullable(),
   audience: z.string(),
   engagementGoal: z.string(),
+  pillar: pillarEnum.describe("Ava's content pillar for this post"),
+  contentType: contentTypeEnum.describe("Ava's content type for this post"),
 });
 const PostsSchema = z.object({ posts: z.array(PostSchema) });
-export type GeneratedPost = Omit<z.infer<typeof PostSchema>, "platform"> & { platform: string; category: string };
+export type GeneratedPost = Omit<z.infer<typeof PostSchema>, "platform" | "pillar" | "contentType"> & { platform: string; category: string; pillar?: string; contentType?: string };
 
 export async function generatePosts(db: Db, story: StoryLike, brief: BriefData | null): Promise<{ posts: GeneratedPost[]; isDemo: boolean }> {
   if (!aiEnabled() || story.isDemo) return { posts: demoPosts(story), isDemo: true };
-  const guidance = await learnedGuidance(db, ["voice", "seo", "audience", "performance"]);
+  const [guidance, ava] = await Promise.all([learnedGuidance(db, ["voice", "seo", "audience", "performance"]), avaGuidance(db)]);
   const res = await structured({
     schema: PostsSchema,
     system: SBF_BRAND_BRIEF,
-    task: `You are the SBF social media strategist. Turn one approved topic into a suite of platform-appropriate content. Do NOT duplicate the same caption across platforms: adapt language, structure, length, formatting, hooks and CTAs per channel.
+    task: `${ava}
+
+As Ava, turn one approved topic into a suite of platform-appropriate content. Do NOT duplicate the same caption across platforms: adapt language, structure, length, formatting, hooks and CTAs per channel.
 Produce: Instagram post, Instagram carousel (slide-by-slide in supportingCopy), Instagram Reel concept and script, Instagram Story concept, Facebook post, TikTok concept and script, LinkedIn post (only if appropriate), Pinterest pin, Threads post, X post, Bluesky post, a community discussion prompt, and a Sunday note (newsletter) section if relevant.
 Each post: hook, full caption, supporting copy, CTA (from the approved CTA style: say exactly what happens), hashtags (platform-appropriate count; none for LinkedIn/newsletter if not useful), search keywords placed naturally, SEO notes (social discovery vs search indexing differ — explain per platform), ≥5 original taglines/hooks in the SBF voice (not recycled examples), recommended format, a design concept that follows the brand colour and type rules, meaningful alt text, intended audience and engagement outcome.
 Mechanics: British spelling, sentence case, no exclamation marks, no emoji (✦ allowed), no avoid-list words, no war/battle language, no celebrities. Use ONLY the verified figures provided — otherwise use [real figure] placeholders. Avoid robotic AI phrasing, generic hooks and engagement bait.
@@ -157,7 +162,9 @@ export async function revisePost(
   return structured({
     schema: RevisionSchema,
     system: SBF_BRAND_BRIEF,
-    task: `Revise this ${post.platform} ${post.format} per the owner's feedback, keeping everything else on brand. Use only these verified figures: ${verifiedFigures.join("; ") || "none (use placeholders)"}.\n${guidance}`,
+    task: `${AVA_PERSONA}
+
+As Ava, revise this ${post.platform} ${post.format} per the owner's feedback, keeping everything else on brand. Use only these verified figures: ${verifiedFigures.join("; ") || "none (use placeholders)"}.\n${guidance}`,
     input: `CURRENT\n${JSON.stringify(post, null, 2)}\n\nOWNER FEEDBACK\n${feedback}`,
     effort: "medium",
   });

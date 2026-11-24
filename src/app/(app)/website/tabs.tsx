@@ -8,16 +8,18 @@ const TABS = [
 
 export function WebsiteTabs({ current }: { current: string }) {
   return (
-    <nav className="mb-6 flex flex-wrap items-center gap-2" aria-label="Website sections">
-      {TABS.map((t) => (
-        <Link key={t.href} href={t.href} className={`btn btn-sm ${current === t.href ? "btn-primary" : ""}`} aria-current={current === t.href ? "page" : undefined}>
-          {t.label}
-        </Link>
-      ))}
+    <div className="mb-6 flex flex-wrap items-center gap-3">
+      <nav className="segmented" aria-label="Website sections">
+        {TABS.map((t) => (
+          <Link key={t.href} href={t.href} className="seg" aria-current={current === t.href ? "page" : undefined}>
+            {t.label}
+          </Link>
+        ))}
+      </nav>
       <a href="/site" target="_blank" rel="noopener" className="btn btn-sm ml-auto">
         View the public website ↗
       </a>
-    </nav>
+    </div>
   );
 }
 

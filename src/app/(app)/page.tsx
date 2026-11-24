@@ -109,12 +109,14 @@ export default async function Overview() {
     canvaStatus(db),
     keyStatuses(db),
   ]);
-  const [templates, topStories, toApprove, nextEvents, openComments] = await Promise.all([
+  const [templates, topStories, toApprove, nextEvents, openComments, studioDrafts, avaDrafted] = await Promise.all([
     c(db.select({ n }).from(designs).where(eq(designs.isTemplate, true))),
     db.select({ id: stories.id, headline: stories.headline, category: stories.category, score: stories.relevanceScore }).from(stories).where(eq(stories.status, "pending")).orderBy(desc(stories.relevanceScore)).limit(3),
     db.select({ id: posts.id, hook: posts.hook, platform: posts.platform }).from(posts).where(inArray(posts.status, ["awaiting_content", "revision_requested", "awaiting_design"])).orderBy(desc(posts.createdAt)).limit(3),
     db.select({ id: events.id, title: events.title, startsAt: events.startsAt }).from(events).where(and(eq(events.status, "published"), gte(events.startsAt, now))).orderBy(events.startsAt).limit(2),
     db.select({ id: interactions.id, author: interactions.author, text: interactions.text, platform: interactions.platform }).from(interactions).where(inArray(interactions.status, ["new", "drafted"])).orderBy(desc(interactions.priority)).limit(2),
+    c(db.select({ n }).from(designs).where(and(eq(designs.source, "studio"), eq(designs.status, "draft")))),
+    c(db.select({ n }).from(posts).where(eq(posts.author, "ava"))),
   ]);
   const ai = aiEnabled();
   const email = emailReady();
@@ -190,6 +192,22 @@ export default async function Overview() {
       stat: `${awaitingContent + awaitingDesign + articlesReady} to approve`,
       tint: "bg-peachcream",
       items: [
+        {
+          href: "/create",
+          title: "Design studio",
+          blurb: "Describe a post and the studio drafts the copy and design, then edit everything in the visual editor.",
+          value: studioDrafts,
+          unit: studioDrafts === 1 ? "draft in progress" : "drafts in progress",
+          status: { label: "New", tone: "ok" },
+        },
+        {
+          href: "/ava",
+          title: "Ava, captions",
+          blurb: "Your caption specialist: SEO-aware, algorithm-savvy, rotates pillars and formats, researches trends weekly.",
+          value: avaDrafted,
+          unit: "captions drafted",
+          status: ai ? { label: "Writing live", tone: "ok" } : { label: "Add AI key", tone: "setup" },
+        },
         {
           href: "/content",
           title: "Content approval",
@@ -366,9 +384,10 @@ export default async function Overview() {
   const ICON: Record<string, string> = {
     "/news": "news", "/editorial": "brief", "/competitors": "eye", "/content": "check", "/design": "palette", "/website": "globe", "/brand": "book",
     "/planner": "calendar", "/publishing": "send", "/integrations": "plug", "/inbox": "chat", "/website/newsletter": "mail", "/website/events": "event", "/site": "globe",
-    "/analytics": "chart", "/intelligence": "spark", "/archive": "archive", "/settings#keys": "key", "/settings": "sliders", "/notifications": "bell",
+    "/analytics": "chart", "/intelligence": "spark", "/archive": "archive", "/settings#keys": "key", "/settings": "sliders", "/notifications": "bell", "/create": "plus", "/ava": "spark",
   };
   const shortcuts = [
+    { icon: "plus", label: "Create a post", href: "/create" },
     { icon: "palette", label: "Designs", href: "/design" },
     { icon: "brief", label: "New article", href: "/website" },
     { icon: "calendar", label: "Planner", href: "/planner" },

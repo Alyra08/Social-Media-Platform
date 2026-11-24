@@ -41,9 +41,9 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
         </p>
       )}
 
-      <nav className="mb-4 flex flex-wrap gap-2" aria-label="Story status">
+      <nav className="segmented mb-4" aria-label="Story status">
         {TABS.map((t) => (
-          <Link key={t.key} href={`/news?tab=${t.key}`} className={`btn btn-sm ${tab === t.key ? "btn-primary" : ""}`} aria-current={tab === t.key ? "page" : undefined}>
+          <Link key={t.key} href={`/news?tab=${t.key}`} className="seg" aria-current={tab === t.key ? "page" : undefined}>
             {t.label}
           </Link>
         ))}

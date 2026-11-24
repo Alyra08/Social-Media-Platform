@@ -64,11 +64,13 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   return (
     <div className="space-y-8">
       <PageHeader eyebrow="Analytics and performance intelligence" title="What's working, and what's next." emphasis="what's next">
-        {[7, 30, 90].map((d) => (
-          <Link key={d} href={`/analytics?days=${d}${includeSandbox ? "&sandbox=1" : ""}`} className={`btn btn-sm ${days === d ? "btn-primary" : ""}`}>
-            {d} days
-          </Link>
-        ))}
+        <nav aria-label="Period" className="segmented">
+          {[7, 30, 90].map((d) => (
+            <Link key={d} href={`/analytics?days=${d}${includeSandbox ? "&sandbox=1" : ""}`} className="seg" aria-current={days === d ? "page" : undefined}>
+              {d} days
+            </Link>
+          ))}
+        </nav>
         <Link href={`/analytics?days=${days}${includeSandbox ? "" : "&sandbox=1"}`} className="btn btn-sm">
           {includeSandbox ? "Hide test data" : "Include test data"}
         </Link>

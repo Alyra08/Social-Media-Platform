@@ -1,5 +1,6 @@
 import type { DesignParams } from "@/db/schema";
 import { colours } from "../brand/tokens";
+import { fontByKey } from "./fonts";
 
 /** Platform formats and their exact pixel dimensions. */
 export const DESIGN_FORMATS: Record<string, { label: string; w: number; h: number }> = {
@@ -98,6 +99,10 @@ function wordmark(x: number, y: number, scale: number, logoHref?: string) {
 export type RenderOptions = { format: string; params: DesignParams; logoHref?: string };
 
 export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions): string {
+  const hf = fontByKey(p.headlineFont, "brand-serif");
+  const pf = fontByKey(p.posterFont, "brand-poster");
+  const bf = fontByKey(p.bodyFont, "brand-sans");
+  const extraFonts = [...new Set([hf, pf, bf].map((f) => f.google).filter(Boolean))].map((g) => `&amp;family=${g}`).join("");
   const f = DESIGN_FORMATS[format] ?? DESIGN_FORMATS.ig_square;
   const { w, h } = f;
   const landscape = w > h;
@@ -115,7 +120,10 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   let headSize = Math.round((landscape ? h * 0.1 : w * 0.085) * p.headlineScale);
   const archH = h / w > 1.5 ? h * 0.38 : h * 0.3;
   const headWidth = p.layout === "quote" ? w - pad * 3 : (landscape ? w * 0.55 : w) - pad * 2;
-  const linesFor = (size: number) => wrap(p.headline, Math.max(10, Math.floor(headWidth / (size * 0.47)))).slice(0, 5);
+  // Never drop words: shrink the type until the whole headline fits in five lines.
+  const allLines = (size: number) => wrap(p.headline, Math.max(10, Math.floor(headWidth / (size * (hf.width ?? 0.5)))));
+  for (let i = 0; i < 12 && allLines(headSize).length > 5; i++) headSize = Math.round(headSize * 0.92);
+  const linesFor = (size: number) => allLines(size);
   let headLines = linesFor(headSize);
 
   // Reserve the logo zone (with clear space) so no block ever overlaps it.
@@ -185,7 +193,7 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
     .join("");
   const italicOnBright = headlineOnBright && p.emphasis ? ` font-style="normal"` : "";
   parts.push(
-    `<text x="${hx}" y="${hy}" text-anchor="${anchor}" font-family="'Silk Serif', 'Cormorant Garamond', serif" font-weight="300" font-size="${headSize}" fill="${headlineFill}"${italicOnBright}>${headTspans}</text>`,
+    `<text x="${hx}" y="${hy}" text-anchor="${anchor}" font-family="${esc(hf.family)}" font-weight="${hf.weight ?? 400}" font-size="${headSize}" fill="${headlineFill}"${italicOnBright}>${headTspans}</text>`,
   );
   let cursor = hy + headSize * 1.12 * (headLines.length - 1) + headSize * 0.35;
 
@@ -209,8 +217,8 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
     const py = cursor + ps * 1.25;
     const end = py + (l2 ? ps * 1.05 : 0) + ps * 0.25;
     if (fits(end)) {
-      parts.push(`<text x="${hx}" y="${py}" text-anchor="${anchor}" font-family="Anton, sans-serif" font-size="${ps}" fill="${colours.signal}" letter-spacing="1">${esc(l1)}</text>`);
-      if (l2) parts.push(`<text x="${hx}" y="${py + ps * 1.05}" text-anchor="${anchor}" font-family="Anton, sans-serif" font-size="${ps}" fill="none" stroke="${colours.signal}" stroke-width="2" letter-spacing="1">${esc(l2)}</text>`);
+      parts.push(`<text x="${hx}" y="${py}" text-anchor="${anchor}" font-family="${esc(pf.family)}" font-size="${ps}" fill="${colours.signal}" letter-spacing="1">${esc(l1)}</text>`);
+      if (l2) parts.push(`<text x="${hx}" y="${py + ps * 1.05}" text-anchor="${anchor}" font-family="${esc(pf.family)}" font-size="${ps}" fill="none" stroke="${colours.signal}" stroke-width="2" letter-spacing="1">${esc(l2)}</text>`);
       cursor = end;
     }
   }
@@ -218,14 +226,14 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   // Body copy in Charcoal on lights only.
   if (p.body && density >= 0.9 && p.layout !== "poster") {
     const bs = Math.round(Math.min(w, h) * 0.032);
-    const all = wrap(p.body, Math.floor(headWidth / (bs * 0.56)));
+    const all = wrap(p.body, Math.floor(headWidth / (bs * (bf.width ?? 0.56))));
     let lines = all.slice(0, Math.round(3 * density));
     const by = cursor + bs * 1.8;
     while (lines.length && !fits(by + (lines.length - 1) * bs * 1.4 + bs * 0.4)) lines = lines.slice(0, -1);
     if (lines.length && lines.length < all.length) lines[lines.length - 1] = lines[lines.length - 1].replace(/[\s,.;:]*$/, "…");
     if (lines.length) {
       parts.push(
-        `<text x="${hx}" y="${by}" text-anchor="${anchor}" font-family="'Nunito Sans', sans-serif" font-size="${bs}" fill="${colours.charcoal}">${lines.map((l, i) => `<tspan x="${hx}" dy="${i === 0 ? 0 : bs * 1.4}">${esc(l)}</tspan>`).join("")}</text>`,
+        `<text x="${hx}" y="${by}" text-anchor="${anchor}" font-family="${esc(bf.family)}" font-size="${bs}" fill="${colours.charcoal}">${lines.map((l, i) => `<tspan x="${hx}" dy="${i === 0 ? 0 : bs * 1.4}">${esc(l)}</tspan>`).join("")}</text>`,
       );
     }
   }
@@ -251,5 +259,5 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   const lx = p.layout === "poster" && landscape ? w * 0.66 : pad;
   parts.push(wordmark(lx, logoY, logoScale, logoHref));
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img"><style>@import url('https://fonts.googleapis.com/css2?family=Anton&amp;family=Cormorant+Garamond:ital,wght@0,300;1,300&amp;family=Mrs+Saint+Delafield&amp;family=Nunito+Sans:wght@400;800&amp;display=swap');</style>${parts.join("")}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img"><style>@import url('https://fonts.googleapis.com/css2?family=Anton&amp;family=Cormorant+Garamond:ital,wght@0,300;1,300&amp;family=Mrs+Saint+Delafield&amp;family=Nunito+Sans:wght@400;800${extraFonts}&amp;display=swap');</style>${parts.join("")}</svg>`;
 }

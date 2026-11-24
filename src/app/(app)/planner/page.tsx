@@ -109,11 +109,13 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
       <PageHeader eyebrow="Content planner and calendar" title="The month, at a glance." emphasis="at a glance" />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        {["day", "week", "month", "quarter", "campaign"].map((v) => (
-          <Link key={v} href={q({ view: v })} className={`btn btn-sm ${view === v ? "btn-primary" : ""}`}>
-            {v[0].toUpperCase() + v.slice(1)}
-          </Link>
-        ))}
+        <nav aria-label="View" className="segmented">
+          {["day", "week", "month", "quarter", "campaign"].map((v) => (
+            <Link key={v} href={q({ view: v })} className="seg" aria-current={view === v ? "page" : undefined}>
+              {v[0].toUpperCase() + v.slice(1)}
+            </Link>
+          ))}
+        </nav>
         <span className="mx-2 font-serif text-2xl font-light text-deepred">{title}</span>
         <Link href={q({ date: step(-1) })} className="btn btn-sm" aria-label="Previous">
           ‹ Previous

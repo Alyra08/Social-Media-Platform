@@ -19,6 +19,8 @@ export const NAV_GROUPS: { title: string; items: Item[] }[] = [
   {
     title: "Create",
     items: [
+      { href: "/create", label: "Design studio" },
+      { href: "/ava", label: "Ava, captions" },
       { href: "/content", label: "Content approval", badgeKey: "content" },
       { href: "/design", label: "Design approval", badgeKey: "design" },
       { href: "/website", label: "Website", badgeKey: "website" },

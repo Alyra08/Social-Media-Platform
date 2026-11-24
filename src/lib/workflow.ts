@@ -6,6 +6,7 @@ import { checkBrandCopy, hasBlockingIssues } from "./brand/check";
 import { generateBrief, generatePosts, revisePost } from "./content";
 import { generateDesignsForPost } from "./design/engine";
 import { recordFeedback } from "./learning";
+import { pillarForCategory } from "./ava";
 import { markTopicCovered, runResearch } from "./research";
 import { recommendTime } from "./scheduling";
 import { audit, logActivity, notify, type Actor } from "./system";
@@ -123,6 +124,9 @@ export async function generateContentForStory(db: Db, storyId: string, briefId: 
         suggestedTime: g.suggestedTime,
         audience: g.audience,
         engagementGoal: g.engagementGoal,
+        pillar: g.pillar ?? pillarForCategory(g.category),
+        contentType: g.contentType ?? null,
+        author: isDemo ? null : "ava",
         brandIssues: issues,
         isDemo,
         status: "awaiting_content",
@@ -227,7 +231,12 @@ export async function decidePost(
       .where(eq(posts.id, postId));
     await audit(db, actor, opts.overrideBrandWarnings ? "post.approve_content_override" : "post.approve_content", "post", postId, feedback);
     await recordFeedback(db, { area: "voice", subjectType: "post", subjectId: postId, action: "approve", feedback, extraSignals: [{ key: `approved_treatment_${p.treatment}`, description: `Approves ${p.treatment} treatments` }] });
-    if (isNetwork) {
+    // Posts made in the design studio already carry the owner's own design: keep it rather than generating options.
+    const own = isNetwork ? await db.query.designs.findFirst({ where: and(eq(designs.postId, p.id), inArray(designs.status, ["proposed", "draft"]), eq(designs.source, "studio")) }) : null;
+    if (own) {
+      if (own.status === "draft") await db.update(designs).set({ status: "proposed" }).where(eq(designs.id, own.id));
+      await notify(db, "design_awaiting", "Your studio design is ready for approval", p.hook, `/design?post=${p.id}`);
+    } else if (isNetwork) {
       await logActivity(db, "design:generate", "started", `${p.platform} ${p.format}`);
       const n = await generateDesignsForPost(db, p);
       await logActivity(db, "design:generate", "ok", `${n} design options`);

@@ -20,12 +20,12 @@ export default async function EditorialPage({ searchParams }: { searchParams: Pr
   return (
     <div>
       <PageHeader eyebrow="Editorial opportunities and article briefing" title="Everything you need to write it." emphasis="write it" />
-      <nav className="mb-6 flex flex-wrap gap-2" aria-label="Article status">
-        <Link href="/editorial" className={`btn btn-sm ${!status ? "btn-primary" : ""}`}>
+      <nav className="segmented mb-6" aria-label="Article status">
+        <Link href="/editorial" className="seg" aria-current={!status ? "page" : undefined}>
           All
         </Link>
         {Object.entries(ARTICLE_STATUSES).map(([k, v]) => (
-          <Link key={k} href={`/editorial?status=${k}`} className={`btn btn-sm ${status === k ? "btn-primary" : ""}`}>
+          <Link key={k} href={`/editorial?status=${k}`} className="seg" aria-current={status === k ? "page" : undefined}>
             {v}
           </Link>
         ))}

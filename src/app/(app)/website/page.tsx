@@ -34,12 +34,12 @@ export default async function WebsitePage({ searchParams }: { searchParams: Prom
       </div>
 
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <nav className="flex flex-wrap gap-2" aria-label="Article status">
-          <Link href="/website" className={`btn btn-sm ${!status ? "btn-primary" : ""}`}>
+        <nav className="segmented" aria-label="Article status">
+          <Link href="/website" className="seg" aria-current={!status ? "page" : undefined}>
             All
           </Link>
           {["drafting", "editing", "ready", "approved", "published"].map((k) => (
-            <Link key={k} href={`/website?status=${k}`} className={`btn btn-sm ${status === k ? "btn-primary" : ""}`}>
+            <Link key={k} href={`/website?status=${k}`} className="seg" aria-current={status === k ? "page" : undefined}>
               {ARTICLE_STATUSES[k]}
             </Link>
           ))}
