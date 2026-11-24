@@ -68,3 +68,16 @@ export async function reviewCopyAction(_prev: ReviewState, f: FormData): Promise
   if (!text.trim()) return { text, issues: [] };
   return { text, issues: checkBrandCopy({ caption: text }).map((i) => ({ severity: i.severity, detail: i.detail })) };
 }
+
+/** "Write with Ava": a fresh caption for this post in the brand voice (needs the AI key). */
+export async function avaCaptionAction(input: { platform: string; format: string; headline: string; caption: string; idea: string }): Promise<{ ok: boolean; copy?: { hook: string; caption: string; callToAction: string; hashtags: string[]; altText: string }; message?: string }> {
+  try {
+    await requireUser("editor");
+    const { writeCaptionAsAva } = await import("@/lib/ava-writer");
+    const db = await getDb();
+    const copy = await writeCaptionAsAva(db, input);
+    return { ok: true, copy };
+  } catch (e) {
+    return { ok: false, message: msg(e) };
+  }
+}

@@ -153,3 +153,28 @@ export function checkDesign(p: DesignParams): DesignIssue[] {
   if (offBrand.length) out.push({ severity: "warn", detail: `${offBrand.map((x) => x!.label).join(", ")} isn't a brand font. Fine for a one-off; the brief uses Silk Serif, Anton and Nunito Sans.` });
   return out;
 }
+
+/* ───────────── Post score ───────────── */
+
+export type PostCopy = { hook: string; caption: string; callToAction: string; hashtags: string[]; altText: string };
+const HASHTAG_RANGE: Record<string, [number, number]> = { instagram: [3, 10], tiktok: [3, 6], linkedin: [0, 5], x: [0, 2], threads: [0, 3], bluesky: [0, 3], facebook: [0, 5], pinterest: [2, 8] };
+const CAPTION_MAX: Record<string, number> = { instagram: 2200, tiktok: 2200, facebook: 5000, linkedin: 3000, x: 280, threads: 500, bluesky: 300, pinterest: 500 };
+
+/** How ready a post is to send for approval, out of 100, with the next fixes in plain words. */
+export function postScore(params: DesignParams, copy: PostCopy, platform: string, issues: { severity: string }[]) {
+  const [hMin, hMax] = HASHTAG_RANGE[platform] ?? [0, 10];
+  const max = CAPTION_MAX[platform] ?? 2200;
+  const captionText = copy.caption.replace(/^\[Write the caption\]\s*/, "");
+  const checks = [
+    { key: "design", label: "Design on brand", ok: !issues.some((i) => i.severity === "block"), weight: 20, tip: "Fix the must-fix brand notes." },
+    { key: "polish", label: "No brand notes", ok: issues.length === 0, weight: 10, tip: "Look at the brand notes in the panel." },
+    { key: "headline", label: "Headline ends with a full stop", ok: /[.?]$/.test(params.headline.trim()), weight: 10, tip: "Short, declarative, ending with a full stop." },
+    { key: "hook", label: "Hook fits the first line", ok: copy.hook.trim().length > 0 && copy.hook.length <= 125, weight: 10, tip: "Keep the opening line under 125 characters so it shows before “more”." },
+    { key: "caption", label: "Caption written", ok: !copy.caption.startsWith("[Write the caption]") && captionText.length >= 50 && captionText.length <= max, weight: 20, tip: `Write 50 to ${max} characters, in your voice.` },
+    { key: "cta", label: "Call to action", ok: copy.callToAction.trim().length > 3, weight: 10, tip: "Say exactly what happens next." },
+    { key: "hashtags", label: "Hashtags", ok: copy.hashtags.length >= hMin && copy.hashtags.length <= hMax, weight: 10, tip: `Use ${hMin} to ${hMax} for this platform.` },
+    { key: "alt", label: "Alt text", ok: copy.altText.trim().length >= 20, weight: 10, tip: "Describe the image for screen readers (20+ characters)." },
+  ];
+  const score = checks.reduce((a, c) => a + (c.ok ? c.weight : 0), 0);
+  return { score, checks };
+}

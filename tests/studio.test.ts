@@ -141,3 +141,14 @@ describe("headline fitting", () => {
     for (const w of headline.replace(/[.,:]/g, "").split(" ")) expect(text).toContain(w);
   });
 });
+
+describe("post score", () => {
+  it("scores a finished post at 100 and names the next fix for a draft", async () => {
+    const { postScore } = await import("@/lib/design/editor-rules");
+    const done = postScore(base, { hook: "We saved you a seat.", caption: "Come as you are. Leave louder. ".repeat(3), callToAction: "See the next circle", hashtags: ["a", "b", "c"], altText: "Poster saying we saved you a seat" }, "instagram", []);
+    expect(done.score).toBe(100);
+    const draft = postScore(base, { hook: "Hi.", caption: "[Write the caption] idea", callToAction: "", hashtags: [], altText: "" }, "instagram", []);
+    expect(draft.score).toBeLessThan(60);
+    expect(draft.checks.find((c) => !c.ok)?.key).toBe("caption");
+  });
+});

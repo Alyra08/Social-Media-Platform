@@ -186,7 +186,7 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
 }
 
-/* Segmented control: a soft pill track; the active option is a solid Deep Red pill (white text 6:1). */
+/* Segmented control (view toggles): a soft pill track; the active option is a solid Deep Red pill (white text 6:1). */
 @layer components {
   .segmented {
     display: inline-flex;

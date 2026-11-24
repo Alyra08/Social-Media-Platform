@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useTransition } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, useTransition } from "react";
 import type { DesignParams } from "@/db/schema";
 import { DESIGN_FORMATS, renderDesignSvg } from "@/lib/design/render";
-import { CANVASES, LAYOUTS, LEADS, MOTIFS, checkDesign, tidyParams } from "@/lib/design/editor-rules";
+import { CANVASES, LAYOUTS, LEADS, MOTIFS, checkDesign, postScore, tidyParams } from "@/lib/design/editor-rules";
 import { FONTS, fontByKey } from "@/lib/design/fonts";
 import { checkBrandCopy } from "@/lib/brand/check";
-import { refineAction, saveEditorAction, sendForApprovalAction } from "../actions";
+import { avaCaptionAction, refineAction, saveEditorAction, sendForApprovalAction } from "../actions";
 import { Icon } from "../../overview-ui";
 
 type Copy = { hook: string; caption: string; callToAction: string; hashtags: string[]; altText: string };
@@ -53,11 +53,31 @@ function useHistory(initial: Doc) {
   return { doc: s.doc, update, step, canUndo: s.undo.length > 0, canRedo: s.redo.length > 0 };
 }
 
-function Section({ title, children, id, active }: { title: string; children: React.ReactNode; id?: string; active?: boolean }) {
+/* Accordion cards: one open at a time, each with a tinted icon, a short status and a chevron. */
+const OpenCtx = createContext<{ open: string; setOpen: (id: string) => void }>({ open: "", setOpen: () => {} });
+
+function Section({ title, children, id, icon = "spark", status, tone = "quiet" }: { title: string; children: React.ReactNode; id: string; icon?: string; status?: React.ReactNode; tone?: "ok" | "warn" | "quiet"; active?: boolean }) {
+  const { open, setOpen } = useContext(OpenCtx);
+  const isOpen = open === id;
   return (
-    <section id={id} className={`scroll-mt-4 border-b border-rosemist px-5 py-5 transition-colors ${active ? "bg-blush/60" : ""}`}>
-      <h3 className="mb-3 font-serif text-[1.05rem] italic text-deepred">{title}</h3>
-      {children}
+    <section id={id} className={`mx-3 mb-2.5 scroll-mt-4 overflow-hidden rounded-[18px] bg-white ring-1 ring-inset transition-shadow ${isOpen ? "ring-[rgb(200_0_20/0.22)]" : "ring-[rgb(200_0_20/0.08)]"}`}>
+      <h3 className="font-sans text-[15px] leading-normal tracking-normal">
+        <button type="button" onClick={() => setOpen(isOpen ? "" : id)} aria-expanded={isOpen} aria-controls={`${id}-body`} className="flex w-full items-center gap-3 px-4 py-3 text-left">
+          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${isOpen ? "bg-signal text-white" : "bg-blush text-deepred"}`}>
+            <Icon name={icon} className="h-[18px] w-[18px]" />
+          </span>
+          <span className="min-w-0 flex-1 text-[15px] font-bold text-ink">{title}</span>
+          {status != null && <span className={`shrink-0 text-[12.5px] font-bold ${tone === "ok" ? "text-ink" : tone === "warn" ? "text-deepred" : "text-charcoal"}`}>{status}</span>}
+          <svg viewBox="0 0 24 24" className={`h-4 w-4 shrink-0 text-charcoal transition-transform ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+      </h3>
+      {isOpen && (
+        <div id={`${id}-body`} className="border-t border-rosemist px-4 pb-4 pt-3.5">
+          {children}
+        </div>
+      )}
     </section>
   );
 }
@@ -100,6 +120,9 @@ export function Editor(props: {
   const copyIssues = useMemo(() => checkBrandCopy({ hook: doc.copy.hook, caption: doc.copy.caption, callToAction: doc.copy.callToAction, hashtags: doc.copy.hashtags }), [doc.copy]);
   const issues = [...designIssues, ...copyIssues.map((i) => ({ severity: i.severity, detail: i.detail }))];
   const limit = CAPTION_LIMIT[props.platform] ?? 2200;
+  const score = postScore(p, doc.copy, props.platform, issues);
+  const nextFix = score.checks.find((c) => !c.ok);
+  const [open, setOpen] = useState("panel-headline");
 
   const setP = (patch: Partial<DesignParams>, group = true) => update((d) => ({ ...d, params: { ...d.params, ...patch } }), group);
   const setCopy = (patch: Partial<Copy>) => update((d) => ({ ...d, copy: { ...d.copy, ...patch } }));
@@ -127,6 +150,13 @@ export function Editor(props: {
         if (r.id && r.id !== props.designId) router.replace(`/create/${r.id}`);
         else router.refresh();
       }
+    });
+  const writeWithAva = () =>
+    start(async () => {
+      const r = await avaCaptionAction({ platform: props.platform, format: doc.format, headline: p.headline, caption: doc.copy.caption, idea: doc.copy.hook });
+      if (!r.ok || !r.copy) return flash(false, r.message ?? "Ava couldn't write that.");
+      update((d) => ({ ...d, copy: r.copy! }), false);
+      flash(true, "Ava wrote a new caption. Undo to go back.");
     });
   const refine = () => {
     if (!prompt.trim()) return;
@@ -171,7 +201,9 @@ export function Editor(props: {
   const pick = (k: LayerKey) => {
     setSel(k);
     setRightTab("design");
-    window.setTimeout(() => document.getElementById(`panel-${k}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 30);
+    const card = k === "canvas" ? "panel-canvas" : ["headline", "emphasis", "poster", "script", "body", "label"].includes(k) ? "panel-headline" : `panel-${k}`;
+    setOpen(card);
+    window.setTimeout(() => document.getElementById(card)?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 30);
   };
   const visible = (k: LayerKey) => (k === "photo" ? !!p.imageUrl : k === "motifs" ? p.motifs.length > 0 : OPTIONAL.includes(k) ? !!p[k as "poster"] : true);
   const toggle = (k: LayerKey) => {
@@ -254,7 +286,7 @@ export function Editor(props: {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-[15rem_minmax(0,1fr)_20rem]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)_20rem]">
         {/* Left: layers and sizes */}
         <aside className="no-scrollbar order-2 border-t border-rosemist lg:order-none lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto lg:border-r lg:border-t-0">
           <div className="segmented segmented-sm m-3 grid grid-cols-2">
@@ -337,18 +369,37 @@ export function Editor(props: {
           )}
 
           <div className="flex w-full min-w-0 flex-1 flex-col items-center overflow-auto">
-            <p className="mb-2 self-start rounded-t-[8px] bg-signal px-2.5 py-0.5 text-[12px] font-bold text-white sm:self-center">
-              {f.label} · {f.w} × {f.h}
+            <p className="mb-2.5 inline-flex items-center gap-2 self-start text-[12.5px] sm:self-center">
+              <span className="font-bold text-ink">{f.label}</span>
+              <span className="text-charcoal">{f.w} × {f.h}</span>
             </p>
-            <div className="shrink-0 overflow-hidden rounded-[6px] bg-white ring-2 ring-signal/70 [&>svg]:block [&>svg]:h-auto [&>svg]:w-full" style={{ width: canvasW }} dangerouslySetInnerHTML={{ __html: svg }} role="img" aria-label={`Preview: ${p.headline}`} />
+            <div className="shrink-0 overflow-hidden rounded-[10px] bg-white ring-1 ring-[rgb(200_0_20/0.12)] [&>svg]:block [&>svg]:h-auto [&>svg]:w-full" style={{ width: canvasW }} dangerouslySetInnerHTML={{ __html: svg }} role="img" aria-label={`Preview: ${p.headline}`} />
           </div>
         </main>
 
         {/* Right: design and caption */}
-        <aside className="no-scrollbar order-3 border-t border-rosemist bg-white/60 lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto lg:border-l lg:border-t-0">
-          <div className="segmented segmented-sm m-3 grid grid-cols-2">
+        <OpenCtx.Provider value={{ open, setOpen }}>
+        <aside className="no-scrollbar order-3 border-t border-rosemist bg-shell lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto lg:border-l lg:border-t-0">
+          <div className="m-3 rounded-[18px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+            <div className="flex items-center gap-2">
+              <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold text-white ${score.score >= 80 ? "bg-ink" : "bg-deepred"}`}>{score.score}%</span>
+              <span className="text-[14px] font-bold text-ink">Post score</span>
+              <span className="ml-auto text-[12px]">
+                {score.checks.filter((c) => c.ok).length}/{score.checks.length} checks
+              </span>
+            </div>
+            <div className="mt-2.5 h-2 rounded-full bg-blush" aria-hidden>
+              <div className="h-2 rounded-full bg-signal transition-all" style={{ width: `${score.score}%` }} />
+            </div>
+            {nextFix && (
+              <p className="mt-2 text-[12.5px]">
+                <strong className="text-ink">Next:</strong> {nextFix.tip}
+              </p>
+            )}
+          </div>
+          <div className="segmented segmented-sm mx-3 mb-3 grid grid-cols-2">
             {(["design", "caption"] as const).map((t) => (
-              <button key={t} type="button" onClick={() => setRightTab(t)} className="seg" aria-pressed={rightTab === t}>
+              <button key={t} type="button" onClick={() => { setRightTab(t); setOpen(t === "design" ? "panel-headline" : "cap-caption"); }} className="seg" aria-pressed={rightTab === t}>
                 {t === "design" ? "Design" : "Caption"}
               </button>
             ))}
@@ -356,7 +407,7 @@ export function Editor(props: {
 
           {rightTab === "design" ? (
             <div>
-              <Section title="Layout">
+              <Section title="Layout" id="panel-layout" icon="sliders" status={LAYOUTS.find((l) => l.key === p.layout)?.label}>
                 <div className="grid grid-cols-5 gap-1.5">
                   {LAYOUTS.map((l) => (
                     <button key={l.key} type="button" onClick={() => setP({ layout: l.key }, false)} className={`rounded-[10px] px-1 py-2 text-[11.5px] font-bold ${p.layout === l.key ? "bg-signal text-white" : "bg-blush text-ink hover:bg-rosemist"}`} aria-pressed={p.layout === l.key}>
@@ -366,7 +417,7 @@ export function Editor(props: {
                 </div>
               </Section>
 
-              <Section title="Colour" id="panel-canvas" active={sel === "canvas"}>
+              <Section title="Colour" id="panel-canvas" icon="palette" status={<span className="inline-flex gap-1"><span className="h-3.5 w-3.5 rounded-full" style={{ background: LEADS.find((c) => c.key === p.lead)?.hex }} /><span className="h-3.5 w-3.5 rounded-full ring-1 ring-rosemist" style={{ background: CANVASES.find((c) => c.key === p.canvas)?.hex }} /></span>}>
                 <p className="mb-1.5 text-[12.5px] font-bold text-ink">Lead bright</p>
                 <div className="mb-4 flex gap-2">
                   {LEADS.map((c) => (
@@ -381,7 +432,7 @@ export function Editor(props: {
                 </div>
               </Section>
 
-              <Section title="Words" id="panel-headline" active={["headline", "emphasis", "poster", "script", "body", "label"].includes(sel)}>
+              <Section title="Words" id="panel-headline" icon="brief" status={designIssues.some((i) => /headline|italic|exclamation|emoji|sentence case/i.test(i.detail)) ? "Check" : "✓"} tone={designIssues.some((i) => /headline|italic|exclamation|emoji|sentence case/i.test(i.detail)) ? "warn" : "ok"}>
                 <Field label="Headline" hint="Short and declarative, ending with a full stop.">
                   <textarea rows={3} value={p.headline} onChange={(e) => setP({ headline: e.target.value })} className={inputCls} />
                 </Field>
@@ -412,7 +463,7 @@ export function Editor(props: {
                 </div>
               </Section>
 
-              <Section title="Fonts" id="panel-fonts" active={sel === "fonts"}>
+              <Section title="Fonts" id="panel-fonts" icon="news" status={[p.headlineFont, p.posterFont, p.bodyFont].some(Boolean) ? "Custom" : "Brand"}>
                 {(
                   [
                     ["headlineFont", "Headline", "brand-serif"],
@@ -440,7 +491,7 @@ export function Editor(props: {
                 <p className="text-[12px]">Brand fonts are the default. Others are standard fonts for one-off pieces.</p>
               </Section>
 
-              <Section title="Size and density" id="panel-logo" active={sel === "logo"}>
+              <Section title="Size and density" id="panel-logo" icon="chart" status={`${Math.round(p.headlineScale * 100)}%`}>
                 {(
                   [
                     ["headlineScale", "Headline size", 0.6, 1.8],
@@ -455,7 +506,7 @@ export function Editor(props: {
                 {!props.logoHref && <p className="text-[12px]">No logo yet. It appears once uploaded in Brand library as type Logos.</p>}
               </Section>
 
-              <Section title="Motifs" id="panel-motifs" active={sel === "motifs"}>
+              <Section title="Motifs" id="panel-motifs" icon="spark" status={`${p.motifs.length}/2`}>
                 <div className="flex flex-wrap gap-1.5">
                   {MOTIFS.map((m) => {
                     const on = p.motifs.includes(m.key);
@@ -470,7 +521,7 @@ export function Editor(props: {
                 <p className="mt-2 text-[12px]">Two at most, so each piece stays calm.</p>
               </Section>
 
-              <Section title="Photo" id="panel-photo" active={sel === "photo"}>
+              <Section title="Photo" id="panel-photo" icon="globe" status={p.imageUrl ? "Added" : "None"}>
                 {props.photos.length === 0 ? (
                   <p className="text-[13px]">
                     No photos yet. <Link href="/brand">Upload photos in Brand library</Link> (type Photos). They sit inside the arch layout.
@@ -487,7 +538,7 @@ export function Editor(props: {
                 )}
               </Section>
 
-              <Section title="Brand check">
+              <Section title="Brand check" id="panel-brand" icon="check" status={issues.length ? `${issues.length} ${issues.length === 1 ? "note" : "notes"}` : "✓ On brand"} tone={issues.some((i) => i.severity === "block") ? "warn" : issues.length ? "quiet" : "ok"}>
                 {issues.length === 0 ? (
                   <p className="text-[14px] font-bold text-ink">✓ On brand.</p>
                 ) : (
@@ -504,31 +555,41 @@ export function Editor(props: {
             </div>
           ) : (
             <div>
-              <Section title="Caption">
-                <Field label="Opening line (hook)">
-                  <textarea rows={2} value={doc.copy.hook} onChange={(e) => setCopy({ hook: e.target.value })} className={inputCls} />
-                </Field>
-                <Field label={`Caption · ${doc.copy.caption.length}/${limit}`} hint={doc.copy.caption.length > limit ? "Too long for this platform." : undefined}>
-                  <textarea rows={9} value={doc.copy.caption} onChange={(e) => setCopy({ caption: e.target.value })} className={inputCls} />
-                </Field>
-                <Field label="Call to action" hint='Say exactly what happens, e.g. "Get the Sunday note".'>
-                  <input value={doc.copy.callToAction} onChange={(e) => setCopy({ callToAction: e.target.value })} className={inputCls} />
-                </Field>
-                <Field label="Hashtags" hint="Separate with spaces or commas.">
-                  <input value={doc.copy.hashtags.join(" ")} onChange={(e) => setCopy({ hashtags: e.target.value.split(/[\s,]+/).map((h) => h.replace(/^#/, "")).filter(Boolean) })} className={inputCls} />
-                </Field>
-                <Field label="Alt text" hint="Describe the image for people using screen readers.">
-                  <textarea rows={3} value={doc.copy.altText} onChange={(e) => setCopy({ altText: e.target.value })} className={inputCls} />
-                </Field>
+              <Section title="Opening line" id="cap-hook" icon="spark" status={`${doc.copy.hook.length}/125`} tone={score.checks.find((c) => c.key === "hook")?.ok ? "ok" : "warn"}>
+                <textarea rows={2} value={doc.copy.hook} onChange={(e) => setCopy({ hook: e.target.value })} className={inputCls} aria-label="Opening line" />
+                <p className="mt-2 text-[12px]">Tip: the first 125 characters show before “more”. Lead with the specific detail.</p>
               </Section>
-              <Section title="What happens next">
-                <p className="text-[13.5px] leading-relaxed">
-                  <strong className="text-ink">Send for approval</strong> puts the copy in Content approval. Once it&apos;s approved, this design goes to Design approval, then the planner suggests the best time. Nothing posts without your approval.
-                </p>
+              <Section title="Caption" id="cap-caption" icon="brief" status={`${doc.copy.caption.length}/${limit}`} tone={score.checks.find((c) => c.key === "caption")?.ok ? "ok" : "warn"}>
+                <div className="overflow-hidden rounded-[14px] border border-rosemist bg-white focus-within:ring-2 focus-within:ring-ink">
+                  <div className="flex items-center gap-2 border-b border-rosemist bg-shell px-3 py-1.5">
+                    <span className="text-[12px] font-bold text-charcoal">{props.platform[0].toUpperCase() + props.platform.slice(1)} caption</span>
+                    <button type="button" onClick={writeWithAva} disabled={pending} className="ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12.5px] font-bold text-hot hover:bg-blush disabled:opacity-50" title={props.ai ? "Ava writes or improves the caption" : "Ava needs the AI key"}>
+                      <Icon name="spark" className="h-4 w-4" /> Write with Ava
+                    </button>
+                  </div>
+                  <textarea rows={10} value={doc.copy.caption} onChange={(e) => setCopy({ caption: e.target.value })} className="w-full resize-y px-3 py-2.5 text-[14.5px] leading-relaxed text-ink outline-none" aria-label="Caption" />
+                </div>
+                <p className="mt-2 text-[12px]">Tip: put the words people search for in the first lines, and end with one real question.</p>
               </Section>
+              <Section title="Call to action" id="cap-cta" icon="send" status={score.checks.find((c) => c.key === "cta")?.ok ? "✓" : "Add"} tone={score.checks.find((c) => c.key === "cta")?.ok ? "ok" : "warn"}>
+                <input value={doc.copy.callToAction} onChange={(e) => setCopy({ callToAction: e.target.value })} className={inputCls} aria-label="Call to action" />
+                <p className="mt-2 text-[12px]">Say exactly what happens, e.g. “Get the Sunday note”.</p>
+              </Section>
+              <Section title="Hashtags" id="cap-tags" icon="search" status={`${doc.copy.hashtags.length}`} tone={score.checks.find((c) => c.key === "hashtags")?.ok ? "ok" : "warn"}>
+                <input value={doc.copy.hashtags.join(" ")} onChange={(e) => setCopy({ hashtags: e.target.value.split(/[\s,]+/).map((h) => h.replace(/^#/, "")).filter(Boolean) })} className={inputCls} aria-label="Hashtags" />
+                <p className="mt-2 text-[12px]">{score.checks.find((c) => c.key === "hashtags")?.tip} Separate with spaces.</p>
+              </Section>
+              <Section title="Alt text" id="cap-alt" icon="eye" status={score.checks.find((c) => c.key === "alt")?.ok ? "✓" : "Add"} tone={score.checks.find((c) => c.key === "alt")?.ok ? "ok" : "warn"}>
+                <textarea rows={3} value={doc.copy.altText} onChange={(e) => setCopy({ altText: e.target.value })} className={inputCls} aria-label="Alt text" />
+                <p className="mt-2 text-[12px]">Describe the image for people using screen readers.</p>
+              </Section>
+              <p className="mx-4 mb-4 mt-3 text-[12.5px] leading-relaxed">
+                <strong className="text-ink">Send for approval</strong> puts the copy in Content approval. Once approved, this design goes to Design approval and the planner suggests the best time. Nothing posts without your approval.
+              </p>
             </div>
           )}
         </aside>
+        </OpenCtx.Provider>
       </div>
     </div>
   );
