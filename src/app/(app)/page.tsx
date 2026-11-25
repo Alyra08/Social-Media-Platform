@@ -441,8 +441,32 @@ export default async function Overview() {
           </div>
         </section>
 
-        {/* Nine welcome tiles that overlap the bottom edge of the banner: icon, name and a live line each. */}
-        <nav aria-label="Start here" className="relative z-10 mx-auto -mt-24 max-w-5xl px-3 sm:px-6">
+
+        {/* How it works: six steps as round icons joined by a dashed line, over the banner's faded edge; each jumps to its section. */}
+        <nav id="how" aria-labelledby="how-title" className="relative z-10 -mt-24 scroll-mt-6 px-3 sm:px-6">
+        <h2 id="how-title" className="mb-8 text-center text-[1.9rem] sm:text-[2.3rem]">
+          How the studio <em>works</em>.
+        </h2>
+        <ol className="relative grid grid-cols-3 gap-x-2 gap-y-8 sm:grid-cols-6">
+          {/* Dashed connector behind the circles (one row on wider screens). */}
+          <span aria-hidden className="absolute left-[8.33%] right-[8.33%] top-8 hidden border-t-2 border-dashed border-rose sm:block" />
+          {groups.map((g) => (
+            <li key={g.step} className="relative">
+              <a href={`#stage-${g.step}`} className="group flex flex-col items-center gap-3 text-center no-underline">
+                <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-blush text-deepred ring-4 ring-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-signal group-hover:text-white">
+                  <Icon name={STAGE_ICON[g.step] ?? "spark"} className="h-7 w-7" />
+                  <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-bold text-deepred ring-1 ring-rose">{g.step}</span>
+                </span>
+                <span className="max-w-[9rem] text-[14px] font-bold leading-snug text-ink group-hover:text-deepred">{g.title}</span>
+                <span className="-mt-2 text-[12.5px] text-charcoal">{g.stat}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+        {/* Nine welcome tiles: icon, name and a live line each. */}
+        <nav aria-label="Start here" className="relative z-10 mx-auto mt-12 max-w-5xl px-3 sm:px-6">
           <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
             <li>
               <form action={runResearchNow.bind(null, "daily")} className="h-full">
@@ -500,29 +524,6 @@ export default async function Overview() {
           </Link>
         </p>
       </div>
-
-      {/* How it works: six steps as round icons joined by a dashed line; each jumps to its section. */}
-      <nav id="how" aria-labelledby="how-title" className="scroll-mt-6">
-        <h2 id="how-title" className="mb-8 text-center text-[1.9rem] sm:text-[2.3rem]">
-          How the studio <em>works</em>.
-        </h2>
-        <ol className="relative grid grid-cols-3 gap-x-2 gap-y-8 sm:grid-cols-6">
-          {/* Dashed connector behind the circles (one row on wider screens). */}
-          <span aria-hidden className="absolute left-[8.33%] right-[8.33%] top-8 hidden border-t-2 border-dashed border-rose sm:block" />
-          {groups.map((g) => (
-            <li key={g.step} className="relative">
-              <a href={`#stage-${g.step}`} className="group flex flex-col items-center gap-3 text-center no-underline">
-                <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-blush text-deepred ring-4 ring-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-signal group-hover:text-white">
-                  <Icon name={STAGE_ICON[g.step] ?? "spark"} className="h-7 w-7" />
-                  <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-bold text-deepred ring-1 ring-rose">{g.step}</span>
-                </span>
-                <span className="max-w-[9rem] text-[14px] font-bold leading-snug text-ink group-hover:text-deepred">{g.title}</span>
-                <span className="-mt-2 text-[12.5px] text-charcoal">{g.stat}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
 
       {groups.map((g) => {
         const pv = previews[g.step];

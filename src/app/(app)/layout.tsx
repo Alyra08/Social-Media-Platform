@@ -62,7 +62,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               }
               footer={
                 <div className="mt-6 space-y-0.5 border-t border-rosemist pt-4">
-                  <Link href="/notifications" className="label flex min-h-10 items-center justify-between gap-2 rounded-full px-4 text-ink no-underline hover:bg-shell/70" aria-label={`Notifications, ${unread} unread`}>
+                  <Link href="/notifications" className="flex min-h-10 items-center justify-between gap-2 rounded-full px-4 text-[14.5px] font-semibold text-ink no-underline hover:bg-shell/70" aria-label={`Notifications, ${unread} unread`}>
                     <span className="flex items-center gap-2">
                       <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-transparent" />
                       Notifications
@@ -70,7 +70,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                     {unread > 0 && <span className="min-w-6 rounded-full bg-deepred px-2 text-center text-[0.7rem] tracking-normal text-white">{unread}</span>}
                   </Link>
                   <form action={logoutAction}>
-                    <button className="label flex min-h-10 w-full items-center gap-2 rounded-full px-4 text-left text-ink hover:bg-shell/70" title={user.email}>
+                    <button className="flex min-h-10 w-full items-center gap-2 rounded-full px-4 text-left text-[14.5px] font-semibold text-ink hover:bg-shell/70" title={user.email}>
                       <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-transparent" />
                       Sign out
                     </button>

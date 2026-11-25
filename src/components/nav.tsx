@@ -127,7 +127,7 @@ export function Nav({ badges, footer, railFooter }: { badges: Record<string, num
                       <Link
                         href={n.href}
                         onClick={() => setOpen(false)}
-                        className={`label relative flex min-h-10 items-center justify-between gap-2 rounded-full px-4 no-underline transition-colors ${
+                        className={`relative flex min-h-10 items-center justify-between gap-2 rounded-full px-4 text-[14.5px] font-semibold no-underline transition-colors ${
                           on ? "bg-shell text-deepred ring-1 ring-inset ring-[rgb(200_0_20/0.18)]" : "text-ink hover:bg-shell/70"
                         }`}
                         aria-current={on ? "page" : undefined}
