@@ -34,7 +34,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen">
-      <Stripe />
       <div className="mx-auto flex max-w-[1500px] flex-col gap-6 px-4 py-5 lg:flex-row lg:px-6">
         <aside className="no-scrollbar lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)] lg:w-64 lg:shrink-0 lg:overflow-y-auto lg:rounded-[28px] lg:bg-blush lg:px-3 lg:py-6">
           <div className="flex items-center justify-between gap-3 lg:block">

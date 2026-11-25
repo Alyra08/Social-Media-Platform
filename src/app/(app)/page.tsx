@@ -25,6 +25,7 @@ import { weeklyOverview } from "@/lib/analytics";
 import { plannerWarnings } from "@/lib/planner";
 import { CATEGORY_LABELS } from "@/lib/brand/brief";
 import { aiEnabled } from "@/lib/ai/client";
+import { requireUser } from "@/lib/auth";
 import { emailReady } from "@/lib/email";
 import { canvaStatus } from "@/lib/canva";
 import { keyStatuses } from "@/lib/keys";
@@ -49,6 +50,8 @@ const PILL: Record<Tone, string> = { attention: "pill-red pill", ok: "pill-ok pi
 
 export default async function Overview() {
   const db = await getDb();
+  const me = await requireUser("viewer");
+  const firstName = (me.name || me.email.split("@")[0]).trim().split(/\s+/)[0] || "there";
   const n = sql<number>`count(*)::int`;
   const c = async (q: Promise<{ n: number }[]>) => (await q)[0]?.n ?? 0;
   const now = new Date();
@@ -419,15 +422,21 @@ export default async function Overview() {
           />
           {/* Flat white veil for legibility; the photo itself feathers into the white page at the bottom (owner request). */}
           <div aria-hidden className="absolute inset-0 -z-10 bg-white/35" />
-          <div className="flex min-h-[560px] flex-col justify-end px-6 pb-28 pt-72 sm:min-h-[660px] sm:px-10 sm:pb-32 sm:pt-52 xl:min-h-[720px]">
-            <h1 id="hero" className="max-w-3xl text-[2.7rem] font-medium leading-[1] text-ink sm:text-6xl xl:text-[4.6rem]">
+          <div className="flex min-h-[560px] flex-col items-center justify-end px-6 pb-32 pt-56 text-center sm:min-h-[660px] sm:px-10 sm:pb-36 sm:pt-52 xl:min-h-[720px]">
+            {/* The brand's one decorative glyph, as the welcome mark. */}
+            <svg aria-hidden viewBox="0 0 100 100" className="h-14 w-14 text-signal sm:h-16 sm:w-16">
+              <path d="M50 0 C54 34 66 46 100 50 C66 54 54 66 50 100 C46 66 34 54 0 50 C34 46 46 34 50 0Z" fill="currentColor" />
+            </svg>
+            <h1 id="hero" className="mt-5 text-[2.6rem] font-medium leading-[1.02] text-ink sm:text-6xl xl:text-[4.4rem]">
+              Welcome back, <em className="text-deepred">{firstName}</em>.
+            </h1>
+            <p className="mt-3 text-[17px] text-ink sm:text-[19px]">
               What are we making{" "}
-              <span className="script inline-block text-[1.2em] font-normal leading-none text-deepred" style={{ transform: "translateY(0.08em)" }}>
+              <span className="script inline-block text-[1.7em] leading-none text-deepred" style={{ transform: "translateY(0.12em)" }}>
                 today?
               </span>
-            </h1>
-            <p className="mt-4 max-w-lg text-[15.5px] leading-[1.45] text-ink">Research, write, design, publish and grow your community. Everything waits for your approval before it goes out.</p>
-            <form action="/search" className="mt-6 flex max-w-xl items-center gap-2 rounded-full bg-white py-1.5 pl-5 pr-1.5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
+            </p>
+            <form action="/search" className="mt-6 flex w-full max-w-xl items-center gap-2 rounded-full bg-white py-1.5 pl-5 pr-1.5 text-left ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
               <Icon name="search" className="h-5 w-5 shrink-0 text-deepred" />
               <label htmlFor="hero-q" className="sr-only">
                 Search the studio
@@ -438,76 +447,33 @@ export default async function Overview() {
           </div>
         </section>
 
-        {/* Summary cards that overlap the bottom edge of the banner. */}
-        <div className="relative z-10 -mt-20 grid grid-cols-2 gap-2.5 px-3 sm:gap-3 sm:px-6 lg:grid-cols-4">
-          <section aria-labelledby="now" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
-            <div className="flex items-center justify-between gap-2">
-              <h2 id="now" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
-                Needs you now
-              </h2>
-              {todo.length > 0 && <span className="rounded-full bg-deepred px-2 text-[12px] font-bold text-white">{todo.reduce((a, t) => a + t.n, 0)}</span>}
-            </div>
-            {todo.length === 0 ? (
-              <p className="mt-3 text-[13.5px] text-ink">✓ All caught up.</p>
-            ) : (
-              <ul className="mt-2.5 space-y-1.5">
-                {todo.slice(0, 3).map((t) => (
-                  <li key={t.href}>
-                    <Link href={t.href} className="flex items-baseline gap-2 text-[13.5px] text-ink no-underline hover:text-deepred">
-                      <span className="font-bold text-deepred">{t.n}</span> {t.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <section aria-labelledby="next-up" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
-            <h2 id="next-up" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
-              Coming up
-            </h2>
-            {upcoming[0] ? (
-              <Link href="/planner" className="mt-2.5 block text-ink no-underline hover:text-deepred">
-                <span className="line-clamp-2 text-[13.5px] font-bold leading-snug">{upcoming[0].hook}</span>
-                <span className="mt-1 block text-[12px] text-charcoal">
-                  {PLATFORM_LABEL[upcoming[0].platform] ?? upcoming[0].platform} · {upcoming[0].scheduledAt ? formatBrisbane(upcoming[0].scheduledAt) : ""}
-                </span>
-              </Link>
-            ) : (
-              <p className="mt-2.5 text-[13.5px]">
-                Nothing scheduled this week. <Link href="/create">Create a post</Link>
-              </p>
-            )}
-          </section>
-
-          <section aria-labelledby="this-week" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
-            <h2 id="this-week" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
-              This week
-            </h2>
-            <dl className="mt-2 space-y-0.5 sm:grid sm:grid-cols-3 sm:gap-1 sm:space-y-0 sm:text-center">
-              {[
-                ["Planned", week.planned],
-                ["Scheduled", week.scheduled],
-                ["Live", week.published],
-              ].map(([k, v]) => (
-                <div key={k} className="flex items-baseline justify-between sm:flex-col-reverse sm:items-center">
-                  <dt className="text-[12px] text-charcoal">{k}</dt>
-                  <dd className="kpi text-[1.35rem] sm:text-[1.9rem]">{v}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-
-          <section aria-labelledby="research" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
-            <h2 id="research" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
-              Research and trends
-            </h2>
-            <p className="mt-2.5 text-[13px] leading-snug">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}.` : "No research yet."}</p>
-            <Link href="/ava" className="mt-1.5 inline-flex items-center gap-1 text-[13px] font-bold">
-              Ava&apos;s weekly trends <span aria-hidden>→</span>
+        {/* Three welcome tiles that overlap the bottom edge of the banner. */}
+        <nav aria-label="Start here" className="relative z-10 mx-auto -mt-24 grid max-w-5xl grid-cols-1 gap-3 px-3 sm:grid-cols-3 sm:px-6">
+          {[
+            { href: "/create", icon: "spark", title: "Create a post", body: "Describe it in your words. The studio drafts the copy and design for you to edit." },
+            {
+              href: todo[0]?.href ?? "/content",
+              icon: "check",
+              title: "What's waiting for you",
+              body: todo.length ? todo.map((t) => `${t.n} ${t.label}`).slice(0, 2).join(", ") + "." : "You're all caught up. Nothing needs approving.",
+            },
+            { href: "/planner", icon: "calendar", title: "Plan the week", body: `${week.scheduled} scheduled this week. See the calendar and your Instagram grid.` },
+          ].map((t) => (
+            <Link key={t.title} href={t.href} className="group flex flex-col gap-3 rounded-[22px] bg-white p-5 text-left no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.1)] transition-all duration-200 hover:-translate-y-1 hover:ring-[rgb(200_0_20/0.3)] sm:min-h-[168px]">
+              <Icon name={t.icon} className="h-8 w-8 text-signal transition-transform group-hover:scale-110" />
+              <span className="mt-auto">
+                <span className="block text-[16px] font-bold leading-tight text-ink">{t.title}</span>
+                <span className="mt-1 block text-[13.5px] leading-snug text-charcoal">{t.body}</span>
+              </span>
             </Link>
-          </section>
-        </div>
+          ))}
+        </nav>
+        <p className="mt-4 text-center text-[12.5px] text-charcoal">
+          {lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"} ·{" "}
+          <Link href="/ava" className="font-bold">
+            Ava&apos;s weekly trends
+          </Link>
+        </p>
       </div>
 
       {/* How it works: six steps as round icons joined by a dashed line; each jumps to its section. */}
