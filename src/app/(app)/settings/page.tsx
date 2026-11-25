@@ -8,7 +8,7 @@ import { JOBS } from "@/lib/jobs";
 import { CATEGORY_LABELS } from "@/lib/brand/brief";
 import { formatBrisbane } from "@/lib/scheduling";
 import { aiEnabled, model } from "@/lib/ai/client";
-import { addTeamMember, changeOwnPassword, runJobNow, saveSettings, updateTeamMember } from "../actions";
+import { addTeamMember, changeOwnPassword, runJobNow, saveSettings, updateOwnName, updateTeamMember } from "../actions";
 import { saveKeyAction } from "../keys-actions";
 import { KEY_GROUPS, keyStatuses } from "@/lib/keys";
 
@@ -181,7 +181,16 @@ export default async function SettingsPage() {
                 <strong className="text-ink">{u.name}</strong> · {u.email}
                 {u.id === me.id && " (you)"}
               </span>
-              {u.id === me.id || me.role !== "owner" ? (
+              {u.id === me.id ? (
+                <form action={updateOwnName} className="flex flex-wrap items-center gap-2">
+                  <label htmlFor="own-name" className="sr-only">
+                    Your name
+                  </label>
+                  <input id="own-name" name="name" defaultValue={u.name} maxLength={60} className="input max-w-[220px]" />
+                  <button className="btn btn-sm">Save your name</button>
+                  <span className="pill">{u.role}</span>
+                </form>
+              ) : me.role !== "owner" ? (
                 <span className="pill">{u.role}</span>
               ) : (
                 <form action={updateTeamMember} className="flex flex-wrap gap-2">

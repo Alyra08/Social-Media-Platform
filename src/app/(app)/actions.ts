@@ -491,3 +491,14 @@ export async function deleteStoryDemoData() {
     return "Demo stories cleared.";
   }, ["/news"]);
 }
+
+/** Anyone can change the name shown on their own account (used in the Overview welcome). */
+export async function updateOwnName(f: FormData) {
+  await act("viewer", async ({ db, user }) => {
+    const name = s(f, "name").replace(/\s+/g, " ").slice(0, 60);
+    if (!name) return "Enter a name.";
+    await db.update(users).set({ name }).where(eq(users.id, user.id));
+    await audit(db, user, "account.name", "user", user.id);
+    return "Name updated.";
+  }, ["/", "/settings"]);
+}
