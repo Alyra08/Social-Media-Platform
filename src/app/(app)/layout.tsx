@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div>
             <Link href="/" className="mb-3 block text-center no-underline md:mb-6 md:px-4 md:text-left" aria-label="Studio home">
               <Wordmark />
-              <span className="font-serif text-[1.7rem] font-semibold leading-none text-signal md:text-[2.4rem]">
+              <span className="font-serif text-[1.7rem] font-[550] leading-none text-signal md:text-[2.4rem]">
                 <span className="md:hidden">S</span>
                 <span className="hidden md:inline">Studio</span>
                 <span className="text-hot">.</span>
