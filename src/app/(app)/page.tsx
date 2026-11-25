@@ -434,8 +434,8 @@ export default async function Overview() {
 
         {/* How it works: six steps as round icons joined by a dashed line, over the banner's faded edge; each jumps to its section. */}
         <nav id="how" aria-labelledby="how-title" className="relative z-10 -mt-24 scroll-mt-6 px-3 sm:px-6">
-        <h2 id="how-title" className="mb-8 text-center text-[1.9rem] sm:text-[2.3rem]">
-          How the studio <em>works</em>.
+        <h2 id="how-title" className="mb-8 text-center text-[1.9rem] text-charcoal sm:text-[2.3rem]">
+          How the studio <em className="text-deepred">works</em>.
         </h2>
         <ol className="relative grid grid-cols-3 gap-x-2 gap-y-8 sm:grid-cols-6">
           {/* Dashed connector behind the circles (one row on wider screens). */}
