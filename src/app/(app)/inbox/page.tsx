@@ -288,7 +288,7 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
       )}
 
       <details className="mt-10">
-        <summary className="cursor-pointer font-bold text-deepred">Add a message by hand (or a test one)</summary>
+        <summary className="cursor-pointer font-semibold text-deepred">Add a message by hand (or a test one)</summary>
         <form action={addInteraction} className="card mt-3 grid gap-2 md:grid-cols-2">
           <select name="platform" className="select" aria-label="Platform">
             {Object.entries(PLATFORM_LABEL)

@@ -155,7 +155,7 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                         </form>
                         {d.params && (
                           <details className="mt-3">
-                            <summary className="cursor-pointer font-bold text-deepred">Edit design</summary>
+                            <summary className="cursor-pointer font-semibold text-deepred">Edit design</summary>
                             <form action={editDesign} className="mt-2 grid gap-2 text-sm">
                               <input type="hidden" name="id" value={d.id} />
                               <label>

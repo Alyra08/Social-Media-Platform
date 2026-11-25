@@ -92,7 +92,7 @@ export default async function PublishingPage() {
                 <p className="label text-deepred">{PLATFORM_LABEL[p.platform]}</p>
                 <p>{p.manualInstructions}</p>
                 <details>
-                  <summary className="cursor-pointer font-bold text-deepred">Final caption to paste</summary>
+                  <summary className="cursor-pointer font-semibold text-deepred">Final caption to paste</summary>
                   <textarea readOnly defaultValue={finalText(p)} className="textarea mt-2" rows={6} aria-label="Final caption" />
                 </details>
                 {p.approvedDesignId && <a href={`/api/designs/${p.approvedDesignId}/image?download=1`}>Download the approved design</a>}

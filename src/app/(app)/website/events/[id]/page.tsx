@@ -121,7 +121,7 @@ export default async function EventAdmin({ params }: { params: Promise<{ id: str
 
           {owner && e.status !== "cancelled" && (
             <details className="card-tint">
-              <summary className="cursor-pointer font-bold text-deepred">Cancel this event</summary>
+              <summary className="cursor-pointer font-semibold text-deepred">Cancel this event</summary>
               <form action={eventDecisionAction} className="mt-3 space-y-2">
                 <input type="hidden" name="id" value={e.id} />
                 <textarea name="message" className="textarea min-h-[90px]" placeholder="A short note to everyone who RSVP'd." />

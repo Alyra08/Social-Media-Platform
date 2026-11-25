@@ -57,7 +57,7 @@ export default async function ArticleEditor({ params }: { params: Promise<{ id: 
           </label>
 
           <details className="card-tint" open={!a.slug || !a.metaDescription}>
-            <summary className="cursor-pointer font-bold text-deepred">Web address, topic and SEO</summary>
+            <summary className="cursor-pointer font-semibold text-deepred">Web address, topic and SEO</summary>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               <label className="block text-[15px]">
                 Web address

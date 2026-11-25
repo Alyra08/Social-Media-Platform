@@ -139,7 +139,7 @@ export default async function ArchivePage({ searchParams }: { searchParams: Prom
               ))}
           </div>
           <details>
-            <summary className="cursor-pointer font-bold text-deepred">Approval history and design feedback</summary>
+            <summary className="cursor-pointer font-semibold text-deepred">Approval history and design feedback</summary>
             <ul className="mt-2 list-inside list-disc text-[15px]">
               {detail.audit.map((a) => (
                 <li key={a.id}>

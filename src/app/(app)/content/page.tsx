@@ -154,7 +154,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
                       </form>
 
                       <details className="mt-4 text-[15px]">
-                        <summary className="cursor-pointer font-bold text-deepred">Taglines, SEO, design concept and script</summary>
+                        <summary className="cursor-pointer font-semibold text-deepred">Taglines, SEO, design concept and script</summary>
                         <div className="mt-2 space-y-2">
                           <div>
                             <p className="label text-deepred">Alternative hooks</p>
@@ -187,7 +187,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
 
                       {versions.filter((v) => v.postId === p.id).length > 1 && (
                         <details className="mt-3 text-[15px]">
-                          <summary className="cursor-pointer font-bold text-deepred">Version history</summary>
+                          <summary className="cursor-pointer font-semibold text-deepred">Version history</summary>
                           <ul className="mt-2 space-y-2">
                             {versions
                               .filter((v) => v.postId === p.id)

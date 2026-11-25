@@ -141,7 +141,7 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
               </dl>
 
               <details className="mt-4">
-                <summary className="cursor-pointer font-bold text-deepred">Sources, dates and verification</summary>
+                <summary className="cursor-pointer font-semibold text-deepred">Sources, dates and verification</summary>
                 <div className="mt-3 space-y-2 text-[15px]">
                   <p>
                     <strong className="text-ink">Original source:</strong>{" "}
