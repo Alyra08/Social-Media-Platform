@@ -402,20 +402,32 @@ export default async function Overview() {
   return (
     <div className="space-y-16">
       {/*
-        Banner. Soft Blush field carries it; Signal Red arrives once, as an arch holding the poster line.
-        Type: light serif headline, one handwritten word (brand allows one), Charcoal body. Motifs: arch + hearts.
+        Banner: the owner's confetti photograph fills the top, with a flat white veil so the type stays readable
+        (Deep Ink headline 10:1, Deep Red script word 3.6:1 at display size). Summary cards overlap its bottom edge.
       */}
-      <section aria-labelledby="hero" className="relative overflow-hidden rounded-[32px] bg-blush ring-1 ring-inset ring-[rgb(200_0_20/0.06)]">
-        <div className="grid grid-cols-1 items-stretch md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <div className="relative px-6 py-10 sm:px-10 sm:py-14">
-            <h1 id="hero" className="text-[2.5rem] leading-[1.02] sm:text-6xl xl:text-[4.25rem]">
+      <div>
+        <section aria-labelledby="hero" className="relative isolate min-h-[560px] overflow-hidden rounded-t-[32px] sm:min-h-[660px] xl:min-h-[720px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/overview-hero-2400.jpg"
+            srcSet="/images/overview-hero-1200.webp 1200w, /images/overview-hero-2400.webp 2400w"
+            sizes="(max-width: 1024px) 100vw, 1200px"
+            alt=""
+            aria-hidden
+            className="absolute inset-0 -z-10 h-full w-full object-cover object-top [mask-image:linear-gradient(to_bottom,#000_58%,transparent_100%)]"
+            fetchPriority="high"
+          />
+          {/* Flat white veil for legibility; the photo itself feathers into the white page at the bottom (owner request). */}
+          <div aria-hidden className="absolute inset-0 -z-10 bg-white/35" />
+          <div className="flex min-h-[560px] flex-col justify-end px-6 pb-28 pt-72 sm:min-h-[660px] sm:px-10 sm:pb-32 sm:pt-52 xl:min-h-[720px]">
+            <h1 id="hero" className="max-w-3xl text-[2.7rem] font-medium leading-[1] text-ink sm:text-6xl xl:text-[4.6rem]">
               What are we making{" "}
-              <span className="script inline-block text-[1.25em] leading-none" style={{ transform: "translateY(0.08em)" }}>
+              <span className="script inline-block text-[1.2em] font-normal leading-none text-deepred" style={{ transform: "translateY(0.08em)" }}>
                 today?
               </span>
             </h1>
-            <p className="mt-5 max-w-lg text-[15.5px] leading-[1.45]">Research, write, design, publish and grow your community. Everything waits for your approval before it goes out.</p>
-            <form action="/search" className="mt-7 flex max-w-xl items-center gap-2 rounded-full bg-shell py-1.5 pl-5 pr-1.5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
+            <p className="mt-4 max-w-lg text-[15.5px] leading-[1.45] text-ink">Research, write, design, publish and grow your community. Everything waits for your approval before it goes out.</p>
+            <form action="/search" className="mt-6 flex max-w-xl items-center gap-2 rounded-full bg-white py-1.5 pl-5 pr-1.5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
               <Icon name="search" className="h-5 w-5 shrink-0 text-deepred" />
               <label htmlFor="hero-q" className="sr-only">
                 Search the studio
@@ -423,49 +435,80 @@ export default async function Overview() {
               <input id="hero-q" name="q" placeholder="Search stories, posts, designs, comments" className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-ink outline-none placeholder:text-charcoal" />
               <button className="btn btn-primary btn-sm shrink-0">Search</button>
             </form>
+          </div>
+        </section>
 
-            {/* Needs you now: quiet chips inside the banner, so the first screen answers "what do I do next?" */}
-            <section className="mt-7" aria-labelledby="now">
-              <p id="now" className="font-serif text-[1.35rem] italic leading-none text-deepred">
+        {/* Summary cards that overlap the bottom edge of the banner. */}
+        <div className="relative z-10 -mt-20 grid grid-cols-2 gap-2.5 px-3 sm:gap-3 sm:px-6 lg:grid-cols-4">
+          <section aria-labelledby="now" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
+            <div className="flex items-center justify-between gap-2">
+              <h2 id="now" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
                 Needs you now
-              </p>
-              {todo.length === 0 ? (
-                <p className="mt-3 text-[15px] text-ink">✓ You&apos;re all caught up.</p>
-              ) : (
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {todo.map((t) => (
-                    <li key={t.href}>
-                      <Link href={t.href} className="group inline-flex items-center gap-2 rounded-full bg-shell py-1.5 pl-1.5 pr-4 text-[14px] font-bold text-ink no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.14)] transition-colors hover:bg-deepred hover:text-white">
-                        <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-deepred px-1.5 text-[13px] text-white group-hover:bg-shell group-hover:text-deepred">{t.n}</span>
-                        {t.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <p className="mt-3 text-[12.5px]">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"}</p>
-            </section>
-          </div>
-
-          {/* The one bright moment: a Signal Red arch with the poster line (white, large). */}
-          <div aria-hidden className="relative hidden min-h-[320px] items-end justify-center overflow-hidden md:flex">
-            <div className="relative mr-8 flex h-[88%] w-[72%] max-w-[300px] flex-col items-center justify-center rounded-t-full bg-signal px-6 pt-10 text-center">
-              <p className="poster text-[2.6rem] leading-[0.92] text-white lg:text-5xl">Say it</p>
-              <p className="poster text-[2.6rem] leading-[0.92] text-white lg:text-5xl">out loud.</p>
-              <svg viewBox="0 0 100 60" className="mt-5 h-10 w-20">
-                {[
-                  [50, 14, 1],
-                  [24, 34, 0.6],
-                  [78, 36, 0.6],
-                ].map(([x, y, s], k) => (
-                  <path key={k} transform={`translate(${x} ${y}) scale(${s})`} d="M0 6C-8-6-22 4 0 20 22 4 8-6 0 6z" fill="var(--color-blush)" />
-                ))}
-              </svg>
+              </h2>
+              {todo.length > 0 && <span className="rounded-full bg-deepred px-2 text-[12px] font-bold text-white">{todo.reduce((a, t) => a + t.n, 0)}</span>}
             </div>
-            <span className="absolute -bottom-6 right-0 h-36 w-24 rounded-t-full bg-rose opacity-80" />
-          </div>
+            {todo.length === 0 ? (
+              <p className="mt-3 text-[13.5px] text-ink">✓ All caught up.</p>
+            ) : (
+              <ul className="mt-2.5 space-y-1.5">
+                {todo.slice(0, 3).map((t) => (
+                  <li key={t.href}>
+                    <Link href={t.href} className="flex items-baseline gap-2 text-[13.5px] text-ink no-underline hover:text-deepred">
+                      <span className="font-bold text-deepred">{t.n}</span> {t.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section aria-labelledby="next-up" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
+            <h2 id="next-up" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
+              Coming up
+            </h2>
+            {upcoming[0] ? (
+              <Link href="/planner" className="mt-2.5 block text-ink no-underline hover:text-deepred">
+                <span className="line-clamp-2 text-[13.5px] font-bold leading-snug">{upcoming[0].hook}</span>
+                <span className="mt-1 block text-[12px] text-charcoal">
+                  {PLATFORM_LABEL[upcoming[0].platform] ?? upcoming[0].platform} · {upcoming[0].scheduledAt ? formatBrisbane(upcoming[0].scheduledAt) : ""}
+                </span>
+              </Link>
+            ) : (
+              <p className="mt-2.5 text-[13.5px]">
+                Nothing scheduled this week. <Link href="/create">Create a post</Link>
+              </p>
+            )}
+          </section>
+
+          <section aria-labelledby="this-week" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
+            <h2 id="this-week" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
+              This week
+            </h2>
+            <dl className="mt-2 space-y-0.5 sm:grid sm:grid-cols-3 sm:gap-1 sm:space-y-0 sm:text-center">
+              {[
+                ["Planned", week.planned],
+                ["Scheduled", week.scheduled],
+                ["Live", week.published],
+              ].map(([k, v]) => (
+                <div key={k} className="flex items-baseline justify-between sm:flex-col-reverse sm:items-center">
+                  <dt className="text-[12px] text-charcoal">{k}</dt>
+                  <dd className="kpi text-[1.35rem] sm:text-[1.9rem]">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section aria-labelledby="research" className="rounded-[20px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.1)]">
+            <h2 id="research" className="font-sans text-[13.5px] font-bold leading-tight text-ink">
+              Research and trends
+            </h2>
+            <p className="mt-2.5 text-[13px] leading-snug">{lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}.` : "No research yet."}</p>
+            <Link href="/ava" className="mt-1.5 inline-flex items-center gap-1 text-[13px] font-bold">
+              Ava&apos;s weekly trends <span aria-hidden>→</span>
+            </Link>
+          </section>
         </div>
-      </section>
+      </div>
 
       {/* How it works: six steps as round icons joined by a dashed line; each jumps to its section. */}
       <nav id="how" aria-labelledby="how-title" className="scroll-mt-6">
