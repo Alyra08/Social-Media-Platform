@@ -138,18 +138,31 @@ export function Tile({ i, href, icon, title, blurb, value, unit, pill }: TilePro
   );
 }
 
-/** Quick-action tile: a soft card with an icon square, a name and a short hint. */
-export const actionTileCls =
-  "group flex h-full w-full flex-col items-start gap-2.5 rounded-[18px] bg-shell p-3 text-left no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:ring-[rgb(200_0_20/0.25)] sm:gap-3 sm:p-4";
-export function ActionTileFace({ icon, label, hint }: { icon: string; label: string; hint: string }) {
+/*
+ * Quick-action tiles as tinted colour blocks. The first tile is the one Signal Red feature
+ * (white text set large and bold, per the brief); the rest rotate through soft tints.
+ * A large faint icon sits in the corner; the name and hint sit at the bottom.
+ */
+const ACTION_TINTS = ["bg-blush", "bg-peachcream", "bg-candy", "bg-peachcream", "bg-blush", "bg-blush", "bg-candy", "bg-peachcream"];
+export function actionTileCls(i: number) {
+  const bg = i === 0 ? "bg-signal" : ACTION_TINTS[(i - 1) % ACTION_TINTS.length];
+  return `group relative flex h-full min-h-[104px] w-full flex-col justify-end overflow-hidden rounded-[18px] p-3.5 text-left no-underline transition-transform duration-200 hover:-translate-y-0.5 sm:min-h-[120px] sm:p-4 ${bg}`;
+}
+export function ActionTileFace({ icon, label, hint, feature = false }: { icon: string; label: string; hint: string; feature?: boolean }) {
   return (
     <>
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-blush text-deepred transition-colors group-hover:bg-signal group-hover:text-white">
-        <Icon name={icon} className="h-[22px] w-[22px]" />
+      <span aria-hidden className={`absolute -right-3 -top-3 transition-transform duration-300 group-hover:scale-110 ${feature ? "text-white/25" : "text-deepred/15"}`}>
+        <Icon name={icon} className="h-20 w-20 sm:h-24 sm:w-24" />
       </span>
-      <span className="min-w-0">
-        <span className="block text-[14px] font-bold leading-tight text-ink">{label}</span>
-        <span className="mt-0.5 block text-[12px] leading-tight text-charcoal">{hint}</span>
+      <span className="relative min-w-0">
+        {feature ? (
+          <span className="block text-[19px] font-extrabold leading-tight text-white">{label}</span>
+        ) : (
+          <>
+            <span className="block text-[14px] font-bold leading-tight text-ink">{label}</span>
+            <span className="mt-0.5 block text-[12px] leading-tight text-charcoal">{hint}</span>
+          </>
+        )}
       </span>
     </>
   );

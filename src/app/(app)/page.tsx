@@ -495,14 +495,14 @@ export default async function Overview() {
         <ul className="grid grid-cols-3 gap-2 sm:gap-3">
           <li>
             <form action={runResearchNow.bind(null, "daily")} className="h-full">
-              <button className={`${actionTileCls} cursor-pointer`}>
-                <ActionTileFace icon="search" label="Run research" hint="Fresh stories now" />
+              <button className={`${actionTileCls(0)} cursor-pointer`}>
+                <ActionTileFace icon="search" label="Run research" hint="Fresh stories now" feature />
               </button>
             </form>
           </li>
-          {shortcuts.map((s) => (
+          {shortcuts.map((s, i) => (
             <li key={s.href}>
-              <Link href={s.href} className={actionTileCls}>
+              <Link href={s.href} className={actionTileCls(i + 1)}>
                 <ActionTileFace icon={s.icon} label={s.label} hint={s.hint} />
               </Link>
             </li>
