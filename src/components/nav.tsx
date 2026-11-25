@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Icon } from "@/app/(app)/overview-ui";
 
 type Item = { href: string; label: string; badgeKey?: string };
 
@@ -53,17 +54,68 @@ export const NAV_GROUPS: { title: string; items: Item[] }[] = [
 ];
 export const NAV: Item[] = NAV_GROUPS.flatMap((g) => g.items);
 
-export function Nav({ badges, footer }: { badges: Record<string, number>; footer?: React.ReactNode }) {
+const RAIL_ICON: Record<string, string> = {
+  "/": "home",
+  "/news": "news",
+  "/editorial": "brief",
+  "/competitors": "eye",
+  "/create": "plus",
+  "/content": "check",
+  "/design": "palette",
+  "/website": "globe",
+  "/brand": "book",
+  "/planner": "calendar",
+  "/publishing": "send",
+  "/inbox": "chat",
+  "/analytics": "chart",
+  "/intelligence": "spark",
+  "/archive": "archive",
+  "/integrations": "plug",
+  "/settings": "sliders",
+};
+
+export function Nav({ badges, footer, railFooter }: { badges: Record<string, number>; footer?: React.ReactNode; railFooter?: React.ReactNode }) {
   const path = usePathname();
-  const [open, setOpen] = useState(false);
+  const [, setOpen] = useState(false);
   const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
   return (
     <>
-      <button className="btn btn-sm lg:hidden" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="sbf-nav">
-        {open ? "Close menu" : "Menu"}
-      </button>
-      <nav id="sbf-nav" className={`${open ? "block" : "hidden"} lg:block`} aria-label="Main">
-        <div className="mt-4 space-y-4 lg:mt-0">
+      {/* Narrow screens: a slim icon rail beside the page (names show on hover and to screen readers). */}
+      <nav aria-label="Main" className="md:hidden">
+        <ul className="flex flex-col items-center gap-1">
+          {NAV_GROUPS.map((g, gi) => (
+            <li key={g.title || "home"} className={`flex w-full flex-col items-center gap-1 ${gi > 0 ? "mt-1 border-t border-rosemist pt-2" : ""}`}>
+              {g.items.map((n) => {
+                const on = active(n.href);
+                const count = n.badgeKey ? badges[n.badgeKey] : 0;
+                return (
+                  <Link
+                    key={n.href}
+                    href={n.href}
+                    title={n.label}
+                    aria-label={count ? `${n.label}, ${count}` : n.label}
+                    aria-current={on ? "page" : undefined}
+                    className={`relative flex h-10 w-10 items-center justify-center rounded-full no-underline transition-colors ${on ? "bg-signal text-white" : "text-deepred hover:bg-shell"}`}
+                  >
+                    {n.href === "/ava" ? (
+                      <span aria-hidden className={`flex h-6 w-5 items-end justify-center rounded-t-full pb-[1px] font-serif text-[13px] ${on ? "bg-white text-signal" : "bg-signal text-white"}`}>
+                        A
+                      </span>
+                    ) : (
+                      <Icon name={RAIL_ICON[n.href] ?? "spark"} className="h-5 w-5" />
+                    )}
+                    {count ? <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-deepred px-1 text-[10px] font-bold text-white ring-2 ring-blush">{count}</span> : null}
+                  </Link>
+                );
+              })}
+            </li>
+          ))}
+        </ul>
+        {railFooter}
+      </nav>
+      {/* Tablet and up: the full sidebar. */}
+      <nav id="sbf-nav" className="hidden md:block" aria-label="Main">
+        <div className="mt-4 space-y-4 md:mt-0">
           {NAV_GROUPS.map((g) => (
             <div key={g.title || "home"}>
               {g.title && <p className="mb-1 px-4 font-serif text-[15px] italic text-deepred">{g.title}</p>}
