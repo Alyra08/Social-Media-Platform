@@ -1,6 +1,6 @@
 # Confetti palette (proposed, 25 Nov 2026)
 
-Drawn from the owner's "Confetti 3" photograph. Chosen by the owner with the deeper red. **Not yet applied to the platform.**
+Drawn from the owner's "Confetti 3" photograph. Chosen by the owner with the deeper red. **Applied across the platform on 25 Nov 2026** (studio, public website, post designer, emails and the brand brief).
 
 | Name | Hex | Role |
 |---|---|---|

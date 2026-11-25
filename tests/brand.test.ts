@@ -33,7 +33,10 @@ describe("brand copy checker", () => {
 
 describe("colour rules", () => {
   it("enforces text-on-colour rules from the brief", () => {
-    expect(textOnColourViolation("rose", "white", { sizePx: 40 })).toMatch(/Rose/);
+    expect(textOnColourViolation("rose", "white", { sizePx: 40 })).toMatch(/Orchid/);
+    // Confetti palette: Marigold takes Deep Ink text, never white.
+    expect(textOnColourViolation("tangerine", "white", { sizePx: 40 })).toMatch(/Deep Ink/);
+    expect(textOnColourViolation("tangerine", "deepInk", { sizePx: 40 })).toBeNull();
     expect(textOnColourViolation("signal", "charcoal", { sizePx: 40 })).toMatch(/white/);
     expect(textOnColourViolation("hot", "white", { sizePx: 14 })).toMatch(/pill/);
     expect(textOnColourViolation("signal", "white", { sizePx: 30 })).toBeNull();

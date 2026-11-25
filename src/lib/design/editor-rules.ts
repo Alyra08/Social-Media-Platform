@@ -17,18 +17,18 @@ export const LAYOUTS: { key: DesignParams["layout"]; label: string }[] = [
   { key: "arch", label: "Arch" },
 ];
 export const LEADS: { key: DesignParams["lead"]; label: string; hex: string }[] = [
-  { key: "signal", label: "Signal Red", hex: "#FD0019" },
-  { key: "hot", label: "Hot Pink", hex: "#FF006C" },
-  { key: "tangerine", label: "Tangerine", hex: "#FB6526" },
+  { key: "signal", label: "Confetti Red", hex: "#D90F2A" },
+  { key: "hot", label: "Magenta", hex: "#D9087F" },
+  { key: "tangerine", label: "Marigold", hex: "#F08A1C" },
 ];
 export const CANVASES: { key: DesignParams["canvas"]; label: string; hex: string }[] = [
   { key: "white", label: "White", hex: "#FFFFFF" },
-  { key: "blush", label: "Blush", hex: "#FFECEF" },
-  { key: "shell", label: "Shell", hex: "#FFF9FA" },
-  { key: "roseMist", label: "Rose Mist", hex: "#FFE0E3" },
-  { key: "candy", label: "Candy", hex: "#FFE0ED" },
-  { key: "peach", label: "Peach", hex: "#FEE0D4" },
-  { key: "peachCream", label: "Peach Cream", hex: "#FFF6F2" },
+  { key: "blush", label: "Lilac Blush", hex: "#F6DDF1" },
+  { key: "shell", label: "Petal", hex: "#FCEEF8" },
+  { key: "roseMist", label: "Orchid Mist", hex: "#F1D2EC" },
+  { key: "candy", label: "Candy", hex: "#F9E4F4" },
+  { key: "peach", label: "Marigold Cream", hex: "#FCE6CB" },
+  { key: "peachCream", label: "Soft Cream", hex: "#FEF4E8" },
 ];
 export const MOTIFS: { key: DesignParams["motifs"][number]; label: string }[] = [
   { key: "arch", label: "Arch" },
@@ -87,9 +87,9 @@ const RULES: Rule[] = [
   { re: /(bigger|larger|more prominent) (headline|title|words)|headline (bigger|larger)/i, say: "Made the headline larger", apply: (p) => ({ ...p, headlineScale: clamp(p.headlineScale * 1.18, 0.6, 1.8) }) },
   { re: /(smaller|less prominent) (headline|title)|headline (smaller|too big)/i, say: "Made the headline smaller", apply: (p) => ({ ...p, headlineScale: clamp(p.headlineScale * 0.85, 0.6, 1.8) }) },
   { re: /(bigger|larger) logo|logo (bigger|larger)/i, say: "Made the logo larger", apply: (p) => ({ ...p, logoScale: clamp(p.logoScale * 1.3, 0.6, 2) }) },
-  { re: /pink(er)?\b|more pink|hot pink/i, say: "Hot Pink now leads", apply: (p) => ({ ...p, lead: "hot" }) },
-  { re: /more red|redder|signal red/i, say: "Signal Red now leads", apply: (p) => ({ ...p, lead: "signal" }) },
-  { re: /orange|tangerine|warmer colou?r/i, say: "Tangerine now leads", apply: (p) => ({ ...p, lead: "tangerine" }) },
+  { re: /pink(er)?\b|more pink|hot pink|magenta/i, say: "Magenta now leads", apply: (p) => ({ ...p, lead: "hot" }) },
+  { re: /more red|redder|signal red|confetti red/i, say: "Confetti Red now leads", apply: (p) => ({ ...p, lead: "signal" }) },
+  { re: /orange|tangerine|marigold|warmer colou?r/i, say: "Marigold now leads", apply: (p) => ({ ...p, lead: "tangerine" }) },
   { re: /less text|too busy|less clutter|simpler|minimal/i, say: "Took text away for a cleaner look", apply: (p) => ({ ...p, textDensity: clamp(p.textDensity - 0.3, 0.5, 1.5), body: undefined, motifs: p.motifs.slice(0, 1) }) },
   { re: /more contrast|stronger contrast|bolder/i, say: "Lighter canvas for stronger contrast", apply: (p) => ({ ...p, canvas: "shell", lead: p.lead === "tangerine" ? "signal" : p.lead }) },
   { re: /editorial|magazine/i, say: "Switched to the editorial layout", apply: (p) => ({ ...p, layout: "editorial" }) },

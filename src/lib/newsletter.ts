@@ -51,9 +51,9 @@ async function sendConfirmation(db: Db, id: string) {
     text: `${s.name ? `Hi ${s.name},\n\n` : ""}Tap the link to confirm you'd like the Sunday note from Simply Being Female:\n${link}\n\nIf this wasn't you, ignore this email and nothing happens.`,
     html: emailShell({
       preheader: "One tap and you're in.",
-      bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#FD0019;font-size:30px;margin:0 0 12px">One tap and you're <em style="color:#FF006C">in</em>.</h1>
+      bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#D90F2A;font-size:30px;margin:0 0 12px">One tap and you're <em style="color:#D9087F">in</em>.</h1>
 <p>${s.name ? `Hi ${esc(s.name)}, t` : "T"}ap the button to confirm you'd like the Sunday note.</p>
-<p style="margin:24px 0"><a href="${esc(link)}" style="background:#C80014;color:#fff;border-radius:999px;padding:12px 22px;font-weight:800;text-decoration:none;display:inline-block">Confirm my subscription</a></p>
+<p style="margin:24px 0"><a href="${esc(link)}" style="background:#9E0962;color:#fff;border-radius:999px;padding:12px 22px;font-weight:800;text-decoration:none;display:inline-block">Confirm my subscription</a></p>
 <p style="font-size:14px">If this wasn't you, ignore this email and nothing happens.</p>`,
     }),
     idempotencyKey: `confirm:${s.id}:${s.token}`,
@@ -192,13 +192,13 @@ export async function renderIssue(db: Db, i: IssueRow, token?: string): Promise<
   const cards = ordered
     .map((a) => {
       const url = siteUrl(`/articles/${a.slug}`);
-      return `<tr><td style="padding:14px 0;border-top:1px solid #FFE0E3"><a href="${esc(url)}" style="font-family:Georgia,serif;font-weight:300;color:#FD0019;font-size:22px;text-decoration:none">${esc(a.title)}</a>${a.excerpt ? `<p style="margin:6px 0 8px">${esc(a.excerpt)}</p>` : ""}<a href="${esc(url)}" style="color:#C80014;font-weight:800">Read the article</a></td></tr>`;
+      return `<tr><td style="padding:14px 0;border-top:1px solid #F1D2EC"><a href="${esc(url)}" style="font-family:Georgia,serif;font-weight:300;color:#D90F2A;font-size:22px;text-decoration:none">${esc(a.title)}</a>${a.excerpt ? `<p style="margin:6px 0 8px">${esc(a.excerpt)}</p>` : ""}<a href="${esc(url)}" style="color:#9E0962;font-weight:800">Read the article</a></td></tr>`;
     })
     .join("");
   const html = emailShell({
     preheader: i.preheader ?? undefined,
-    bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#FD0019;font-size:30px;margin:0 0 16px">${esc(i.subject)}</h1>${para(i.intro)}${cards ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${cards}</table>` : ""}${i.closing ? `<div style="margin-top:18px">${para(i.closing)}</div>` : ""}`,
-    footerHtml: `You're getting this because you signed up for the Sunday note at Simply Being Female. <a href="${esc(unsubscribeUrl)}" style="color:#C80014">Unsubscribe</a>`,
+    bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#D90F2A;font-size:30px;margin:0 0 16px">${esc(i.subject)}</h1>${para(i.intro)}${cards ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${cards}</table>` : ""}${i.closing ? `<div style="margin-top:18px">${para(i.closing)}</div>` : ""}`,
+    footerHtml: `You're getting this because you signed up for the Sunday note at Simply Being Female. <a href="${esc(unsubscribeUrl)}" style="color:#9E0962">Unsubscribe</a>`,
   });
   const text = [
     i.subject,

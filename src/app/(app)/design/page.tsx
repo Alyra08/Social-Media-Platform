@@ -186,9 +186,9 @@ export default async function DesignPage({ searchParams }: { searchParams: Promi
                                 <label>
                                   Lead colour
                                   <select name="lead" defaultValue={d.params.lead} className="select">
-                                    <option value="signal">Signal Red</option>
-                                    <option value="hot">Hot Pink</option>
-                                    <option value="tangerine">Tangerine</option>
+                                    <option value="signal">Confetti Red</option>
+                                    <option value="hot">Magenta</option>
+                                    <option value="tangerine">Marigold</option>
                                   </select>
                                 </label>
                                 <label>

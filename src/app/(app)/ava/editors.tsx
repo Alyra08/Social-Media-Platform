@@ -64,7 +64,7 @@ export function PillarsEditor({ initial, isOwner }: { initial: Pillar[]; isOwner
     <div className="space-y-3">
       <ul className="space-y-2.5">
         {rows.map((p, i) => (
-          <li key={p.key || `new-${i}`} className="rounded-[16px] bg-shell p-3 ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+          <li key={p.key || `new-${i}`} className="rounded-[16px] bg-shell p-3 ring-1 ring-inset ring-[rgb(158_9_98/0.08)]">
             <div className="flex items-start gap-2">
               <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-[minmax(0,1fr)_6.5rem]">
                 <label className="block">
@@ -115,7 +115,7 @@ export function TypesEditor({ initial, isOwner }: { initial: ContentType[]; isOw
     <div className="space-y-3">
       <ul className="grid gap-2 md:grid-cols-2">
         {rows.map((t, i) => (
-          <li key={t.key || `new-${i}`} className="flex items-center gap-2 rounded-[16px] bg-shell p-2.5 ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+          <li key={t.key || `new-${i}`} className="flex items-center gap-2 rounded-[16px] bg-shell p-2.5 ring-1 ring-inset ring-[rgb(158_9_98/0.08)]">
             <div className="grid min-w-0 flex-1 gap-1.5">
               <label>
                 <span className="sr-only">Content type name</span>

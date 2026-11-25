@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@/app/(app)/overview-ui";
+import { AvaAvatar } from "./ava";
 
 type Item = { href: string; label: string; badgeKey?: string };
 
@@ -76,7 +77,7 @@ const RAIL_ICON: Record<string, string> = {
 
 export function Nav({ badges, footer, railFooter }: { badges: Record<string, number>; footer?: React.ReactNode; railFooter?: React.ReactNode }) {
   const path = usePathname();
-  const [, setOpen] = useState(false);
+  const [, setOpen] = useState(false); // kept so closing still works if a menu returns
   const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
   return (
     <>
@@ -98,13 +99,11 @@ export function Nav({ badges, footer, railFooter }: { badges: Record<string, num
                     className={`relative flex h-10 w-10 items-center justify-center rounded-full no-underline transition-colors ${on ? "bg-signal text-white" : "text-deepred hover:bg-shell"}`}
                   >
                     {n.href === "/ava" ? (
-                      <span aria-hidden className={`flex h-6 w-5 items-end justify-center rounded-t-full pb-[1px] font-serif text-[13px] ${on ? "bg-white text-signal" : "bg-signal text-white"}`}>
-                        A
-                      </span>
+                      <AvaAvatar size="sm" inverted={on} />
                     ) : (
                       <Icon name={RAIL_ICON[n.href] ?? "spark"} className="h-5 w-5" />
                     )}
-                    {count ? <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-deepred px-1 text-[10px] font-bold text-white ring-2 ring-blush">{count}</span> : null}
+                    {count ? <span className="absolute -right-0.5 -top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-signal text-[10px] font-bold text-white ring-2 ring-blush">{count}</span> : null}
                   </Link>
                 );
               })}
@@ -118,7 +117,7 @@ export function Nav({ badges, footer, railFooter }: { badges: Record<string, num
         <div className="mt-4 space-y-4 md:mt-0">
           {NAV_GROUPS.map((g) => (
             <div key={g.title || "home"}>
-              {g.title && <p className="mb-1 px-4 font-serif text-[15px] italic text-deepred">{g.title}</p>}
+              {g.title && <p className="mb-1.5 px-4 font-serif text-[1.3rem] font-semibold italic leading-none text-deepred">{g.title}</p>}
               <ul className="space-y-0.5">
                 {g.items.map((n) => {
                   const on = active(n.href);
@@ -127,8 +126,8 @@ export function Nav({ badges, footer, railFooter }: { badges: Record<string, num
                       <Link
                         href={n.href}
                         onClick={() => setOpen(false)}
-                        className={`relative flex min-h-10 items-center justify-between gap-2 rounded-full px-4 text-[14.5px] font-semibold no-underline transition-colors ${
-                          on ? "bg-shell text-deepred ring-1 ring-inset ring-[rgb(200_0_20/0.18)]" : "text-ink hover:bg-shell/70"
+                        className={`relative flex min-h-10 items-center justify-between gap-2 rounded-full px-4 text-[14.5px] font-medium no-underline transition-colors ${
+                          on ? "text-deepred" : "text-ink hover:bg-shell/70"
                         }`}
                         aria-current={on ? "page" : undefined}
                       >
@@ -137,7 +136,7 @@ export function Nav({ badges, footer, railFooter }: { badges: Record<string, num
                           {n.label}
                         </span>
                         {n.badgeKey && badges[n.badgeKey] ? (
-                          <span className="min-w-6 rounded-full bg-deepred px-2 text-center text-[0.7rem] tracking-normal text-white">{badges[n.badgeKey]}</span>
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-signal text-[12px] font-bold tracking-normal text-white">{badges[n.badgeKey]}</span>
                         ) : null}
                       </Link>
                     </li>

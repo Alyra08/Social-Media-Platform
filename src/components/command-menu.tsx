@@ -68,7 +68,7 @@ export function CommandMenu() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-ink/30 px-4 pt-[12vh]" onMouseDown={() => setOpen(false)} role="presentation">
-      <div role="dialog" aria-modal="true" aria-label="Quick find" className="w-full max-w-xl overflow-hidden rounded-[22px] bg-white ring-1 ring-[rgb(200_0_20/0.15)]" onMouseDown={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label="Quick find" className="w-full max-w-xl overflow-hidden rounded-[22px] bg-white ring-1 ring-[rgb(158_9_98/0.15)]" onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-3 border-b border-rosemist px-5 py-3.5">
           <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-deepred" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" aria-hidden>
             <circle cx="11" cy="11" r="7" />
@@ -138,7 +138,7 @@ export function CommandMenu() {
 /** Top-bar button that opens the command menu. */
 export function QuickFindButton() {
   return (
-    <button type="button" onClick={() => window.dispatchEvent(new Event("sbf:command"))} className="inline-flex h-9 items-center gap-2 rounded-full bg-shell px-3.5 text-[13px] font-bold text-ink ring-1 ring-inset ring-[rgb(200_0_20/0.14)] hover:bg-blush" aria-keyshortcuts="Control+K">
+    <button type="button" onClick={() => window.dispatchEvent(new Event("sbf:command"))} className="inline-flex h-9 items-center gap-2 rounded-full bg-shell px-3.5 text-[13px] font-bold text-ink ring-1 ring-inset ring-[rgb(158_9_98/0.14)] hover:bg-blush" aria-keyshortcuts="Control+K">
       Quick find <kbd className="rounded-md bg-white px-1.5 text-[11px] text-charcoal ring-1 ring-rosemist">Ctrl K</kbd>
     </button>
   );

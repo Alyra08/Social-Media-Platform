@@ -159,7 +159,7 @@ export async function cancelEvent(db: Db, actor: Actor, id: string, message: str
       to: p.email,
       subject: `Cancelled: ${e.title}`,
       text: `Hi ${p.name},\n\n${e.title} on ${formatBrisbane(e.startsAt)} has been cancelled.\n\n${message}`,
-      html: emailShell({ bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#FD0019;font-size:28px;margin:0 0 12px">${esc(e.title)} is cancelled.</h1><p>Hi ${esc(p.name)},</p><p>${esc(message).replace(/\n/g, "<br>")}</p>` }),
+      html: emailShell({ bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#D90F2A;font-size:28px;margin:0 0 12px">${esc(e.title)} is cancelled.</h1><p>Hi ${esc(p.name)},</p><p>${esc(message).replace(/\n/g, "<br>")}</p>` }),
       idempotencyKey: `event-cancel:${p.id}`,
     });
     if (r.ok) emailed++;
@@ -211,10 +211,10 @@ async function sendRsvpEmail(db: Db, e: EventRow, r: typeof eventRsvps.$inferSel
     subject: going ? `You're in: ${e.title}` : `You're on the waitlist: ${e.title}`,
     text: `Hi ${r.name},\n\n${going ? "You're coming to" : "You're on the waitlist for"} ${e.title}, ${formatBrisbane(e.startsAt)} (Brisbane time).\n${where}\n\nCan't make it? Cancel here: ${cancelUrl}`,
     html: emailShell({
-      bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#FD0019;font-size:28px;margin:0 0 12px">${going ? "You're <em style=\"color:#FF006C\">in</em>." : "You're on the waitlist."}</h1>
+      bodyHtml: `<h1 style="font-family:Georgia,serif;font-weight:300;color:#D90F2A;font-size:28px;margin:0 0 12px">${going ? "You're <em style=\"color:#D9087F\">in</em>." : "You're on the waitlist."}</h1>
 <p>Hi ${esc(r.name)}, ${going ? "see you at" : "we'll let you know if a spot opens up for"} <strong>${esc(e.title)}</strong>.</p>
-<p><strong>When:</strong> ${esc(formatBrisbane(e.startsAt))} (Brisbane time)${e.location ? `<br><strong>Where:</strong> ${esc(e.location)}` : ""}${going && e.onlineUrl ? `<br><strong>Join online:</strong> <a href="${esc(e.onlineUrl)}" style="color:#C80014">${esc(e.onlineUrl)}</a>` : ""}</p>
-<p style="font-size:14px">Can't make it? <a href="${esc(cancelUrl)}" style="color:#C80014">Cancel my RSVP</a> so someone else can have the spot.</p>`,
+<p><strong>When:</strong> ${esc(formatBrisbane(e.startsAt))} (Brisbane time)${e.location ? `<br><strong>Where:</strong> ${esc(e.location)}` : ""}${going && e.onlineUrl ? `<br><strong>Join online:</strong> <a href="${esc(e.onlineUrl)}" style="color:#9E0962">${esc(e.onlineUrl)}</a>` : ""}</p>
+<p style="font-size:14px">Can't make it? <a href="${esc(cancelUrl)}" style="color:#9E0962">Cancel my RSVP</a> so someone else can have the spot.</p>`,
     }),
     idempotencyKey: `rsvp:${r.id}:${r.status}`,
   });

@@ -60,7 +60,7 @@ function Section({ title, children, id, icon = "spark", status, tone = "quiet" }
   const { open, setOpen } = useContext(OpenCtx);
   const isOpen = open === id;
   return (
-    <section id={id} className={`mx-3 mb-2.5 scroll-mt-4 overflow-hidden rounded-[18px] bg-white ring-1 ring-inset transition-shadow ${isOpen ? "ring-[rgb(200_0_20/0.22)]" : "ring-[rgb(200_0_20/0.08)]"}`}>
+    <section id={id} className={`mx-3 mb-2.5 scroll-mt-4 overflow-hidden rounded-[18px] bg-white ring-1 ring-inset transition-shadow ${isOpen ? "ring-[rgb(158_9_98/0.22)]" : "ring-[rgb(158_9_98/0.08)]"}`}>
       <h3 className="font-sans text-[15px] leading-normal tracking-normal">
         <button type="button" onClick={() => setOpen(isOpen ? "" : id)} aria-expanded={isOpen} aria-controls={`${id}-body`} className="flex w-full items-center gap-3 px-4 py-3 text-left">
           <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${isOpen ? "bg-signal text-white" : "bg-blush text-deepred"}`}>
@@ -235,7 +235,7 @@ export function Editor(props: {
   const blockers = issues.filter((i) => i.severity === "block").length;
 
   return (
-    <div className="-mx-4 -mt-4 flex min-h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-[28px] bg-shell ring-1 ring-inset ring-[rgb(200_0_20/0.08)] lg:mx-0">
+    <div className="-mx-4 -mt-4 flex min-h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-[28px] bg-shell ring-1 ring-inset ring-[rgb(158_9_98/0.08)] lg:mx-0">
       {/* Top bar */}
       <div className="flex flex-wrap items-center gap-2 border-b border-rosemist bg-white/70 px-3 py-2.5 sm:px-4">
         <Link href="/create" className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-blush" aria-label="Back to the design studio">
@@ -350,7 +350,7 @@ export function Editor(props: {
               e.preventDefault();
               refine();
             }}
-            className="flex w-full max-w-xl items-center gap-2 rounded-full bg-white py-1.5 pl-4 pr-1.5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink"
+            className="flex w-full max-w-xl items-center gap-2 rounded-full bg-white py-1.5 pl-4 pr-1.5 ring-1 ring-inset ring-[rgb(158_9_98/0.12)] focus-within:ring-2 focus-within:ring-ink"
           >
             <Icon name="spark" className="h-5 w-5 shrink-0 text-hot" />
             <label htmlFor="ask" className="sr-only">
@@ -373,14 +373,14 @@ export function Editor(props: {
               <span className="font-bold text-ink">{f.label}</span>
               <span className="text-charcoal">{f.w} × {f.h}</span>
             </p>
-            <div className="shrink-0 overflow-hidden rounded-[10px] bg-white ring-1 ring-[rgb(200_0_20/0.12)] [&>svg]:block [&>svg]:h-auto [&>svg]:w-full" style={{ width: canvasW }} dangerouslySetInnerHTML={{ __html: svg }} role="img" aria-label={`Preview: ${p.headline}`} />
+            <div className="shrink-0 overflow-hidden rounded-[10px] bg-white ring-1 ring-[rgb(158_9_98/0.12)] [&>svg]:block [&>svg]:h-auto [&>svg]:w-full" style={{ width: canvasW }} dangerouslySetInnerHTML={{ __html: svg }} role="img" aria-label={`Preview: ${p.headline}`} />
           </div>
         </main>
 
         {/* Right: design and caption */}
         <OpenCtx.Provider value={{ open, setOpen }}>
         <aside className="no-scrollbar order-3 border-t border-rosemist bg-shell lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto lg:border-l lg:border-t-0">
-          <div className="m-3 rounded-[18px] bg-white p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+          <div className="m-3 rounded-[18px] bg-white p-4 ring-1 ring-inset ring-[rgb(158_9_98/0.08)]">
             <div className="flex items-center gap-2">
               <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold text-white ${score.score >= 80 ? "bg-ink" : "bg-deepred"}`}>{score.score}%</span>
               <span className="text-[14px] font-bold text-ink">Post score</span>
@@ -500,7 +500,7 @@ export function Editor(props: {
                   ] as const
                 ).map(([k, label, lo, hi]) => (
                   <Field key={k} label={`${label} · ${Math.round(p[k] * 100)}%`}>
-                    <input type="range" min={lo} max={hi} step={0.05} value={p[k]} onChange={(e) => setP({ [k]: Number(e.target.value) })} className="w-full accent-[#C80014]" />
+                    <input type="range" min={lo} max={hi} step={0.05} value={p[k]} onChange={(e) => setP({ [k]: Number(e.target.value) })} className="w-full accent-[#9E0962]" />
                   </Field>
                 ))}
                 {!props.logoHref && <p className="text-[12px]">No logo yet. It appears once uploaded in Brand library as type Logos.</p>}

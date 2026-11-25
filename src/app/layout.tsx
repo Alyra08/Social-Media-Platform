@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "Simply Being Female editorial intelligence and social media studio.",
 };
 
-export const viewport: Viewport = { themeColor: "#FFECEF" };
+export const viewport: Viewport = { themeColor: "#F6DDF1" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -33,6 +33,7 @@ import { JOBS } from "@/lib/jobs";
 import { runResearchNow } from "./actions";
 import { OverviewAnalytics } from "./overview-analytics";
 import { Icon, Tile } from "./overview-ui";
+import { HeroSearch } from "./hero-search";
 
 const STAGE_ICON: Record<string, string> = { "1": "search", "2": "palette", "3": "calendar", "4": "chat", "5": "chart", "6": "sliders" };
 
@@ -393,7 +394,7 @@ export default async function Overview() {
   };
   // Welcome tiles: white cards, red line icon, bold name, one live line. Icon beside text on phones, above it from tablet up.
   const welcomeTileCls =
-    "group flex h-full items-start gap-3.5 rounded-[22px] bg-white p-4 text-left no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.1)] transition-all duration-200 hover:-translate-y-1 hover:ring-[rgb(200_0_20/0.3)] sm:flex-col sm:gap-4 sm:p-5";
+    "group flex h-full items-start gap-3.5 rounded-[22px] bg-white p-4 text-left no-underline ring-1 ring-inset ring-[rgb(158_9_98/0.1)] transition-all duration-200 hover:-translate-y-1 hover:ring-[rgb(158_9_98/0.3)] sm:flex-col sm:gap-4 sm:p-5";
   const welcomeIconCls = "h-7 w-7 shrink-0 text-signal transition-transform group-hover:scale-110 sm:h-8 sm:w-8";
 
   return (
@@ -426,14 +427,7 @@ export default async function Overview() {
                 today?
               </span>
             </p>
-            <form action="/search" className="mt-6 flex w-full max-w-xl items-center gap-2 rounded-full bg-white py-1.5 pl-5 pr-1.5 text-left ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
-              <Icon name="search" className="h-5 w-5 shrink-0 text-deepred" />
-              <label htmlFor="hero-q" className="sr-only">
-                Search the studio
-              </label>
-              <input id="hero-q" name="q" placeholder="Search stories, posts, designs, comments" className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-ink outline-none placeholder:text-charcoal" />
-              <button className="btn btn-primary btn-sm shrink-0">Search</button>
-            </form>
+            <HeroSearch />
           </div>
         </section>
 

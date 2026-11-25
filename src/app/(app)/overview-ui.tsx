@@ -47,7 +47,7 @@ export function Icon({ name, className = "h-5 w-5" }: { name: string; className?
 export function ShortcutFace({ icon, label }: { i?: number; icon: string; label: string }) {
   return (
     <>
-      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush text-deepred ring-1 ring-inset ring-[rgb(200_0_20/0.10)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-signal group-hover:text-white group-hover:ring-signal sm:h-16 sm:w-16">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush text-deepred ring-1 ring-inset ring-[rgb(158_9_98/0.10)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-signal group-hover:text-white group-hover:ring-signal sm:h-16 sm:w-16">
         <Icon name={icon} className="h-6 w-6 sm:h-7 sm:w-7" />
       </span>
       <span className="text-center text-[12.5px] font-bold leading-tight text-ink sm:text-[13px]">{label}</span>
@@ -62,10 +62,10 @@ export function ShortcutFace({ icon, label }: { i?: number; icon: string; label:
  */
 const FEATURE = { bg: "bg-signal", num: "text-white", motif: "arch", ring: "" };
 const TINTS = [
-  { bg: "bg-blush", num: "text-deepred", motif: "hearts", ring: "ring-1 ring-inset ring-[rgb(200_0_20/0.06)]" },
-  { bg: "bg-peachcream", num: "text-deepred", motif: "rosearch", ring: "ring-1 ring-inset ring-[rgb(251_101_38/0.12)]" },
-  { bg: "bg-candy", num: "text-deepred", motif: "flower", ring: "ring-1 ring-inset ring-[rgb(255_0_108/0.08)]" },
-  { bg: "bg-rosemist", num: "text-deepred", motif: "stripe", ring: "ring-1 ring-inset ring-[rgb(200_0_20/0.06)]" },
+  { bg: "bg-blush", num: "text-deepred", motif: "hearts", ring: "ring-1 ring-inset ring-[rgb(158_9_98/0.06)]" },
+  { bg: "bg-peachcream", num: "text-deepred", motif: "rosearch", ring: "ring-1 ring-inset ring-[rgb(240_138_28/0.12)]" },
+  { bg: "bg-candy", num: "text-deepred", motif: "flower", ring: "ring-1 ring-inset ring-[rgb(217_8_127/0.08)]" },
+  { bg: "bg-rosemist", num: "text-deepred", motif: "stripe", ring: "ring-1 ring-inset ring-[rgb(158_9_98/0.06)]" },
 ] as const;
 
 function Motif({ kind }: { kind: string }) {

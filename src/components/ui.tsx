@@ -103,7 +103,7 @@ export function StatusPill({ status }: { status: string }) {
 /** Kind empty state: the brand arch and a heart, a clear title, and what to do next. */
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-[22px] bg-shell px-6 py-12 text-center ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+    <div className="flex flex-col items-center rounded-[22px] bg-shell px-6 py-12 text-center ring-1 ring-inset ring-[rgb(158_9_98/0.08)]">
       <span aria-hidden className="relative mb-5 flex h-20 w-16 items-end justify-center rounded-t-full bg-blush">
         <svg viewBox="-12 -8 24 24" className="mb-4 h-7 w-7">
           <path d="M0 6C-8-6-22 4 0 20 22 4 8-6 0 6z" transform="scale(0.55)" fill="var(--color-signal)" />

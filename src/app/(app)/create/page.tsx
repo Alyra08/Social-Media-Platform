@@ -45,7 +45,7 @@ function Thumbs({ rows }: { rows: Row[] }) {
       {rows.map(({ d, hook, platform }) => (
         <li key={d.id}>
           <Link href={`/create/${d.id}`} className="group block text-charcoal no-underline">
-            <div className="flex aspect-square items-center justify-center overflow-hidden rounded-[18px] bg-blush p-3 ring-1 ring-inset ring-[rgb(200_0_20/0.06)] transition-transform group-hover:-translate-y-1">
+            <div className="flex aspect-square items-center justify-center overflow-hidden rounded-[18px] bg-blush p-3 ring-1 ring-inset ring-[rgb(158_9_98/0.06)] transition-transform group-hover:-translate-y-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/api/designs/${d.id}/image`} alt="" className="max-h-full max-w-full rounded-[8px] object-contain" loading="lazy" />
             </div>
@@ -138,7 +138,7 @@ export default async function DesignStudio({ searchParams }: { searchParams: Pro
               { href: "/design", label: "Design approval" },
               { href: "/create?mode=restyle", label: "Visual editor" },
             ].map((l) => (
-              <Link key={l.href} href={l.href} className="inline-flex items-center gap-1.5 rounded-full bg-peachcream px-3.5 py-1.5 text-[13px] font-bold text-ink no-underline ring-1 ring-inset ring-[rgb(251_101_38/0.2)] hover:bg-shell">
+              <Link key={l.href} href={l.href} className="inline-flex items-center gap-1.5 rounded-full bg-peachcream px-3.5 py-1.5 text-[13px] font-bold text-ink no-underline ring-1 ring-inset ring-[rgb(240_138_28/0.2)] hover:bg-shell">
                 {l.label} <span aria-hidden>→</span>
               </Link>
             ))}

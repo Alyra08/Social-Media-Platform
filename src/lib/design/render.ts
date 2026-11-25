@@ -52,7 +52,7 @@ function wrap(text: string, maxChars: number): string[] {
   return lines;
 }
 
-/** Render a headline where the `emphasis` words are set in Hot Pink italic. */
+/** Render a headline where the `emphasis` words are set in Magenta italic. */
 function headlineTspans(line: string, emphasis: string, baseFill: string, accentFill: string) {
   if (!emphasis) return esc(line);
   const idx = line.toLowerCase().indexOf(emphasis.toLowerCase());
@@ -87,7 +87,7 @@ function heart(cx: number, cy: number, s: number) {
 }
 
 function badge(cx: number, cy: number, r: number) {
-  return `<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="${colours.tangerine}"/><text x="${cx}" y="${cy + r * 0.2}" text-anchor="middle" font-family="Anton, 'Nunito Sans', sans-serif" font-size="${r * 0.62}" fill="#FFFFFF" letter-spacing="2">SBF</text></g>`;
+  return `<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="${colours.tangerine}"/><text x="${cx}" y="${cy + r * 0.2}" text-anchor="middle" font-family="Anton, 'Nunito Sans', sans-serif" font-size="${r * 0.62}" fill="${colours.deepInk}" letter-spacing="2">SBF</text></g>`;
 }
 
 /** The uploaded logo (Brand Library, type "Logos"). Left blank until the real logo is uploaded; the zone stays reserved. */
@@ -135,6 +135,8 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   const limit = fieldBottom ? fieldBottom - pad * 0.5 : quoteBottom ? quoteBottom - pad * 0.4 : logoY - 40 * logoScale - pad * 0.6;
   const fits = (endY: number) => endY <= limit;
   let headlineFill: string = lead;
+  // Text on the lead bright: white on Confetti Red and Magenta, Deep Ink on Marigold (white would be 2.5:1).
+  const onBright = p.lead === "tangerine" ? colours.deepInk : "#FFFFFF";
   let headlineOnBright = false;
 
   if (p.layout === "poster") {
@@ -142,7 +144,7 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
     const fieldH = h * (landscape ? 1 : 0.58);
     const fieldW = landscape ? w * 0.62 : w;
     parts.push(`<rect x="0" y="${landscape ? 0 : h * 0.2}" width="${fieldW}" height="${fieldH}" fill="${lead}"/>`);
-    headlineFill = "#FFFFFF";
+    headlineFill = onBright;
     headlineOnBright = true;
   } else if (p.layout === "arch") {
     const tall = h / w > 1.5;
@@ -163,7 +165,7 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
   } else if (p.layout === "quote") {
     const bw = w - pad * 2;
     parts.push(`<rect x="${pad}" y="${h * 0.22}" width="${bw}" height="${h * 0.56}" rx="22" fill="${colours.shell}"/>`);
-    parts.push(`<rect x="${pad}" y="${h * 0.22 - 36}" width="${Math.min(bw * 0.55, 420)}" height="72" rx="36" fill="${colours.tangerine}"/>`);
+    parts.push(`<rect x="${pad}" y="${h * 0.22 - 36}" width="${Math.min(bw * 0.55, 420)}" height="72" rx="36" fill="${colours.deepRed}"/>`);
     parts.push(`<text x="${pad + 36}" y="${h * 0.22 + 12}" font-family="'Nunito Sans', sans-serif" font-weight="800" font-size="30" fill="#FFFFFF">${esc(p.label || "Say it out loud.")}</text>`);
   }
 
@@ -202,7 +204,7 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
     const sSize = Math.round(headSize * 1.1);
     if (fits(cursor + sSize * 0.9)) {
       parts.push(
-        `<text x="${hx}" y="${cursor + sSize * 0.75}" text-anchor="${anchor}" font-family="'Mrs Saint Delafield', cursive" font-size="${sSize}" fill="${headlineOnBright ? "#FFFFFF" : colours.hot}">${esc(p.script.split(/\s+/)[0])}</text>`,
+        `<text x="${hx}" y="${cursor + sSize * 0.75}" text-anchor="${anchor}" font-family="'Mrs Saint Delafield', cursive" font-size="${sSize}" fill="${headlineOnBright ? onBright : colours.hot}">${esc(p.script.split(/\s+/)[0])}</text>`,
       );
       cursor += sSize * 0.95;
     }
@@ -238,7 +240,7 @@ export function renderDesignSvg({ format, params: p, logoHref }: RenderOptions):
     }
   }
 
-  // Small label: always white on a Deep Red pill, never directly on a bright.
+  // Small label: always white on a Berry pill, never directly on a bright.
   if (p.label && p.layout !== "quote") {
     const ls = Math.round(Math.min(w, h) * 0.024);
     const lw = p.label.length * ls * 0.72 + ls * 2.4;

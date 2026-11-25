@@ -1,22 +1,27 @@
 @import "tailwindcss";
 
-/* SBF design system — from the brand brief. Lights carry the page; brights arrive as fields,
+/* SBF design system: the confetti palette (approved 25 Nov 2026, docs/confetti-palette.md).
+   Token names are kept from the original brief: signal = Confetti Red, hot = Magenta, tangerine = Marigold,
+   deepred = Berry, blush = Lilac Blush, shell = Petal, rose = Orchid. Original note: Lights carry the page; brights arrive as fields,
    stripes and big type; deeps do the working text. No green, no gradients, no grey text. */
 @theme {
-  --color-signal: #fd0019;
-  --color-hot: #ff006c;
-  --color-rose: #fea0ae;
-  --color-tangerine: #fb6526;
-  --color-blush: #ffecef;
+  --color-signal: #d90f2a;
+  --color-hot: #d9087f;
+  --color-rose: #d75dab;
+  --color-tangerine: #f08a1c;
+  --color-blush: #f6ddf1;
   --color-page: #ffffff; /* Page background: white (owner choice, 24 Nov 2026). The brief says Blush; change back here if wanted. */
-  --color-shell: #fff9fa;
-  --color-rosemist: #ffe0e3;
-  --color-candy: #ffe0ed;
-  --color-peach: #fee0d4;
-  --color-peachcream: #fff6f2;
-  --color-deepred: #c80014;
+  --color-shell: #fceef8;
+  --color-rosemist: #f1d2ec;
+  --color-candy: #f9e4f4;
+  --color-peach: #fce6cb;
+  --color-peachcream: #fef4e8;
+  --color-deepred: #9e0962;
   --color-charcoal: #4a4544;
   --color-ink: #2a1a1d;
+  /* Confetti accents: small doses only (gold highlights; teal as a single pop, never text). */
+  --color-gold: #f5b544;
+  --color-teal: #3a99b8;
 
   --font-serif: var(--font-cormorant), "Silk Serif", Georgia, serif;
   --font-sans: var(--font-nunito), system-ui, sans-serif;
@@ -76,22 +81,22 @@
   /* Refined surfaces: Shell cards on Blush, hairline edge, no shadows (brand rule). */
   .card {
     background: var(--color-shell);
-    border: 1px solid rgb(200 0 20 / 0.07);
+    border: 1px solid rgb(158 9 98 / 0.07);
     border-radius: var(--radius-card);
     padding: 1.6rem;
   }
   .card-tint {
     background: var(--color-peachcream);
-    border: 1px solid rgb(251 101 38 / 0.12);
+    border: 1px solid rgb(240 138 28 / 0.12);
     border-radius: var(--radius-card);
     padding: 1.6rem;
   }
   .card-link:hover {
     transform: translateY(-2px);
-    border-color: rgb(200 0 20 / 0.3);
+    border-color: rgb(158 9 98 / 0.3);
     background: var(--color-peachcream);
   }
-  .rule { height: 1px; background: rgb(200 0 20 / 0.14); }
+  .rule { height: 1px; background: rgb(158 9 98 / 0.14); }
   /* Buttons: one solid Deep Red per view; everything else is an outline pill that fills on hover. */
   .btn {
     display: inline-flex;
@@ -114,7 +119,8 @@
   }
   .btn:hover { background: var(--color-deepred); color: #fff; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-primary { background: var(--color-deepred); color: #fff; }
+  .btn-primary { background: var(--color-signal); border-color: var(--color-signal); color: #fff; }
+  .btn-primary:hover { background: var(--color-deepred); border-color: var(--color-deepred); }
   .btn-sm { min-height: 36px; padding: 0 0.85rem; font-size: 13px; }
   .pill {
     display: inline-flex;
@@ -131,7 +137,7 @@
   }
   /* Tags: hairline-edged tints; attention tags stay Deep Red with white text (brand rule). */
   .pill-red { background: var(--color-deepred); border-color: var(--color-deepred); color: #fff; }
-  .pill-ok { background: var(--color-peachcream); border-color: rgb(251 101 38 / 0.3); color: var(--color-ink); }
+  .pill-ok { background: var(--color-peachcream); border-color: rgb(240 138 28 / 0.3); color: var(--color-ink); }
   .pill-ink { background: #fff; border-color: rgb(42 26 29 / 0.35); color: var(--color-ink); }
   .input,
   .textarea,
@@ -199,7 +205,7 @@
     padding: 0.375rem;
     border-radius: 999px;
     background: var(--color-shell);
-    box-shadow: inset 0 0 0 1px rgb(200 0 20 / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(158 9 98 / 0.1);
   }
   .seg {
     display: inline-flex;

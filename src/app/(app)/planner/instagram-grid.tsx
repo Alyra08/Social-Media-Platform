@@ -58,7 +58,7 @@ export async function InstagramGrid({ db }: { db: Db }) {
       </div>
 
       {list.length === 0 ? (
-        <div className="rounded-[18px] bg-shell p-8 text-center ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+        <div className="rounded-[18px] bg-shell p-8 text-center ring-1 ring-inset ring-[rgb(158_9_98/0.08)]">
           <p className="font-serif text-2xl font-medium text-deepred">Nothing on the grid yet.</p>
           <p className="mt-2 text-[14.5px]">
             <Link href="/create">Create an Instagram post</Link> and it appears here as you plan.

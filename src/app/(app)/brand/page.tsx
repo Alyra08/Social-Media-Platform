@@ -23,17 +23,17 @@ const KINDS: Record<string, string> = {
 };
 
 const SWATCHES: { name: ColourName; label: string; role: string }[] = [
-  { name: "signal", label: "Signal Red", role: "Primary. Headlines, poster type, colour fields" },
-  { name: "hot", label: "Hot Pink", role: "Feature cards, italic accents" },
-  { name: "rose", label: "Rose", role: "Decoration only. Never text" },
-  { name: "tangerine", label: "Tangerine", role: "Badges, quote banners, stickers" },
-  { name: "blush", label: "Blush", role: "Main background" },
-  { name: "shell", label: "Shell", role: "Cards, forms, panels" },
-  { name: "roseMist", label: "Rose Mist", role: "Section tint" },
+  { name: "signal", label: "Confetti Red", role: "Primary. Headlines, buttons, colour fields" },
+  { name: "hot", label: "Magenta", role: "Feature cards, italic accents" },
+  { name: "rose", label: "Orchid", role: "Decoration only. Never text" },
+  { name: "tangerine", label: "Marigold", role: "Badges, highlights. Deep Ink text only" },
+  { name: "blush", label: "Lilac Blush", role: "Panels, sidebar, tiles" },
+  { name: "shell", label: "Petal", role: "Pale pink: page, cards, forms" },
+  { name: "roseMist", label: "Orchid Mist", role: "Section tint" },
   { name: "candy", label: "Candy", role: "Section tint" },
-  { name: "peach", label: "Peach", role: "Section tint, success" },
-  { name: "peachCream", label: "Peach Cream", role: "Section tint" },
-  { name: "deepRed", label: "Deep Red", role: "Buttons, links, small red text" },
+  { name: "peach", label: "Marigold Cream", role: "Section tint" },
+  { name: "peachCream", label: "Soft Cream", role: "Section tint" },
+  { name: "deepRed", label: "Berry", role: "Links, small red-family text, outline buttons" },
   { name: "charcoal", label: "Charcoal", role: "All body text" },
   { name: "deepInk", label: "Deep Ink", role: "Emphasis, success, focus" },
 ];

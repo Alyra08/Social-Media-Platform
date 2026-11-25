@@ -38,7 +38,7 @@ export function StudioPrompt({ demo }: { demo: boolean }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   return (
     <form action={studioCreateAction} className="mx-auto w-full max-w-3xl">
-      <div className="rounded-[26px] bg-shell p-2 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
+      <div className="rounded-[26px] bg-shell p-2 ring-1 ring-inset ring-[rgb(158_9_98/0.12)] focus-within:ring-2 focus-within:ring-ink">
         <label htmlFor="prompt" className="sr-only">
           Describe the post you want
         </label>
@@ -84,7 +84,7 @@ export function StudioPrompt({ demo }: { demo: boolean }) {
                 ref.current.focus();
               }
             }}
-            className="rounded-full bg-shell/80 px-3.5 py-1.5 text-[13px] text-ink ring-1 ring-inset ring-[rgb(200_0_20/0.12)] hover:bg-shell"
+            className="rounded-full bg-shell/80 px-3.5 py-1.5 text-[13px] text-ink ring-1 ring-inset ring-[rgb(158_9_98/0.12)] hover:bg-shell"
           >
             {i}
           </button>
@@ -100,7 +100,7 @@ export function ReviewForm() {
   const [state, formAction, pending] = useActionState<ReviewState, FormData>(reviewCopyAction, null);
   return (
     <form action={formAction} className="mx-auto w-full max-w-3xl">
-      <div className="rounded-[26px] bg-shell p-2 ring-1 ring-inset ring-[rgb(200_0_20/0.12)] focus-within:ring-2 focus-within:ring-ink">
+      <div className="rounded-[26px] bg-shell p-2 ring-1 ring-inset ring-[rgb(158_9_98/0.12)] focus-within:ring-2 focus-within:ring-ink">
         <label htmlFor="copy" className="sr-only">
           Copy to check
         </label>
@@ -112,7 +112,7 @@ export function ReviewForm() {
         </div>
       </div>
       {state && (
-        <div className="mt-4 rounded-[22px] bg-shell p-5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)]" aria-live="polite">
+        <div className="mt-4 rounded-[22px] bg-shell p-5 ring-1 ring-inset ring-[rgb(158_9_98/0.12)]" aria-live="polite">
           {state.issues.length === 0 ? (
             <p className="font-bold text-ink">✓ On brand. Nothing to fix.</p>
           ) : (

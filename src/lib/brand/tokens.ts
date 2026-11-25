@@ -1,19 +1,19 @@
 /** SBF colour system — from the brand brief. Never change without the owner's approval. */
 export const colours = {
   // Brights (~30%)
-  signal: "#FD0019", // Signal Red — primary. White text only, large/bold.
-  hot: "#FF006C", // Hot Pink — second colour. White text only, large/bold.
-  rose: "#FEA0AE", // Rose — decoration only. NEVER text on it.
-  tangerine: "#FB6526", // Tangerine — warm accent. White text only, large/bold.
+  signal: "#D90F2A", // Confetti Red: primary. White text.
+  hot: "#D9087F", // Magenta: second bright. White text.
+  rose: "#D75DAB", // Rose — decoration only. NEVER text on it.
+  tangerine: "#F08A1C", // Marigold: warm accent. Deep Ink text only (white is 2.5:1).
   // Lights (~60%)
-  blush: "#FFECEF", // main canvas
-  shell: "#FFF9FA", // cards, forms, panels (instead of white)
-  roseMist: "#FFE0E3",
-  candy: "#FFE0ED",
-  peach: "#FEE0D4",
-  peachCream: "#FFF6F2",
+  blush: "#F6DDF1", // main canvas
+  shell: "#FCEEF8", // cards, forms, panels (instead of white)
+  roseMist: "#F1D2EC",
+  candy: "#F9E4F4",
+  peach: "#FCE6CB",
+  peachCream: "#FEF4E8",
   // Deeps (~10%)
-  deepRed: "#C80014", // buttons, links, small red text, pills, footer
+  deepRed: "#9E0962", // buttons, links, small red text, pills, footer
   charcoal: "#4A4544", // all body text on lights
   deepInk: "#2A1A1D", // emphasis, success, focus
   white: "#FFFFFF",
@@ -67,11 +67,13 @@ export function textOnColourViolation(
   text: ColourName,
   opts: { sizePx: number; bold?: boolean },
 ): string | null {
-  if (background === "rose") return "Never put any text on Rose.";
-  if ((brights as readonly string[]).includes(background)) {
-    if (text !== "white") return "Text on Signal Red, Hot Pink or Tangerine must be white.";
+  if (background === "rose") return "Never put any text on Orchid.";
+  if (background === "tangerine") {
+    if (text !== "deepInk") return "Text on Marigold must be Deep Ink.";
+  } else if ((brights as readonly string[]).includes(background)) {
+    if (text !== "white") return "Text on Confetti Red or Magenta must be white.";
     const bigEnough = opts.sizePx >= 24 || (opts.bold && opts.sizePx >= 19);
-    if (!bigEnough) return "Small text must not sit on a bright. Use a Deep Red pill with white text.";
+    if (!bigEnough) return "Small text must not sit on a bright. Use a Berry pill with white text.";
   }
   const ratio = contrastRatio(colours[background], colours[text]);
   const large = opts.sizePx >= 24 || (opts.bold && opts.sizePx >= 19);

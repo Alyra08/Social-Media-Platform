@@ -47,25 +47,26 @@ Plain, direct sentences. Avoid filler and corporate jargon.
 Honesty is non-negotiable. Never invent statistics, member numbers, testimonials, press mentions, prices or dates. If a real figure isn't provided, leave a clearly marked placeholder like [real member number] instead.
 
 Colour
-Four bright brand colours sit on a canvas of very light tints. The tints carry the page; the brights arrive as colour fields, stripes and big type.
-Brights (about 30% of any design): Signal Red #FD0019 (primary: hero and poster type, headlines, bold colour fields, stripes). Hot Pink #FF006C (feature cards, italic accents, highlight words, stripes). Rose #FEA0AE (decoration only: stripes, arches, flowers, fills; never text on it). Tangerine #FB6526 (badges, quote banners, stickers, stripes).
-Lights (about 60%): Blush #FFECEF (main background). Shell #FFF9FA (cards, forms, panels instead of pure white). Rose Mist #FFE0E3, Candy #FFE0ED, Peach #FEE0D4, Peach Cream #FFF6F2 (alternate sections and card tints).
-Deeps (about 10%): Deep Red #C80014 (buttons, links, small red text, footer, pills with small labels; white text on it). Charcoal #4A4544 (all body text on lights). Deep Ink #2A1A1D (emphasis, success messages, focus outlines).
-Text-on-colour rules: On Signal Red, Hot Pink and Tangerine, text is always white, set large (24px+) or bold (19px+). Never dark text on these colours. Small text such as dates, credits or tags must never sit directly on a bright; put it on a Deep Red pill with white text. Never put any text on Rose. On the lights, body text is Charcoal; small red text and links are Deep Red; big headlines can be Signal Red or Hot Pink. Use one bright colour to lead each piece; the others appear as accents or stripes. Never let three brights touch.
-Never use: green (even for success messages, which use Deep Ink with a ✓ on Peach), burgundy, plum, wine tones, grey text or gradients. Hard-edged stripes are the only pattern.
+The confetti palette (approved November 2026, drawn from the brand's confetti photograph). Three brights sit on pale pinks; the pale pinks carry the page and the brights arrive as colour fields, stripes, buttons and big type.
+Brights (about 30% of any design): Confetti Red #D90F2A (primary: hero and poster type, headlines, buttons, bold colour fields, stripes). Magenta #D9087F (feature cards, italic accents, highlight words, stripes). Marigold #F08A1C (badges, quote banners, stickers, stripes). Orchid #D75DAB (decoration only: arches, flowers, dots, fills; never text on it).
+Accents (small doses): Gold #F5B544 (sparkles, small highlights). Teal #3A99B8 (one small pop per piece; never text, never a background).
+Lights (about 60%): Petal #FCEEF8 (pale pink: page, cards, forms). Lilac Blush #F6DDF1 (panels, sidebars, tiles). Orchid Mist #F1D2EC, Candy #F9E4F4, Marigold Cream #FCE6CB, Soft Cream #FEF4E8 (alternate sections and card tints). White is allowed for pages and cards.
+Deeps (about 10%): Berry #9E0962 (links, all small red-family text, outline buttons, pills with small labels; white text on it). Charcoal #4A4544 (body text on lights). Deep Ink #2A1A1D (emphasis, success messages, focus outlines, text on Marigold and Gold).
+Text-on-colour rules: On Confetti Red and Magenta, text is white. On Marigold and Gold, text is Deep Ink (never white). Never put any text on Orchid or Teal. Small text such as dates, credits or tags sits on a Berry pill with white text, never directly on a bright. On the lights, body text is Charcoal or Deep Ink; small red-family text and links are Berry; big headlines can be Confetti Red or Magenta. Never put red text on Magenta or magenta on red. Use one bright colour to lead each piece; the others appear as accents or stripes. Never let three brights touch, and separate large red and magenta areas with Petal, white or Berry.
+Never use: green (even for success messages, which use Deep Ink with a ✓ on Petal), grey text or gradients (the soft fade on the confetti photograph is the one exception). Hard-edged stripes are the only pattern.
 
 Typography
 Headlines: Silk Serif ExtraLight (fallback Cormorant Garamond). Elegant and light; contrast comes from size and italics, never bold.
-Poster type: Anton, uppercase. One big statement per piece, as a solid line in Signal Red with an outlined line beneath it.
+Poster type: Anton, uppercase. One big statement per piece, as a solid line in Confetti Red with an outlined line beneath it.
 Body and buttons: Nunito Sans, 17px base for reading.
 Script accent: Mrs Saint Delafield, for one handwritten word at most ("together.", "miscounted.").
 Labels and navigation: Brolia (fallback Nunito Sans), uppercase and tracked. Never for body text or buttons.
 
 Design elements
-Buttons: slim pill shapes. One solid Deep Red button with white text per view; every other button is a 1.5px Deep Red outline pill that fills on hover. Nunito Sans bold, 14px, sentence case. No drop shadows.
+Buttons: slim pill shapes. One solid Confetti Red button with white text per view; every other button is a 1.5px Berry outline pill that fills on hover. Nunito Sans bold, 14px, sentence case. No drop shadows.
 Shapes: pills for buttons, inputs and tags; 22px rounded corners for cards. Photos are always masked as an arch, an oval or a soft rounded rectangle, never hard corners.
-Signature stripe: Signal Red, Hot Pink, Tangerine and Shell, hard-edged, on footers, dividers, emails and notebooks.
-Motifs: arches, 70s flowers (Tangerine or Hot Pink with a Peach centre), Signal Red hearts, a round Tangerine "SBF" badge with white lettering. Use two motifs per piece at most.
+Signature stripe: Confetti Red, Magenta, Marigold and Petal, hard-edged, on footers, dividers, emails and notebooks.
+Motifs: arches, 70s flowers (Marigold or Magenta with a Marigold Cream centre), Confetti Red hearts, a round Marigold "SBF" badge with Deep Ink lettering, confetti dots. Use two motifs per piece at most.
 Layout: generous space, then a bold block, then space again. Never two bright sections touching.
 
 Imagery

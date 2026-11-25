@@ -10,7 +10,7 @@ import { BriefingEditor, InstructionsEditor, PillarsEditor, TypesEditor } from "
 /** "Edit" disclosure: the editor opens under the section without leaving the page. */
 function EditPanel({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <details className="group mt-6 rounded-[20px] bg-white ring-1 ring-inset ring-[rgb(200_0_20/0.12)] open:ring-[rgb(200_0_20/0.25)]">
+    <details className="group mt-6 rounded-[20px] bg-white ring-1 ring-inset ring-[rgb(158_9_98/0.12)] open:ring-[rgb(158_9_98/0.25)]">
       <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-3.5 text-[14px] font-bold text-deepred [&::-webkit-details-marker]:hidden">
         <span aria-hidden className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blush text-[13px]">
           ✎
@@ -143,7 +143,7 @@ export default async function AvaPage() {
         <p className="mt-2 max-w-2xl text-[15px] leading-relaxed">Ava rotates formats and never repeats the last few, matching each type to the signal it earns best.</p>
         <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
           {bal.types.map((t) => (
-            <li key={t.key} className="rounded-[18px] bg-shell p-4 ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">
+            <li key={t.key} className="rounded-[18px] bg-shell p-4 ring-1 ring-inset ring-[rgb(158_9_98/0.08)]">
               <p className="font-serif text-[1.2rem] leading-tight text-deepred">{t.label}</p>
               <p className="mt-1 text-[12.5px]">Best for {t.best.toLowerCase()}</p>
               <div className="mt-3 flex items-center gap-2">
@@ -170,16 +170,16 @@ export default async function AvaPage() {
           Your <em>instructions</em>.
         </h2>
         <p className="mt-2 max-w-2xl text-[15px]">Anything Ava should always do or avoid, in your own words. She reads these before every draft.</p>
-        {cfg.instructions.trim() && !canEdit && <p className="mt-4 whitespace-pre-line rounded-[18px] bg-shell p-4 text-[14.5px] ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">{cfg.instructions}</p>}
+        {cfg.instructions.trim() && !canEdit && <p className="mt-4 whitespace-pre-line rounded-[18px] bg-shell p-4 text-[14.5px] ring-1 ring-inset ring-[rgb(158_9_98/0.08)]">{cfg.instructions}</p>}
         {canEdit && (
-          <div className="mt-6 rounded-[20px] bg-white p-5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)]">
+          <div className="mt-6 rounded-[20px] bg-white p-5 ring-1 ring-inset ring-[rgb(158_9_98/0.12)]">
             <InstructionsEditor initial={cfg.instructions} />
           </div>
         )}
       </section>
 
       {/* Trend briefing */}
-      <section aria-labelledby="trends" className="rounded-[32px] bg-peachcream px-6 py-10 ring-1 ring-inset ring-[rgb(251_101_38/0.14)] sm:px-10">
+      <section aria-labelledby="trends" className="rounded-[32px] bg-peachcream px-6 py-10 ring-1 ring-inset ring-[rgb(240_138_28/0.14)] sm:px-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="label text-deepred">Weekly research · Mondays 6:30 am</p>

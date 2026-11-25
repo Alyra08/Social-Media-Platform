@@ -57,14 +57,14 @@ export const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
 /** Brand-styled email shell (inline styles: email clients ignore stylesheets). */
 export function emailShell(opts: { preheader?: string; bodyHtml: string; footerHtml?: string }): string {
   return `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
-<body style="margin:0;background:#FFECEF;color:#4A4544;font-family:'Nunito Sans',Arial,sans-serif;font-size:17px;line-height:1.55">
+<body style="margin:0;background:#F6DDF1;color:#4A4544;font-family:'Nunito Sans',Arial,sans-serif;font-size:17px;line-height:1.55">
 ${opts.preheader ? `<div style="display:none;max-height:0;overflow:hidden">${esc(opts.preheader)}</div>` : ""}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFF9FA;border-radius:22px">
-<tr><td style="height:10px;font-size:0;line-height:0;border-radius:22px 22px 0 0;background:linear-gradient(90deg,#FD0019 25%,#FF006C 25% 50%,#FB6526 50% 75%,#FFF9FA 75%)">&nbsp;</td></tr>
-<tr><td style="padding:28px 28px 8px"><div style="font-family:Georgia,serif;font-weight:300;color:#FD0019;font-size:24px">simply being <span style="letter-spacing:.3em">FEMALE</span></div></td></tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FCEEF8;border-radius:22px">
+<tr><td style="height:10px;font-size:0;line-height:0;border-radius:22px 22px 0 0;background:linear-gradient(90deg,#D90F2A 25%,#D9087F 25% 50%,#F08A1C 50% 75%,#FCEEF8 75%)">&nbsp;</td></tr>
+<tr><td style="padding:28px 28px 8px"><div style="font-family:Georgia,serif;font-weight:300;color:#D90F2A;font-size:24px">simply being <span style="letter-spacing:.3em">FEMALE</span></div></td></tr>
 <tr><td style="padding:8px 28px 28px">${opts.bodyHtml}</td></tr>
-<tr><td style="padding:0 28px 28px;font-size:13px;color:#4A4544">${opts.footerHtml ?? ""}<p style="margin:12px 0 0;text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:#C80014">Unapologetically fierce. Beautifully imperfect.</p></td></tr>
+<tr><td style="padding:0 28px 28px;font-size:13px;color:#4A4544">${opts.footerHtml ?? ""}<p style="margin:12px 0 0;text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:#9E0962">Unapologetically fierce. Beautifully imperfect.</p></td></tr>
 </table></td></tr></table></body></html>`;
 }
 
