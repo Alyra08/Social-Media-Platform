@@ -35,7 +35,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen">
       {/* Sidebar beside the page: icon rail on narrow screens, full sidebar from tablet width (768px). */}
       <div className="mx-auto flex max-w-[1500px] flex-row gap-3 px-2 py-3 sm:gap-4 sm:px-3 md:gap-5 md:px-5 md:py-5 lg:gap-6 lg:px-6">
-        <aside className="no-scrollbar sticky top-3 h-[calc(100vh-1.5rem)] w-14 shrink-0 overflow-y-auto rounded-[22px] bg-blush px-1 py-3 md:top-5 md:h-[calc(100vh-2.5rem)] md:w-56 md:rounded-[28px] md:px-2 md:py-6 lg:w-64 lg:px-3">
+        <aside className="no-scrollbar sticky top-3 h-[calc(100vh-1.5rem)] w-14 shrink-0 overflow-y-auto rounded-[22px] bg-blush bg-linear-to-b from-blush via-candy to-peach px-1 py-3 md:top-5 md:h-[calc(100vh-2.5rem)] md:w-56 md:rounded-[28px] md:px-2 md:py-6 lg:w-64 lg:px-3">
           <div>
             <Link href="/" className="mb-3 block text-center no-underline md:mb-6 md:px-4 md:text-left" aria-label="Studio home">
               <Wordmark />
