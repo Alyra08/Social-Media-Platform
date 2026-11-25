@@ -32,7 +32,7 @@ import { keyStatuses } from "@/lib/keys";
 import { JOBS } from "@/lib/jobs";
 import { runResearchNow } from "./actions";
 import { OverviewAnalytics } from "./overview-analytics";
-import { ActionTileFace, actionTileCls, Icon, Tile } from "./overview-ui";
+import { Icon, Tile } from "./overview-ui";
 
 const STAGE_ICON: Record<string, string> = { "1": "search", "2": "palette", "3": "calendar", "4": "chat", "5": "chart", "6": "sliders" };
 
@@ -391,16 +391,10 @@ export default async function Overview() {
     "/planner": "calendar", "/publishing": "send", "/integrations": "plug", "/inbox": "chat", "/website/newsletter": "mail", "/website/events": "event", "/site": "globe",
     "/analytics": "chart", "/intelligence": "spark", "/archive": "archive", "/settings#keys": "key", "/settings": "sliders", "/notifications": "bell", "/create": "plus", "/ava": "spark",
   };
-  const shortcuts = [
-    { icon: "plus", label: "Create a post", hint: "Design studio", href: "/create" },
-    { icon: "palette", label: "Designs", hint: "Approve and edit", href: "/design" },
-    { icon: "brief", label: "New article", hint: "Website", href: "/website" },
-    { icon: "calendar", label: "Planner", hint: "Calendar and grid", href: "/planner" },
-    { icon: "event", label: "Events", hint: "Circles and RSVPs", href: "/website/events" },
-    { icon: "chat", label: "Inbox", hint: "Comments", href: "/inbox" },
-    { icon: "mail", label: "Sunday note", hint: "Newsletter", href: "/website/newsletter" },
-    { icon: "chart", label: "Analytics", hint: "Results", href: "/analytics" },
-  ];
+  // Welcome tiles: white cards, red line icon, bold name, one live line. Icon beside text on phones, above it from tablet up.
+  const welcomeTileCls =
+    "group flex h-full items-start gap-3.5 rounded-[22px] bg-white p-4 text-left no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.1)] transition-all duration-200 hover:-translate-y-1 hover:ring-[rgb(200_0_20/0.3)] sm:flex-col sm:gap-4 sm:p-5";
+  const welcomeIconCls = "h-7 w-7 shrink-0 text-signal transition-transform group-hover:scale-110 sm:h-8 sm:w-8";
 
   return (
     <div className="space-y-16">
@@ -447,28 +441,59 @@ export default async function Overview() {
           </div>
         </section>
 
-        {/* Three welcome tiles that overlap the bottom edge of the banner. */}
-        <nav aria-label="Start here" className="relative z-10 mx-auto -mt-24 grid max-w-5xl grid-cols-1 gap-3 px-3 sm:grid-cols-3 sm:px-6">
-          {[
-            { href: "/create", icon: "spark", title: "Create a post", body: "Describe it in your words. The studio drafts the copy and design for you to edit." },
-            {
-              href: todo[0]?.href ?? "/content",
-              icon: "check",
-              title: "What's waiting for you",
-              body: todo.length ? todo.map((t) => `${t.n} ${t.label}`).slice(0, 2).join(", ") + "." : "You're all caught up. Nothing needs approving.",
-            },
-            { href: "/planner", icon: "calendar", title: "Plan the week", body: `${week.scheduled} scheduled this week. See the calendar and your Instagram grid.` },
-          ].map((t) => (
-            <Link key={t.title} href={t.href} className="group flex flex-col gap-3 rounded-[22px] bg-white p-5 text-left no-underline ring-1 ring-inset ring-[rgb(200_0_20/0.1)] transition-all duration-200 hover:-translate-y-1 hover:ring-[rgb(200_0_20/0.3)] sm:min-h-[168px]">
-              <Icon name={t.icon} className="h-8 w-8 text-signal transition-transform group-hover:scale-110" />
-              <span className="mt-auto">
-                <span className="block text-[16px] font-bold leading-tight text-ink">{t.title}</span>
-                <span className="mt-1 block text-[13.5px] leading-snug text-charcoal">{t.body}</span>
-              </span>
-            </Link>
-          ))}
+        {/* Nine welcome tiles that overlap the bottom edge of the banner: icon, name and a live line each. */}
+        <nav aria-label="Start here" className="relative z-10 mx-auto -mt-24 max-w-5xl px-3 sm:px-6">
+          <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+            <li>
+              <form action={runResearchNow.bind(null, "daily")} className="h-full">
+                <button className={`${welcomeTileCls} w-full cursor-pointer`}>
+                  <Icon name="search" className={welcomeIconCls} />
+                  <span className="min-w-0">
+                    <span className="block text-[16px] font-bold leading-tight text-ink">Run research</span>
+                    <span className="mt-1 block text-[13.5px] leading-snug text-charcoal">
+                      Find fresh stories now. {pendingStories ? `${pendingStories} waiting to review.` : "Nothing waiting to review."}
+                    </span>
+                  </span>
+                </button>
+              </form>
+            </li>
+            {[
+              { href: "/create", icon: "plus", title: "Create a post", body: "Describe it in your words. The studio drafts the copy and design." },
+              { href: "/design", icon: "palette", title: "Designs", body: awaitingDesign ? `${awaitingDesign} to approve. Edit in the studio or Canva.` : "Approve and edit designs, in the studio or Canva." },
+              { href: "/website", icon: "brief", title: "New article", body: "Write, brand-check and publish to your website." },
+              { href: "/planner", icon: "calendar", title: "Planner", body: `${week.scheduled} scheduled this week. Calendar and Instagram grid.` },
+              { href: "/website/events", icon: "event", title: "Events", body: upcomingEvents ? `${upcomingEvents} coming up. Circles, RSVPs and waitlists.` : "Circles, workshops, RSVPs and waitlists." },
+              { href: "/inbox", icon: "chat", title: "Inbox", body: inboxOpen ? `${inboxOpen} to answer, sorted by priority.` : "Comments and messages, sorted by priority." },
+              { href: "/website/newsletter", icon: "mail", title: "Newsletter", body: `${subscribersConfirmed} ${subscribersConfirmed === 1 ? "subscriber" : "subscribers"}. Draft and send the Sunday note.` },
+              { href: "/analytics", icon: "chart", title: "Analytics", body: "Reach, saves and what to post next." },
+            ].map((t) => (
+              <li key={t.href}>
+                <Link href={t.href} className={welcomeTileCls}>
+                  <Icon name={t.icon} className={welcomeIconCls} />
+                  <span className="min-w-0">
+                    <span className="block text-[16px] font-bold leading-tight text-ink">{t.title}</span>
+                    <span className="mt-1 block text-[13.5px] leading-snug text-charcoal">{t.body}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </nav>
-        <p className="mt-4 text-center text-[12.5px] text-charcoal">
+        <p className="mt-4 px-3 text-center text-[12.5px] leading-snug text-charcoal">
+          {todo.length > 0 && (
+            <>
+              <strong className="text-ink">Needs you:</strong>{" "}
+              {todo.map((t, i) => (
+                <span key={t.href}>
+                  {i > 0 && ", "}
+                  <Link href={t.href} className="font-bold">
+                    {t.n} {t.label}
+                  </Link>
+                </span>
+              ))}
+              {" · "}
+            </>
+          )}
           {lastRun ? `Last research ${formatBrisbane(lastRun.startedAt)}` : "No research yet"} ·{" "}
           <Link href="/ava" className="font-bold">
             Ava&apos;s weekly trends
@@ -497,26 +522,6 @@ export default async function Overview() {
             </li>
           ))}
         </ol>
-      </nav>
-
-      {/* Quick actions as tiles: an icon, the name and a short hint. */}
-      <nav aria-label="Quick actions">
-        <ul className="grid grid-cols-3 gap-2 sm:gap-3">
-          <li>
-            <form action={runResearchNow.bind(null, "daily")} className="h-full">
-              <button className={`${actionTileCls(0)} cursor-pointer`}>
-                <ActionTileFace icon="search" label="Run research" hint="Fresh stories now" feature />
-              </button>
-            </form>
-          </li>
-          {shortcuts.map((s, i) => (
-            <li key={s.href}>
-              <Link href={s.href} className={actionTileCls(i + 1)}>
-                <ActionTileFace icon={s.icon} label={s.label} hint={s.hint} />
-              </Link>
-            </li>
-          ))}
-        </ul>
       </nav>
 
       {groups.map((g) => {
