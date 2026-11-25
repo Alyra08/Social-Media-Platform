@@ -139,11 +139,11 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
       ) : (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
           {/* Conversation list */}
-          <section aria-label="Conversations" className={`overflow-hidden rounded-[28px] bg-linear-to-b from-blush via-candy to-peachcream p-2 ${selected ? "hidden lg:block" : ""}`}>
+          <section aria-label="Conversations" className={`overflow-hidden rounded-[28px] bg-linear-to-b from-blush via-candy to-peachcream p-3 ${selected ? "hidden lg:block" : ""}`}>
             {conversations.length === 0 ? (
               <p className="p-6 text-center text-[15px] text-charcoal">Nothing unanswered here. You&rsquo;re all caught up.</p>
             ) : (
-              <ul className="space-y-1">
+              <ul className="space-y-2.5">
                 {conversations.map((c) => {
                   const active = c.key === selected?.key;
                   return (
@@ -151,7 +151,7 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
                       <Link
                         href={href({ show, category, c: c.key })}
                         aria-current={active ? "true" : undefined}
-                        className={`flex items-center gap-3 rounded-[20px] px-3 py-3 no-underline transition-colors ${active ? "bg-white" : "hover:bg-white/60"}`}
+                        className={`flex items-center gap-3 rounded-[20px] bg-white px-3.5 py-3.5 no-underline shadow-[0_6px_18px_-14px_rgb(42_26_29/0.4)] transition-all hover:-translate-y-px ${active ? "ring-2 ring-signal" : "ring-1 ring-[rgb(42_26_29/0.06)]"}`}
                       >
                         <Avatar c={c} />
                         <span className="min-w-0 flex-1">
