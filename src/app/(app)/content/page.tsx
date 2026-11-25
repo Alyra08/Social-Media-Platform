@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { campaigns, postVersions, posts, stories } from "@/db/schema";
 import { DemoBadge, Empty, PageHeader, StatusPill, PLATFORM_LABEL } from "@/components/ui";
 import { AvaAvatar } from "@/components/ava";
-import { pillarLabel, typeLabel } from "@/lib/ava";
+import { getAvaConfig, labelFor } from "@/lib/ava";
 import { formatBrisbane } from "@/lib/scheduling";
 import { bulkApprove, duplicatePostAction, postDecision, restorePostVersion, updatePost } from "../actions";
 
@@ -19,6 +19,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   const { tab = "awaiting", platform } = await searchParams;
   const statuses = TABS.find((t) => t.key === tab)?.statuses ?? TABS[0].statuses;
   const db = await getDb();
+  const ava = await getAvaConfig(db);
   const allRows = await db.select().from(posts).where(inArray(posts.status, statuses)).orderBy(desc(posts.createdAt)).limit(150);
   const platforms = [...new Set(allRows.map((r) => r.platform))];
   const rows = platform ? allRows.filter((r) => r.platform === platform) : allRows;
@@ -95,8 +96,8 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
                               <AvaAvatar size="sm" /> Ava
                             </span>
                           )}
-                          {pillarLabel(p.pillar) && <span className="pill-ok pill">{pillarLabel(p.pillar)}</span>}
-                          {typeLabel(p.contentType) && <span className="pill">{typeLabel(p.contentType)}</span>}
+                          {labelFor(p.pillar, ava.pillars) && <span className="pill-ok pill">{labelFor(p.pillar, ava.pillars)}</span>}
+                          {labelFor(p.contentType, ava.types) && <span className="pill">{labelFor(p.contentType, ava.types)}</span>}
                           {p.isDemo && <DemoBadge />}
                         </div>
                         <div className="flex items-center gap-2">

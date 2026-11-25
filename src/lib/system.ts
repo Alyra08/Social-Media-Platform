@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { activityLog, auditLog, notifications, settings } from "@/db/schema";
+import { DEFAULT_CONTENT_TYPES, DEFAULT_PILLARS, type ContentType, type Pillar } from "./ava-defaults";
 
 export type Actor = { id?: string | null; email: string; role?: string };
 export const SYSTEM: Actor = { id: null, email: "system", role: "system" };
@@ -72,6 +73,10 @@ export const DEFAULT_SETTINGS = {
   } as Record<string, number>,
   notificationPreferences: {} as Partial<Record<NotificationKind, boolean>>,
   automationEnabled: true,
+  // Ava, the caption specialist: all editable on Ava's page.
+  avaPillars: DEFAULT_PILLARS as Pillar[],
+  avaContentTypes: DEFAULT_CONTENT_TYPES as ContentType[],
+  avaInstructions: "" as string,
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 

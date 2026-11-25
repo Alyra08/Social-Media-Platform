@@ -4,7 +4,8 @@ import type { Db } from "@/db/client";
 import { posts, reports } from "@/db/schema";
 import { aiEnabled, normaliseUrl, structured, webResearch } from "./ai/client";
 import { SBF_BRAND_BRIEF } from "./brand/brief";
-import { logActivity, notify } from "./system";
+import { getSetting, logActivity, notify } from "./system";
+import { DEFAULT_CONTENT_TYPES, DEFAULT_PILLARS, type ContentType, type Pillar } from "./ava-defaults";
 
 /**
  * Ava: SBF's social media caption specialist (an AI persona).
@@ -30,41 +31,40 @@ Your craft:
 - Trends: adapt current trends only when they genuinely fit SBF, in SBF's own words. Never invent a trend, statistic or platform rule; if unsure, leave it out.
 The brand brief overrides everything here.`;
 
-/** Content pillars: what the feed talks about. Mapped to the brand's messaging pillars. */
-export const PILLARS = [
-  { key: "now-is-our-time", label: "Now is our time", about: "Ambition, money, career, asking for what you're owed, starting the thing.", target: 0.2 },
-  { key: "got-your-back", label: "Women who've got your back", about: "Friendship, sisterhood, circles, community, member voices (with consent).", target: 0.2 },
-  { key: "say-it-out-loud", label: "Say it out loud", about: "Honest conversations: menopause, motherhood, bodies, relationships, the mental load.", target: 0.2 },
-  { key: "practical-courage", label: "Practical courage", about: "Scripts, tools, checklists and how-tos people save and use.", target: 0.15 },
-  { key: "founder-confessions", label: "Founder confessions", about: "The founder goes first: behind the scenes, lessons, what it cost.", target: 0.1 },
-  { key: "dry-wit", label: "Dry wit", about: "Relatable humour and sass with a wink. Punch at situations, never people.", target: 0.1 },
-  { key: "good-news", label: "Good news", about: "Wins, positive stories, celebrations and community spotlights.", target: 0.05 },
-] as const;
-export type PillarKey = (typeof PILLARS)[number]["key"];
+/* ───────────── Editable setup (pillars, content types, extra instructions) ───────────── */
 
-/** Content types: how a post is built. Ava rotates these. */
-export const CONTENT_TYPES = [
-  { key: "carousel-howto", label: "How-to carousel", best: "Saves" },
-  { key: "script", label: "Word-for-word script", best: "Saves and shares" },
-  { key: "myth-vs-fact", label: "Myth vs fact", best: "Shares" },
-  { key: "quote-poster", label: "Quote poster", best: "Shares and sends" },
-  { key: "founder-story", label: "Founder story", best: "Comments and follows" },
-  { key: "question", label: "Conversation starter", best: "Comments" },
-  { key: "poll", label: "Poll or this-or-that", best: "Comments and story replies" },
-  { key: "checklist", label: "Checklist", best: "Saves" },
-  { key: "relatable", label: "Relatable humour", best: "Shares and sends" },
-  { key: "behind-the-scenes", label: "Behind the scenes", best: "Profile visits" },
-  { key: "short-video", label: "Short video (Reel/TikTok)", best: "Watch time and reach" },
-  { key: "event-invite", label: "Event or circle invite", best: "Link clicks" },
-  { key: "spotlight", label: "Community spotlight", best: "Shares and goodwill" },
-  { key: "newsletter-teaser", label: "Sunday note teaser", best: "Sign-ups" },
-] as const;
-export type ContentTypeKey = (typeof CONTENT_TYPES)[number]["key"];
+export type { Pillar, ContentType } from "./ava-defaults";
+export { DEFAULT_PILLARS, DEFAULT_CONTENT_TYPES } from "./ava-defaults";
+/** Kept for older imports: the default lists. Live lists come from getAvaConfig. */
+export const PILLARS = DEFAULT_PILLARS;
+export const CONTENT_TYPES = DEFAULT_CONTENT_TYPES;
 
-export const pillarLabel = (k: string | null | undefined) => PILLARS.find((p) => p.key === k)?.label ?? null;
-export const typeLabel = (k: string | null | undefined) => CONTENT_TYPES.find((t) => t.key === k)?.label ?? null;
-export const pillarEnum = z.enum(PILLARS.map((p) => p.key) as [PillarKey, ...PillarKey[]]);
-export const contentTypeEnum = z.enum(CONTENT_TYPES.map((t) => t.key) as [ContentTypeKey, ...ContentTypeKey[]]);
+export type AvaConfig = { pillars: Pillar[]; types: ContentType[]; instructions: string };
+
+/** Ava's current setup as the owner has edited it (defaults until then). */
+export async function getAvaConfig(db: Db): Promise<AvaConfig> {
+  const [pillars, types, instructions] = await Promise.all([getSetting(db, "avaPillars"), getSetting(db, "avaContentTypes"), getSetting(db, "avaInstructions")]);
+  return {
+    pillars: pillars?.length ? pillars : DEFAULT_PILLARS,
+    types: types?.length ? types : DEFAULT_CONTENT_TYPES,
+    instructions: instructions ?? "",
+  };
+}
+
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+/** Match whatever the AI returned (key or label) to a current pillar/type key, or null. */
+export function matchKey(value: string | null | undefined, list: { key: string; label: string }[]) {
+  if (!value) return null;
+  const v = norm(value);
+  return list.find((x) => norm(x.key) === v || norm(x.label) === v)?.key ?? null;
+}
+export const labelFor = (k: string | null | undefined, list: { key: string; label: string }[]) => list.find((x) => x.key === k)?.label ?? null;
+/** Kept for older imports (default lists). */
+export const pillarLabel = (k: string | null | undefined) => labelFor(k, DEFAULT_PILLARS);
+export const typeLabel = (k: string | null | undefined) => labelFor(k, DEFAULT_CONTENT_TYPES);
+/** AI output fields: free text, matched to the live lists after the call. */
+export const pillarEnum = z.string();
+export const contentTypeEnum = z.string();
 
 /* ───────────── Trend briefing ───────────── */
 
@@ -108,30 +108,32 @@ export async function latestBriefing(db: Db): Promise<{ briefing: TrendBriefing;
 }
 
 /** Pillar and type mix over the last 30 days, and which pillars are under target. */
-export async function pillarBalance(db: Db) {
+export async function pillarBalance(db: Db, config?: AvaConfig) {
+  const cfg = config ?? (await getAvaConfig(db));
   const since = new Date(Date.now() - 30 * 86400_000);
   const rows = await db.select({ pillar: posts.pillar, contentType: posts.contentType }).from(posts).where(and(isNotNull(posts.pillar), gte(posts.createdAt, since)));
   const total = rows.length;
-  const pillars = PILLARS.map((p) => {
+  const pillars = cfg.pillars.map((p) => {
     const n = rows.filter((r) => r.pillar === p.key).length;
     return { ...p, n, share: total ? n / total : 0 };
   });
-  const types = CONTENT_TYPES.map((t) => ({ ...t, n: rows.filter((r) => r.contentType === t.key).length }));
+  const types = cfg.types.map((t) => ({ ...t, n: rows.filter((r) => r.contentType === t.key).length }));
   const under = pillars.filter((p) => p.share < p.target * 0.75).map((p) => p.label);
   return { total, pillars, types, under, recentTypes: rows.slice(-6).map((r) => r.contentType).filter(Boolean) as string[] };
 }
 
 /** Everything Ava needs in a prompt: persona, pillars, types, balance to correct, and this week's trends. */
 export async function avaGuidance(db: Db): Promise<string> {
-  const [{ briefing, date }, bal] = await Promise.all([latestBriefing(db), pillarBalance(db)]);
+  const cfg = await getAvaConfig(db);
+  const [{ briefing, date }, bal] = await Promise.all([latestBriefing(db), pillarBalance(db, cfg)]);
   return `${AVA_PERSONA}
-
-CONTENT PILLARS (tag every post with one; keep the mix balanced):
-${PILLARS.map((p) => `- ${p.key}: ${p.label}. ${p.about} Target about ${Math.round(p.target * 100)}%.`).join("\n")}
+${cfg.instructions.trim() ? `\nTHE OWNER'S OWN INSTRUCTIONS FOR AVA (follow these unless they break the brand brief):\n${cfg.instructions.trim()}\n` : ""}
+CONTENT PILLARS (tag every post with one key from this list; keep the mix balanced):
+${cfg.pillars.map((p) => `- ${p.key}: ${p.label}. ${p.about} Target about ${Math.round(p.target * 100)}%.`).join("\n")}
 ${bal.total ? `Last 30 days: ${bal.pillars.map((p) => `${p.label} ${Math.round(p.share * 100)}%`).join(", ")}.${bal.under.length ? ` Under-used, favour these where they fit: ${bal.under.join(", ")}.` : ""}` : "No tagged posts yet: spread across pillars."}
 
-CONTENT TYPES (tag every post with one; vary them and don't repeat the last few: ${bal.recentTypes.join(", ") || "none yet"}):
-${CONTENT_TYPES.map((t) => `- ${t.key}: ${t.label} (best for ${t.best})`).join("\n")}
+CONTENT TYPES (tag every post with one key from this list; vary them and don't repeat the last few: ${bal.recentTypes.join(", ") || "none yet"}):
+${cfg.types.map((t) => `- ${t.key}: ${t.label} (best for ${t.best})`).join("\n")}
 
 THIS WEEK'S TREND BRIEFING (${date}). Use only where it genuinely fits SBF:
 ${briefing.summary}
@@ -195,6 +197,8 @@ Prefer primary sources (platform announcements, reputable reports). Note dates. 
 }
 
 /** Fallback pillar for drafts made without AI (demo mode), from the research category. */
-export function pillarForCategory(category: string): PillarKey {
-  return ({ "social-issues": "now-is-our-time", relationships: "say-it-out-loud", motherhood: "say-it-out-loud", confidence: "practical-courage", humour: "dry-wit", "positive-stories": "good-news" } as Record<string, PillarKey>)[category] ?? "say-it-out-loud";
+export function pillarForCategory(category: string, pillars: Pillar[] = DEFAULT_PILLARS): string | null {
+  const guess = ({ "social-issues": "now-is-our-time", relationships: "say-it-out-loud", motherhood: "say-it-out-loud", confidence: "practical-courage", humour: "dry-wit", "positive-stories": "good-news" } as Record<string, string>)[category];
+  if (guess && pillars.some((p) => p.key === guess)) return guess;
+  return pillars[0]?.key ?? null;
 }

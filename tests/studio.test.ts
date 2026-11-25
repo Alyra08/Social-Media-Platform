@@ -161,3 +161,35 @@ describe("white background", () => {
     expect(renderDesignSvg({ format: "ig_portrait", params: r.params })).toContain('fill="#FFFFFF"/>');
   });
 });
+
+describe("editable Ava setup", () => {
+  it("validates edited pillars and types, keeping keys stable and making new ones", async () => {
+    const { cleanPillars, cleanContentTypes } = await import("@/lib/ava-defaults");
+    const p = cleanPillars([
+      { key: "dry-wit", label: "Dry wit and sass", about: "Funny", targetPct: 30 },
+      { key: "", label: "Money talk", about: "Pay and prices", targetPct: 70 },
+      { key: "", label: "   ", about: "ignored" },
+    ]);
+    expect(p.map((x) => x.key)).toEqual(["dry-wit", "money-talk"]);
+    expect(p[1].target).toBe(0.7);
+    expect(() => cleanPillars([])).toThrow(/at least one/);
+    expect(cleanContentTypes([{ label: "Duet", best: "Reach" }])[0].key).toBe("duet");
+  });
+
+  it("uses the owner's pillars, types and instructions in Ava's prompt, and matches AI output to them", async () => {
+    const { db } = await testDb();
+    const { setSetting } = await import("@/lib/system");
+    const { avaGuidance, getAvaConfig, matchKey } = await import("@/lib/ava");
+    await setSetting(db, "avaPillars", [{ key: "money-talk", label: "Money talk", about: "Pay", target: 1 }]);
+    await setSetting(db, "avaContentTypes", [{ key: "duet", label: "Duet", best: "Reach" }]);
+    await setSetting(db, "avaInstructions", "Always mention the next circle.");
+    const g = await avaGuidance(db);
+    expect(g).toMatch(/money-talk: Money talk/);
+    expect(g).toMatch(/duet: Duet/);
+    expect(g).toMatch(/Always mention the next circle/);
+    expect(g).not.toMatch(/Practical courage/);
+    const cfg = await getAvaConfig(db);
+    expect(matchKey("Money Talk", cfg.pillars)).toBe("money-talk");
+    expect(matchKey("unknown", cfg.pillars)).toBeNull();
+  });
+});

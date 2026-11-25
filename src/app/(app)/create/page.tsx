@@ -5,7 +5,7 @@ import { designs, posts } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { aiEnabled } from "@/lib/ai/client";
 import { DESIGN_FORMATS } from "@/lib/design/render";
-import { PLATFORM_LABEL } from "@/components/ui";
+import { ConfettiBackdrop, PLATFORM_LABEL } from "@/components/ui";
 import { ReviewForm, StudioPrompt } from "./studio-client";
 
 export const dynamic = "force-dynamic";
@@ -87,12 +87,13 @@ export default async function DesignStudio({ searchParams }: { searchParams: Pro
 
   return (
     <div className="space-y-12">
-      <header className="grid gap-6 md:grid-cols-[minmax(0,1fr)_22rem] md:items-end">
+      <header className="relative isolate grid gap-6 overflow-hidden rounded-t-[32px] px-6 pb-8 pt-48 sm:px-10 sm:pt-60 xl:pt-64 md:grid-cols-[minmax(0,1fr)_22rem] md:items-end">
+        <ConfettiBackdrop fade="55%" />
         <div>
           <p className="label text-deepred">Design studio</p>
-          <h1 className="mt-3 text-[2.6rem] leading-[1.02] sm:text-6xl">
+          <h1 className="mt-3 text-[2.6rem] font-medium leading-[1.02] text-ink sm:text-6xl">
             Your AI design{" "}
-            <span className="script inline-block text-[1.2em] leading-none" style={{ transform: "translateY(0.08em)" }}>
+            <span className="script inline-block text-[1.2em] font-normal leading-none text-deepred" style={{ transform: "translateY(0.08em)" }}>
               studio.
             </span>
           </h1>

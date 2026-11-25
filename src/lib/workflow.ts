@@ -6,7 +6,7 @@ import { checkBrandCopy, hasBlockingIssues } from "./brand/check";
 import { generateBrief, generatePosts, revisePost } from "./content";
 import { generateDesignsForPost } from "./design/engine";
 import { recordFeedback } from "./learning";
-import { pillarForCategory } from "./ava";
+import { getAvaConfig, pillarForCategory } from "./ava";
 import { markTopicCovered, runResearch } from "./research";
 import { recommendTime } from "./scheduling";
 import { audit, logActivity, notify, type Actor } from "./system";
@@ -97,6 +97,7 @@ export async function generateContentForStory(db: Db, storyId: string, briefId: 
   const brief = briefId ? await db.query.briefs.findFirst({ where: eq(briefs.id, briefId) }) : null;
   await logActivity(db, "content:generate", "started", story.headline);
   const { posts: generated, isDemo } = await generatePosts(db, story, brief?.data ?? null);
+  const ava = await getAvaConfig(db);
   const sourced = story.keyStats.map((k) => k.statement);
   for (const g of generated) {
     const issues = checkBrandCopy({ ...g, sourcedStatements: sourced });
@@ -124,7 +125,7 @@ export async function generateContentForStory(db: Db, storyId: string, briefId: 
         suggestedTime: g.suggestedTime,
         audience: g.audience,
         engagementGoal: g.engagementGoal,
-        pillar: g.pillar ?? pillarForCategory(g.category),
+        pillar: g.pillar ?? pillarForCategory(g.category, ava.pillars),
         contentType: g.contentType ?? null,
         author: isDemo ? null : "ava",
         brandIssues: issues,

@@ -9,7 +9,7 @@ import { editPost, WorkflowError } from "../workflow";
 import { audit, notify, type Actor } from "../system";
 import { DESIGN_FORMATS, renderDesignSvg } from "./render";
 import { applyPrompt, checkDesign, FORMAT_TO_POST, tidyParams } from "./editor-rules";
-import { avaGuidance, contentTypeEnum, pillarEnum, pillarForCategory } from "../ava";
+import { avaGuidance, contentTypeEnum, getAvaConfig, matchKey, pillarEnum, pillarForCategory } from "../ava";
 
 /**
  * AI design studio + visual editor (server side).
@@ -127,6 +127,7 @@ As Ava, draft one ${target.platform} ${target.format} for Simply Being Female fr
     logoScale: 1,
     textDensity: 1,
   });
+  const ava = await getAvaConfig(db);
   const issues = checkBrandCopy({ hook: draft.hook, caption: draft.caption, callToAction: draft.callToAction, hashtags: draft.hashtags });
   const [post] = await db
     .insert(posts)
@@ -141,8 +142,8 @@ As Ava, draft one ${target.platform} ${target.format} for Simply Being Female fr
       hashtags: draft.hashtags.map((h) => h.replace(/^#/, "")),
       altText: draft.altText,
       designConcept: `Made in the design studio from: ${prompt}`,
-      pillar: isDemo ? pillarForCategory(draft.category) : draft.pillar,
-      contentType: draft.contentType,
+      pillar: isDemo ? pillarForCategory(draft.category, ava.pillars) : (matchKey(draft.pillar, ava.pillars) ?? pillarForCategory(draft.category, ava.pillars)),
+      contentType: matchKey(draft.contentType, ava.types),
       author: isDemo ? null : "ava",
       brandIssues: issues,
       isDemo,

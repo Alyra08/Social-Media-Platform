@@ -24,26 +24,52 @@ export function Wordmark({ small = false }: { small?: boolean }) {
   );
 }
 
+/**
+ * The owner's confetti photograph as a page backdrop: confetti across the top, feathered into the
+ * page at the bottom, with a flat white veil so Deep Ink type on it reads at 10:1.
+ */
+export function ConfettiBackdrop({ fade = "58%", strip = false }: { fade?: string; strip?: boolean }) {
+  const mask = `linear-gradient(to bottom, #000 ${fade}, transparent 100%)`;
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/overview-hero-2400.jpg"
+        srcSet="/images/overview-hero-1200.webp 1200w, /images/overview-hero-2400.webp 2400w"
+        sizes="(max-width: 1024px) 100vw, 1200px"
+        alt=""
+        aria-hidden
+        className={`absolute inset-x-0 top-0 -z-10 w-full object-cover object-top ${strip ? "h-[150px] sm:h-[190px]" : "h-full"}`}
+        style={{ maskImage: mask, WebkitMaskImage: mask }}
+      />
+      {!strip && <div aria-hidden className="absolute inset-0 -z-10 bg-white/35" />}
+    </>
+  );
+}
+
+/** Page header on every studio page: confetti backdrop, small label, Deep Ink serif title, actions on the right. */
 export function PageHeader({ eyebrow, title, emphasis, children }: { eyebrow?: string; title: string; emphasis?: string; children?: ReactNode }) {
   const parts = emphasis && title.includes(emphasis) ? title.split(emphasis) : null;
   return (
-    <header className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-b border-rosemist pb-6">
-      <div className="min-w-0">
-        {eyebrow && <p className="label mb-2.5 text-deepred">{eyebrow}</p>}
-        <h1 className="font-medium">
-
-          {parts ? (
-            <>
-              {parts[0]}
-              <em>{emphasis}</em>
-              {parts[1]}
-            </>
-          ) : (
-            title
-          )}
-        </h1>
+    <header className="relative isolate mb-8 overflow-hidden rounded-t-[32px] px-6 pb-8 pt-48 sm:px-10 sm:pt-60 xl:pt-64">
+      <ConfettiBackdrop fade="55%" />
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0">
+          {eyebrow && <p className="label mb-2.5 text-deepred">{eyebrow}</p>}
+          <h1 className="font-medium text-ink">
+            {parts ? (
+              <>
+                {parts[0]}
+                <em className="text-deepred">{emphasis}</em>
+                {parts[1]}
+              </>
+            ) : (
+              title
+            )}
+          </h1>
+        </div>
+        {children && <div className="flex flex-wrap gap-2">{children}</div>}
       </div>
-      {children && <div className="flex flex-wrap gap-2">{children}</div>}
     </header>
   );
 }

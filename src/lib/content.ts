@@ -1,4 +1,4 @@
-import { AVA_PERSONA, avaGuidance, contentTypeEnum, pillarEnum } from "./ava";
+import { AVA_PERSONA, avaGuidance, contentTypeEnum, getAvaConfig, matchKey, pillarEnum } from "./ava";
 import { z } from "zod";
 import type { Db } from "@/db/client";
 import type { BriefData } from "@/db/schema";
@@ -137,7 +137,8 @@ ${guidance}`,
     effort: "high",
     maxTokens: 32000,
   });
-  return { posts: res.posts.map((p) => ({ ...p, category: story.category })), isDemo: false };
+  const cfg = await getAvaConfig(db);
+  return { posts: res.posts.map((p) => ({ ...p, category: story.category, pillar: matchKey(p.pillar, cfg.pillars) ?? undefined, contentType: matchKey(p.contentType, cfg.types) ?? undefined })), isDemo: false };
 }
 
 /* ───────────── Revisions ───────────── */

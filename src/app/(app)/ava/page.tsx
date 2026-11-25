@@ -4,10 +4,30 @@ import { getDb } from "@/db";
 import { activityLog, posts } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { aiEnabled } from "@/lib/ai/client";
-import { AVA, CONTENT_TYPES, latestBriefing, pillarBalance } from "@/lib/ava";
+import { AVA, getAvaConfig, latestBriefing, pillarBalance } from "@/lib/ava";
+import { BriefingEditor, InstructionsEditor, PillarsEditor, TypesEditor } from "./editors";
+
+/** "Edit" disclosure: the editor opens under the section without leaving the page. */
+function EditPanel({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <details className="group mt-6 rounded-[20px] bg-white ring-1 ring-inset ring-[rgb(200_0_20/0.12)] open:ring-[rgb(200_0_20/0.25)]">
+      <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-3.5 text-[14px] font-bold text-deepred [&::-webkit-details-marker]:hidden">
+        <span aria-hidden className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blush text-[13px]">
+          ✎
+        </span>
+        {label}
+        <span aria-hidden className="ml-auto transition-transform group-open:rotate-180">
+          ▾
+        </span>
+      </summary>
+      <div className="border-t border-rosemist px-5 py-5">{children}</div>
+    </details>
+  );
+}
 import { formatBrisbane } from "@/lib/scheduling";
 import { runJobNow } from "../actions";
 import { AvaAvatar } from "@/components/ava";
+import { ConfettiBackdrop } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +35,7 @@ function List({ title, items }: { title: string; items: string[] }) {
   if (!items.length) return null;
   return (
     <div>
-      <h3 className="mb-2 font-serif text-[1.15rem] italic text-deepred">{title}</h3>
+      <h3 className="mb-2 font-serif text-[1.5rem] font-medium italic leading-tight text-deepred">{title}</h3>
       <ul className="space-y-1.5 text-[14.5px] leading-snug">
         {items.map((i) => (
           <li key={i} className="flex gap-2">
@@ -33,9 +53,11 @@ function List({ title, items }: { title: string; items: string[] }) {
 export default async function AvaPage() {
   const user = await requireUser("viewer");
   const db = await getDb();
+  const cfg = await getAvaConfig(db);
+  const canEdit = user.role !== "viewer";
   const [{ briefing, date, isStarting }, bal, drafted, lastRun] = await Promise.all([
     latestBriefing(db),
-    pillarBalance(db),
+    pillarBalance(db, cfg),
     db.select({ id: posts.id }).from(posts).where(eq(posts.author, "ava")),
     db.query.activityLog.findFirst({ where: and(eq(activityLog.job, "ava:trends")), orderBy: desc(activityLog.createdAt) }),
   ]);
@@ -45,14 +67,14 @@ export default async function AvaPage() {
   return (
     <div className="space-y-14">
       {/* Profile */}
-      <section className="relative overflow-hidden rounded-[32px] bg-blush px-6 py-10 sm:px-10">
-        <span aria-hidden className="absolute -bottom-10 right-8 hidden h-48 w-36 rounded-t-full bg-rose opacity-70 md:block" />
+      <section className="relative isolate overflow-hidden rounded-t-[32px] px-6 pb-8 pt-48 sm:px-10 sm:pt-60 xl:pt-64">
+        <ConfettiBackdrop fade="55%" />
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end">
           <AvaAvatar size="lg" />
           <div className="min-w-0 flex-1">
             <p className="label text-deepred">Your content team</p>
-            <h1 className="mt-2 text-[2.6rem] leading-none sm:text-6xl">
-              Meet <span className="script inline-block text-[1.2em] leading-none">Ava.</span>
+            <h1 className="mt-2 text-[2.6rem] font-medium leading-none text-ink sm:text-6xl">
+              Meet <span className="script inline-block text-[1.2em] font-normal leading-none text-deepred">Ava.</span>
             </h1>
             <p className="mt-2 text-[17px] font-bold text-ink">{AVA.role}</p>
             <p className="mt-3 max-w-2xl text-[15.5px] leading-relaxed">{AVA.summary}</p>
@@ -103,6 +125,13 @@ export default async function AvaPage() {
             </li>
           ))}
         </ul>
+        {canEdit && (
+          <div className="lg:col-span-2">
+            <EditPanel label="Edit content pillars">
+              <PillarsEditor initial={cfg.pillars} isOwner={user.role === "owner"} />
+            </EditPanel>
+          </div>
+        )}
       </section>
 
       {/* Content types */}
@@ -126,7 +155,27 @@ export default async function AvaPage() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-[12.5px]">{CONTENT_TYPES.length} types. Counts are the last 30 days.</p>
+        <p className="mt-3 text-[12.5px]">{cfg.types.length} types. Counts are the last 30 days.</p>
+        {canEdit && (
+          <EditPanel label="Edit content types">
+            <TypesEditor initial={cfg.types} isOwner={user.role === "owner"} />
+          </EditPanel>
+        )}
+      </section>
+
+      {/* Ava's instructions */}
+      <section aria-labelledby="instructions">
+        <p className="label text-deepred">How you want her to write</p>
+        <h2 id="instructions" className="mt-2 text-[2.2rem] sm:text-[2.6rem]">
+          Your <em>instructions</em>.
+        </h2>
+        <p className="mt-2 max-w-2xl text-[15px]">Anything Ava should always do or avoid, in your own words. She reads these before every draft.</p>
+        {cfg.instructions.trim() && !canEdit && <p className="mt-4 whitespace-pre-line rounded-[18px] bg-shell p-4 text-[14.5px] ring-1 ring-inset ring-[rgb(200_0_20/0.08)]">{cfg.instructions}</p>}
+        {canEdit && (
+          <div className="mt-6 rounded-[20px] bg-white p-5 ring-1 ring-inset ring-[rgb(200_0_20/0.12)]">
+            <InstructionsEditor initial={cfg.instructions} />
+          </div>
+        )}
       </section>
 
       {/* Trend briefing */}
@@ -177,6 +226,11 @@ export default async function AvaPage() {
           <p className="mt-6 text-[13.5px]">
             Ava needs the AI key to research each week and write live. <Link href="/settings#keys">Add it in Settings</Link>.
           </p>
+        )}
+        {canEdit && (
+          <EditPanel label="Edit this week's briefing">
+            <BriefingEditor initial={briefing} />
+          </EditPanel>
         )}
       </section>
     </div>
