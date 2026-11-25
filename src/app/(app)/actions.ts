@@ -502,3 +502,36 @@ export async function updateOwnName(f: FormData) {
     return "Name updated.";
   }, ["/", "/settings"]);
 }
+
+/** Website footer details (headline, contact, socials). Empty fields are hidden on the public site. */
+export async function saveFooterAction(f: FormData) {
+  await act("owner", async ({ db, user }) => {
+    const clip = (k: string, n: number) => s(f, k).replace(/\s+/g, " ").slice(0, n);
+    const url = (k: string) => {
+      const v = s(f, k);
+      if (!v) return "";
+      if (!/^https:\/\/[^\s]+$/i.test(v)) throw new Error(`The ${k} link must start with https://`);
+      return v.slice(0, 300);
+    };
+    const email = clip("email", 120);
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "That email address doesn't look right.";
+    const headline = clip("headline", 90) || DEFAULT_SETTINGS.siteFooter.headline;
+    const emphasis = clip("emphasis", 40);
+    await setSetting(db, "siteFooter", {
+      headline,
+      emphasis: emphasis && headline.includes(emphasis) ? emphasis : "",
+      subline: clip("subline", 160),
+      email,
+      location: clip("location", 120),
+      instagram: url("instagram"),
+      tiktok: url("tiktok"),
+      facebook: url("facebook"),
+      linkedin: url("linkedin"),
+      youtube: url("youtube"),
+      pinterest: url("pinterest"),
+      threads: url("threads"),
+    });
+    await audit(db, user, "settings.site_footer", "settings");
+    return "Website footer saved.";
+  }, ["/settings", "/site"]);
+}

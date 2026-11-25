@@ -77,6 +77,21 @@ export const DEFAULT_SETTINGS = {
   avaPillars: DEFAULT_PILLARS as Pillar[],
   avaContentTypes: DEFAULT_CONTENT_TYPES as ContentType[],
   avaInstructions: "" as string,
+  // Public website footer: all editable in Settings. Empty fields are simply not shown.
+  siteFooter: {
+    headline: "Come as you are. Leave louder.",
+    emphasis: "Leave louder.",
+    subline: "A space for the unapologetically fierce, beautifully imperfect woman.",
+    email: "",
+    location: "",
+    instagram: "",
+    tiktok: "",
+    facebook: "",
+    linkedin: "",
+    youtube: "",
+    pinterest: "",
+    threads: "",
+  } as Record<string, string>,
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 

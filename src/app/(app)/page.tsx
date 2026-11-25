@@ -445,9 +445,9 @@ export default async function Overview() {
               <a href={`#stage-${g.step}`} className="group flex flex-col items-center gap-3 text-center no-underline">
                 <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-blush text-deepred ring-4 ring-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-signal group-hover:text-white">
                   <Icon name={STAGE_ICON[g.step] ?? "spark"} className="h-7 w-7" />
-                  <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-bold text-deepred ring-1 ring-rose">{g.step}</span>
+                  <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-signal text-[11px] font-bold text-white ring-2 ring-white">{g.step}</span>
                 </span>
-                <span className="max-w-[9rem] text-[14px] font-bold leading-snug text-ink group-hover:text-deepred">{g.title}</span>
+                <span className="max-w-[9rem] text-[14px] font-semibold leading-snug text-ink group-hover:text-deepred">{g.title}</span>
                 <span className="-mt-2 text-[12.5px] text-charcoal">{g.stat}</span>
               </a>
             </li>

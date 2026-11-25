@@ -8,7 +8,7 @@ import { JOBS } from "@/lib/jobs";
 import { CATEGORY_LABELS } from "@/lib/brand/brief";
 import { formatBrisbane } from "@/lib/scheduling";
 import { aiEnabled, model } from "@/lib/ai/client";
-import { addTeamMember, changeOwnPassword, runJobNow, saveSettings, updateOwnName, updateTeamMember } from "../actions";
+import { addTeamMember, changeOwnPassword, runJobNow, saveFooterAction, saveSettings, updateOwnName, updateTeamMember } from "../actions";
 import { saveKeyAction } from "../keys-actions";
 import { KEY_GROUPS, keyStatuses } from "@/lib/keys";
 
@@ -168,6 +168,41 @@ export default async function SettingsPage() {
               );
             })}
           </div>
+        </section>
+      )}
+
+      {me.role === "owner" && (
+        <section id="footer" aria-labelledby="footer-h" className="scroll-mt-6">
+          <h2 id="footer-h" className="mb-1">
+            Website <em>footer</em>.
+          </h2>
+          <p className="mb-4 text-[15px]">What appears at the bottom of every page of the public website. Anything left empty is simply not shown.</p>
+          <form action={saveFooterAction} className="card grid gap-4 md:grid-cols-2">
+            {(
+              [
+                ["headline", "Big line", "Come as you are. Leave louder.", "text"],
+                ["emphasis", "Words in italics (from the big line)", "Leave louder.", "text"],
+                ["subline", "Line underneath", "A space for the unapologetically fierce, beautifully imperfect woman.", "text"],
+                ["email", "Contact email", "hello@yourdomain.com", "email"],
+                ["location", "Location", "Brisbane, Australia", "text"],
+                ["instagram", "Instagram link", "https://instagram.com/…", "url"],
+                ["tiktok", "TikTok link", "https://tiktok.com/@…", "url"],
+                ["facebook", "Facebook link", "https://facebook.com/…", "url"],
+                ["linkedin", "LinkedIn link", "https://linkedin.com/company/…", "url"],
+                ["youtube", "YouTube link", "https://youtube.com/@…", "url"],
+                ["pinterest", "Pinterest link", "https://pinterest.com/…", "url"],
+                ["threads", "Threads link", "https://threads.net/@…", "url"],
+              ] as const
+            ).map(([k, label, ph, type]) => (
+              <label key={k} className={k === "subline" || k === "headline" ? "md:col-span-2" : ""}>
+                <span className="mb-1 block text-[13px] font-bold text-ink">{label}</span>
+                <input name={k} type={type} defaultValue={s.siteFooter?.[k] ?? ""} placeholder={ph} className="input" />
+              </label>
+            ))}
+            <div className="md:col-span-2">
+              <button className="btn btn-primary btn-sm">Save footer</button>
+            </div>
+          </form>
         </section>
       )}
 

@@ -133,7 +133,7 @@ export function Tile({ i, href, icon, title, blurb, value, unit, pill }: TilePro
       </div>
       <div className="px-0.5">
         <p className="font-serif text-[1.35rem] font-normal leading-tight text-deepred decoration-1 underline-offset-4 group-hover:underline">{title}</p>
-        <p className="mt-0.5 text-[13px] font-bold leading-snug text-ink">{unit}</p>
+        <p className="mt-0.5 text-[13px] font-medium leading-snug text-ink">{unit}</p>
         <p className="mt-1 hidden text-[13.5px] leading-snug md:block">{blurb}</p>
       </div>
     </Link>

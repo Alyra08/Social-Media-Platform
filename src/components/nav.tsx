@@ -117,7 +117,7 @@ export function Nav({ badges, footer, railFooter }: { badges: Record<string, num
         <div className="mt-4 space-y-4 md:mt-0">
           {NAV_GROUPS.map((g) => (
             <div key={g.title || "home"}>
-              {g.title && <p className="mb-1.5 px-4 font-serif text-[1.3rem] font-semibold italic leading-none text-deepred">{g.title}</p>}
+              {g.title && <p className="mb-1.5 px-4 font-serif text-[1.2rem] font-medium italic leading-none text-deepred">{g.title}</p>}
               <ul className="space-y-0.5">
                 {g.items.map((n) => {
                   const on = active(n.href);
