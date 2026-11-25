@@ -417,11 +417,7 @@ export default async function Overview() {
           {/* Flat white veil for legibility; the photo itself feathers into the white page at the bottom (owner request). */}
           <div aria-hidden className="absolute inset-0 -z-10 bg-white/35" />
           <div className="flex min-h-[560px] flex-col items-center justify-end px-6 pb-32 pt-56 text-center sm:min-h-[660px] sm:px-10 sm:pb-36 sm:pt-52 xl:min-h-[720px]">
-            {/* The brand's one decorative glyph, as the welcome mark. */}
-            <svg aria-hidden viewBox="0 0 100 100" className="h-14 w-14 text-signal sm:h-16 sm:w-16">
-              <path d="M50 0 C54 34 66 46 100 50 C66 54 54 66 50 100 C46 66 34 54 0 50 C34 46 46 34 50 0Z" fill="currentColor" />
-            </svg>
-            <h1 id="hero" className="mt-5 text-[2.6rem] font-medium leading-[1.02] text-ink sm:text-6xl xl:text-[4.4rem]">
+            <h1 id="hero" className="text-[2.6rem] font-medium leading-[1.02] text-ink sm:text-6xl xl:text-[4.4rem]">
               Welcome back, <em className="text-deepred">{firstName}</em>.
             </h1>
             <p className="mt-3 text-[17px] text-ink sm:text-[19px]">
